@@ -1,5 +1,7 @@
 #include "config.h"
 
+#include "particle-engine.h"
+
 #include <cogl/cogl.h>
 
 #define WIDTH 640
@@ -14,6 +16,8 @@ struct pe {
 	CoglPrimitive *primitive;
 	CoglTexture *texture;
 	CoglPipeline *cube_pipeline;
+
+	struct particle_engine *engine;
 
 	GTimer *timer;
 	CoglBool swap_ready;
@@ -64,14 +68,14 @@ static CoglVertexP3T2 vertices[] =
 };
 
 static void paint_cb (struct pe *pe) {
-	float rot = g_timer_elapsed(pe->timer, NULL) * 15.0f;
+	float rot = g_timer_elapsed(pe->timer, NULL) * 3.0f;
 
 	cogl_framebuffer_clear4f(pe->fb,
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
 				 0.8, 0.8, 0.85, 1);
 	cogl_framebuffer_push_matrix(pe->fb);
 	cogl_framebuffer_translate(pe->fb,
-				   pe->width / 2, pe->height / 2 - 30, 0);
+				   pe->width / 2, pe->height / 2 + 50, 0);
 	cogl_framebuffer_scale(pe->fb, 70, 70, 70);
 	cogl_framebuffer_rotate(pe->fb, -25, 1, 0, 0);
 	cogl_framebuffer_rotate(pe->fb, rot, 0, 1, 0);
@@ -79,6 +83,8 @@ static void paint_cb (struct pe *pe) {
 					pe->cube_pipeline,
 					pe->primitive);
 	cogl_framebuffer_pop_matrix(pe->fb);
+
+	particle_engine_paint(pe->engine);
 }
 
 static void frame_event_cb(CoglOnscreen *onscreen, CoglFrameEvent event,
@@ -113,7 +119,7 @@ main(int argc, char **argv)
 	cogl_onscreen_show(onscreen);
 	cogl_framebuffer_set_viewport(pe.fb, 0, 0, pe.width, pe.height);
 
-	fovy = 60;
+	fovy = 45;
 	aspect = (float)pe.width / (float)pe.height;
 	z_near = 0.1;
 	z_2d = 1000;
@@ -153,8 +159,10 @@ main(int argc, char **argv)
 	cogl_pipeline_set_depth_state(pe.cube_pipeline, &depth_state, NULL);
 	pe.swap_ready = TRUE;
 
-	cogl_onscreen_add_frame_callback(COGL_ONSCREEN (pe.fb),
+	cogl_onscreen_add_frame_callback(COGL_ONSCREEN(pe.fb),
 					 frame_event_cb, &pe, NULL);
+
+	pe.engine = particle_engine_new(ctx, pe.fb);
 
 	while (1) {
 		CoglPollFD *poll_fds;

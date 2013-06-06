@@ -2,6 +2,7 @@ noinst_PROGRAMS = pe
 
 pe_SOURCES = 				\
 	main.c 				\
+	particle-engine.c		\
 	$(NULL)
 
 pe_LDADD =				\
