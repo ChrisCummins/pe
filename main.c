@@ -68,21 +68,21 @@ static CoglVertexP3T2 vertices[] =
 };
 
 static void paint_cb (struct pe *pe) {
-	float rot = g_timer_elapsed(pe->timer, NULL) * 3.0f;
+	/* float rot = g_timer_elapsed(pe->timer, NULL) * 3.0f; */
 
 	cogl_framebuffer_clear4f(pe->fb,
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
-				 0.8, 0.8, 0.85, 1);
-	cogl_framebuffer_push_matrix(pe->fb);
-	cogl_framebuffer_translate(pe->fb,
-				   pe->width / 2, pe->height / 2 + 50, 0);
-	cogl_framebuffer_scale(pe->fb, 70, 70, 70);
-	cogl_framebuffer_rotate(pe->fb, -25, 1, 0, 0);
-	cogl_framebuffer_rotate(pe->fb, rot, 0, 1, 0);
-	cogl_framebuffer_draw_primitive(pe->fb,
-					pe->cube_pipeline,
-					pe->primitive);
-	cogl_framebuffer_pop_matrix(pe->fb);
+				 0.9, 0.9, 1.0, 1);
+	/* cogl_framebuffer_push_matrix(pe->fb); */
+	/* cogl_framebuffer_translate(pe->fb, */
+	/* 			   pe->width / 2, pe->height / 2 + 50, 0); */
+	/* cogl_framebuffer_scale(pe->fb, 70, 70, 70); */
+	/* cogl_framebuffer_rotate(pe->fb, -25, 1, 0, 0); */
+	/* cogl_framebuffer_rotate(pe->fb, rot, 0, 1, 0); */
+	/* cogl_framebuffer_draw_primitive(pe->fb, */
+	/* 				pe->cube_pipeline, */
+	/* 				pe->primitive); */
+	/* cogl_framebuffer_pop_matrix(pe->fb); */
 
 	particle_engine_paint(pe->engine);
 }

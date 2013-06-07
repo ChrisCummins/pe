@@ -202,7 +202,7 @@ static double _get_max_age(struct particle_engine *engine)
 {
 	/* TODO: this should have some parameters with some configurable
 	 * randomness */
-	return g_rand_double_range(engine->rand, 0.75f, 2.0f);
+	return g_rand_double_range(engine->rand, 0.75f, 3.0f);
 }
 
 static double _get_next_particle_time(struct particle_engine *engine)
@@ -217,7 +217,7 @@ static void _get_particle_position(struct particle_engine *engine,
 				   gdouble t,
 				   float *position)
 {
-	static const float acceleration[3] = { 0.0f, -200.0f, 0.0f };
+	static const float acceleration[3] = { 0.0f, 400.0f, 0.0f };
 	float elapsed_time = (float)(engine->current_time - particle->creation_time);
 	float half_elapsed_time2 = (float)(elapsed_time * elapsed_time * 0.5f);
 	unsigned int i;
@@ -360,7 +360,7 @@ struct particle_engine* particle_engine_new(CoglContext *ctx,
 
 	engine->colors = g_array_new(FALSE, FALSE, sizeof(struct color));
 
-	engine->max_particles = 350000;
+	engine->max_particles = 5000;
 	engine->point_size = 3.0f;
 
 	engine->rand = g_rand_new();
@@ -369,21 +369,21 @@ struct particle_engine* particle_engine_new(CoglContext *ctx,
 	engine->ctx = ctx;
 	engine->fb = fb;
 
-	engine->min_initial_position[0] = 0.0f;
+	engine->min_initial_position[0] = 330.0f;
 	engine->min_initial_position[1] = 480.0f;
-	engine->min_initial_position[2] = -100.0f;
+	engine->min_initial_position[2] = 0.0f;
 
-	engine->max_initial_position[0] = 640.0f;
+	engine->max_initial_position[0] = 340.0f;
 	engine->max_initial_position[1] = 480.0f;
-	engine->max_initial_position[2] = 100.0f;
+	engine->max_initial_position[2] = 0.0f;
 
-	engine->min_initial_velocity[0] = -70.0f;
-	engine->min_initial_velocity[1] = -30.0f;
-	engine->min_initial_velocity[2] = -100.0f;
+	engine->min_initial_velocity[0] = -100.0f;
+	engine->min_initial_velocity[1] = -300.0f;
+	engine->min_initial_velocity[2] = -300.0f;
 
-	engine->max_initial_velocity[0] = 70.0f;
-	engine->max_initial_velocity[1] = 40.0f;
-	engine->max_initial_velocity[2] = 100.0f;
+	engine->max_initial_velocity[0] = 100.0f;
+	engine->max_initial_velocity[1] = -500.0f;
+	engine->max_initial_velocity[2] = 300.0f;
 
 	return engine;
 }
