@@ -4,8 +4,8 @@
 
 #include <cogl/cogl.h>
 
-#define WIDTH 640
-#define HEIGHT 480
+#define WIDTH 1024
+#define HEIGHT 768
 
 struct pe {
 	CoglFramebuffer *fb;
@@ -17,7 +17,7 @@ struct pe {
 	CoglTexture *texture;
 	CoglPipeline *cube_pipeline;
 
-	struct particle_engine *engine;
+	struct particle_engine *engine[5];
 
 	GTimer *timer;
 	CoglBool swap_ready;
@@ -68,23 +68,14 @@ static CoglVertexP3T2 vertices[] =
 };
 
 static void paint_cb (struct pe *pe) {
-	/* float rot = g_timer_elapsed(pe->timer, NULL) * 3.0f; */
+	unsigned int i;
 
 	cogl_framebuffer_clear4f(pe->fb,
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
-				 0.9, 0.9, 1.0, 1);
-	/* cogl_framebuffer_push_matrix(pe->fb); */
-	/* cogl_framebuffer_translate(pe->fb, */
-	/* 			   pe->width / 2, pe->height / 2 + 50, 0); */
-	/* cogl_framebuffer_scale(pe->fb, 70, 70, 70); */
-	/* cogl_framebuffer_rotate(pe->fb, -25, 1, 0, 0); */
-	/* cogl_framebuffer_rotate(pe->fb, rot, 0, 1, 0); */
-	/* cogl_framebuffer_draw_primitive(pe->fb, */
-	/* 				pe->cube_pipeline, */
-	/* 				pe->primitive); */
-	/* cogl_framebuffer_pop_matrix(pe->fb); */
+				 0.0f, 0.0f, 0.0f, 1);
 
-	particle_engine_paint(pe->engine);
+	for (i = 0; i < G_N_ELEMENTS(pe->engine); i++)
+		particle_engine_paint(pe->engine[i]);
 }
 
 static void frame_event_cb(CoglOnscreen *onscreen, CoglFrameEvent event,
@@ -104,6 +95,7 @@ main(int argc, char **argv)
 	struct pe pe;
 	float fovy, aspect, z_near, z_2d, z_far;
 	CoglDepthState depth_state;
+	unsigned int i;
 
 	ctx = cogl_context_new (NULL, &error);
 	if (!ctx)
@@ -162,7 +154,88 @@ main(int argc, char **argv)
 	cogl_onscreen_add_frame_callback(COGL_ONSCREEN(pe.fb),
 					 frame_event_cb, &pe, NULL);
 
-	pe.engine = particle_engine_new(ctx, pe.fb);
+	for (i = 0; i < G_N_ELEMENTS(pe.engine); i++) {
+		pe.engine[i] = particle_engine_new(ctx, pe.fb);
+
+		pe.engine[i]->max_particles = 10000;
+		pe.engine[i]->point_size = 3.0f;
+
+		pe.engine[i]->min_initial_velocity[0] = -50.0f;
+		pe.engine[i]->min_initial_velocity[1] = -600.0f;
+		pe.engine[i]->min_initial_velocity[2] = -150.0f;
+
+		pe.engine[i]->max_initial_velocity[0] = 50.0f;
+		pe.engine[i]->max_initial_velocity[1] = -900.0f;
+		pe.engine[i]->max_initial_velocity[2] = 150.0f;
+	}
+
+	/* fountain 1 */
+	pe.engine[0]->min_initial_velocity[1] = -800.0f;
+	pe.engine[0]->max_initial_velocity[1] = -1000.0f;
+
+	pe.engine[0]->min_initial_position[0] = (float)WIDTH / 2 - 5;
+	pe.engine[0]->min_initial_position[1] = (float)HEIGHT;
+	pe.engine[0]->min_initial_position[2] = 0.0f;
+
+	pe.engine[0]->max_initial_position[0] = (float) WIDTH / 2 + 5;
+	pe.engine[0]->max_initial_position[1] = (float)HEIGHT;
+	pe.engine[0]->max_initial_position[2] = 0.0f;
+
+	/* fountain 2 */
+	pe.engine[1]->min_initial_position[0] = (float)WIDTH / 4 - 5;
+	pe.engine[1]->min_initial_position[1] = (float)HEIGHT;
+	pe.engine[1]->min_initial_position[2] = 0.0f;
+
+	pe.engine[1]->max_initial_position[0] = (float) WIDTH / 4 + 5;
+	pe.engine[1]->max_initial_position[1] = (float)HEIGHT;
+	pe.engine[1]->max_initial_position[2] = 0.0f;
+
+	/* fountain 3 */
+	pe.engine[2]->min_initial_position[0] = ((float)WIDTH / 4) * 3 - 5;
+	pe.engine[2]->min_initial_position[1] = (float)HEIGHT;
+	pe.engine[2]->min_initial_position[2] = 0.0f;
+
+	pe.engine[2]->max_initial_position[0] = ((float) WIDTH / 4) * 3 + 5;
+	pe.engine[2]->max_initial_position[1] = (float)HEIGHT;
+	pe.engine[2]->max_initial_position[2] = 0.0f;
+
+	/* fountain 4 */
+	pe.engine[3]->max_particles = 2000;
+
+	pe.engine[3]->min_initial_position[0] = -5.0f;
+	pe.engine[3]->min_initial_position[1] = (float)HEIGHT;
+	pe.engine[3]->min_initial_position[2] = 0.0f;
+
+	pe.engine[3]->max_initial_position[0] = 5.0f;
+	pe.engine[3]->max_initial_position[1] = (float)HEIGHT;
+	pe.engine[3]->max_initial_position[2] = 0.0f;
+
+	pe.engine[3]->min_initial_velocity[0] = 300.0f;
+	pe.engine[3]->min_initial_velocity[1] = -500.0f;
+	pe.engine[3]->min_initial_velocity[2] = -150.0f;
+
+	pe.engine[3]->max_initial_velocity[0] = 400.0f;
+	pe.engine[3]->max_initial_velocity[1] = -400.0f;
+	pe.engine[3]->max_initial_velocity[2] = 150.0f;
+
+	/* fountain 5 */
+	pe.engine[4]->max_particles = 2000;
+
+	pe.engine[4]->min_initial_position[0] = (float)WIDTH -5;
+	pe.engine[4]->min_initial_position[1] = (float)HEIGHT;
+	pe.engine[4]->min_initial_position[2] = 0.0f;
+
+	pe.engine[4]->max_initial_position[0] = (float)WIDTH + 5;
+	pe.engine[4]->max_initial_position[1] = (float)HEIGHT;
+	pe.engine[4]->max_initial_position[2] = 0.0f;
+
+	pe.engine[4]->min_initial_velocity[0] = -400.0f;
+	pe.engine[4]->min_initial_velocity[1] = -500.0f;
+	pe.engine[4]->min_initial_velocity[2] = -150.0f;
+
+	pe.engine[4]->max_initial_velocity[0] = -300.0f;
+	pe.engine[4]->max_initial_velocity[1] = -400.0f;
+	pe.engine[4]->max_initial_velocity[2] = 150.0f;
 
 	while (1) {
 		CoglPollFD *poll_fds;
