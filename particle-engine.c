@@ -215,8 +215,7 @@ static double _get_next_particle_time(struct particle_engine *engine)
 
 static void _get_particle_position(struct particle_engine *engine,
 				   const struct particle *particle,
-				   gdouble t,
-				   float *position)
+				   gdouble t, float *position)
 {
 	/* TODO: this should have some parameters for configuring acceleration
 	 * (perhaps a gravity + wind abstraction?) */
@@ -241,8 +240,7 @@ static void _get_particle_position(struct particle_engine *engine,
 
 static void _get_particle_color(struct particle_engine *engine,
 				const struct particle *particle,
-				gdouble t,
-				struct color *color)
+				gdouble t, struct color *color)
 {
 	gdouble remaining_time = 1.0f - t;
 
@@ -253,8 +251,7 @@ static void _get_particle_color(struct particle_engine *engine,
 }
 
 static void _create_particle(struct particle_engine *engine,
-			     struct vertex *vertex,
-			     int index)
+			     struct vertex *vertex, int index)
 {
 	struct particle *particle = &engine->particles[index];
 
@@ -281,8 +278,7 @@ static void _create_particle(struct particle_engine *engine,
 }
 
 static void _update_particle(struct particle_engine *engine,
-			     struct vertex *vertex,
-			     int index,
+			     struct vertex *vertex, int index,
 			     gdouble particle_age)
 {
 	struct particle particle = engine->particles[index];
@@ -295,8 +291,7 @@ static void _update_particle(struct particle_engine *engine,
 }
 
 static void _destroy_particle(struct particle_engine *engine,
-			      struct vertex *vertex,
-			      int index)
+			      struct vertex *vertex, int index)
 {
 	engine->used_particles_count--;
 	engine->used_particles[index] = FALSE;
