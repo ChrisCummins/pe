@@ -181,6 +181,9 @@ static void _set_initial_velocity(struct particle_engine *engine,
 {
 	int i;
 
+	/* TODO: the random variance in the velocity should be proportional in
+	 * each axis. E.g., a large variance in the Z axis should imply a
+	 * reduced variance in the X and Y axis. */
 	for (i = 0; i < 3; i++) {
 		velocity[i] = (float)g_rand_double_range(engine->rand,
 							 engine->min_initial_velocity[i],
@@ -193,7 +196,7 @@ static void _set_initial_color(struct particle_engine *engine,
 {
 	unsigned char lum = (unsigned char)g_rand_int_range(engine->rand, 150, 255);
 
-
+	/* TODO: this should have some parameters for configuring value/randomness */
 	color->r = lum;
 	color->g = lum;
 	color->b = (unsigned char)g_rand_int_range(engine->rand, 230, 255);
