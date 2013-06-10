@@ -196,8 +196,19 @@ static void _set_initial_color(struct particle_engine *engine,
 
 static double _get_max_age(struct particle_engine *engine)
 {
-	/* TODO: this should have some parameters for configuring value/randomness */
-	return g_rand_double_range(engine->priv.rand, 0.25f, 4.0f);
+	switch (engine->particle_lifespan_variance_type) {
+
+	case VARIANCE_LINEAR:
+	{
+		gdouble v = engine->particle_lifespan / engine->particle_lifespan_variance;
+		return g_rand_double_range(engine->priv.rand,
+					   engine->particle_lifespan - v,
+					   engine->particle_lifespan + v);
+	}
+	case VARIANCE_NONE:
+	default:
+		return engine->particle_lifespan;
+	}
 }
 
 static void _get_particle_position(struct particle_engine *engine,

@@ -59,6 +59,20 @@ struct particle_engine {
 	 */
 	float particle_size;
 
+	/*
+	 * The time (in seconds) that a particle will exist for. After this
+	 * amount of time, the particle will be destroyed, and a new particle
+	 * will be created. The variance is a value in the rang [0, 1] which
+	 * controls the amount of randomness used in determining this
+	 * lifespan. For example, A lifespan variance of 0.0 means that each
+	 * particle will have a uniform lifespan of particle_lifespan, and a
+	 * variance of 0.5 means that each particle will have a lifespan of
+	 * particle_lifespan ± 50%.
+	 */
+	gdouble particle_lifespan;
+	gdouble particle_lifespan_variance;
+	enum variance_type particle_lifespan_variance_type;
+
 	float min_initial_velocity[3];
 	float max_initial_velocity[3];
 

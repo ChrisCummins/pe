@@ -121,6 +121,10 @@ int main(int argc, char **argv)
 		demo.engine[i]->particle_count = 10000;
 		demo.engine[i]->particle_size = 3.0f;
 
+		demo.engine[i]->particle_lifespan = 2.0f;
+		demo.engine[i]->particle_lifespan_variance = 0.75f;
+		demo.engine[i]->particle_lifespan_variance_type = VARIANCE_LINEAR;
+
 		demo.engine[i]->min_initial_position[1] = (float)HEIGHT + 5;
 		demo.engine[i]->max_initial_position[1] = (float)HEIGHT + 5;
 
