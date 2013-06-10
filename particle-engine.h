@@ -3,6 +3,12 @@
 
 #include <cogl/cogl.h>
 
+enum variance_type {
+	VARIANCE_NONE,
+	VARIANCE_LINEAR,
+	VARIANCE_GAUSSIAN
+};
+
 struct color {
 	unsigned char r, g, b, a;
 };
