@@ -203,15 +203,13 @@ static void _set_initial_color(struct particle_engine *engine,
 
 static double _get_max_age(struct particle_engine *engine)
 {
-	/* TODO: this should have some parameters with some configurable
-	 * randomness */
-	return g_rand_double_range(engine->rand, 0.75f, 3.0f);
+	/* TODO: this should have some parameters for configuring value/randomness */
+	return g_rand_double_range(engine->rand, 0.25f, 4.0f);
 }
 
 static double _get_next_particle_time(struct particle_engine *engine)
 {
-	/* TODO: this should have some parameters with some configurable
-	 * randomness */
+	/* TODO: this should have some parameters for configuring value/randomness */
 	return engine->current_time + g_rand_double_range(engine->rand, 0.0001f, 0.0002f);
 }
 
@@ -220,6 +218,8 @@ static void _get_particle_position(struct particle_engine *engine,
 				   gdouble t,
 				   float *position)
 {
+	/* TODO: this should have some parameters for configuring acceleration
+	 * (perhaps a gravity + wind abstraction?) */
 	static const float acceleration[3] = { 10.0f, 700.0f, 0.0f };
 	float elapsed_time = (float)(engine->current_time - particle->creation_time);
 	float half_elapsed_time2 = (float)(elapsed_time * elapsed_time * 0.5f);
@@ -278,9 +278,6 @@ static void _create_particle(struct particle_engine *engine,
 
 	engine->next_particle_time =
 		_get_next_particle_time(engine);
-
-	/* g_print("*** NEW PARTICLE %d ***\n", index); */
-	/* _particle_index_to_string(engine, index); */
 }
 
 static void _update_particle(struct particle_engine *engine,
