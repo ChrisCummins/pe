@@ -67,8 +67,7 @@ struct particle_engine {
 	 */
 	struct double_variance particle_lifespan;
 
-	float min_initial_velocity[3];
-	float max_initial_velocity[3];
+	struct vector_variance particle_velocity;
 
 	float min_initial_position[3];
 	float max_initial_position[3];

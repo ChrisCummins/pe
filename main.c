@@ -128,22 +128,21 @@ int main(int argc, char **argv)
 		demo.engine[i]->min_initial_position[1] = (float)HEIGHT + 5;
 		demo.engine[i]->max_initial_position[1] = (float)HEIGHT + 5;
 
-		demo.engine[i]->min_initial_velocity[0] = -50.0f;
-		demo.engine[i]->min_initial_velocity[1] = -600.0f;
-		demo.engine[i]->min_initial_velocity[2] = -150.0f;
+		demo.engine[i]->particle_velocity.value[0] = 0.0f;
+		demo.engine[i]->particle_velocity.value[1] = -700.0f;
+		demo.engine[i]->particle_velocity.value[2] = 0.0f;
+		demo.engine[i]->particle_velocity.variance[0] = 100.0f;
+		demo.engine[i]->particle_velocity.variance[1] = 200.0f;
+		demo.engine[i]->particle_velocity.variance[2] = 300.0f;
+		demo.engine[i]->particle_velocity.type = VECTOR_VARIANCE_LINEAR;
 
-		demo.engine[i]->max_initial_velocity[0] = 50.0f;
-		demo.engine[i]->max_initial_velocity[1] = -900.0f;
-		demo.engine[i]->max_initial_velocity[2] = 150.0f;
-
-		demo.engine[i]->new_particles_per_ms = 4000;
+		demo.engine[i]->new_particles_per_ms = 2000;
 	}
 
 	/* fountain 1 */
 	demo.engine[0]->source_active = FALSE;
 
-	demo.engine[0]->min_initial_velocity[1] = -800.0f;
-	demo.engine[0]->max_initial_velocity[1] = -1000.0f;
+	demo.engine[0]->particle_velocity.value[1] = -900.0f;
 
 	demo.engine[0]->min_initial_position[0] = (float)WIDTH / 2 - 5;
 	demo.engine[0]->min_initial_position[2] = 0.0f;
@@ -174,13 +173,10 @@ int main(int argc, char **argv)
 	demo.engine[3]->max_initial_position[0] = 5.0f;
 	demo.engine[3]->max_initial_position[2] = 0.0f;
 
-	demo.engine[3]->min_initial_velocity[0] = 300.0f;
-	demo.engine[3]->min_initial_velocity[1] = -500.0f;
-	demo.engine[3]->min_initial_velocity[2] = -150.0f;
-
-	demo.engine[3]->max_initial_velocity[0] = 400.0f;
-	demo.engine[3]->max_initial_velocity[1] = -400.0f;
-	demo.engine[3]->max_initial_velocity[2] = 150.0f;
+	demo.engine[3]->particle_velocity.value[0] = 350.0f;
+	demo.engine[3]->particle_velocity.value[1] = -450.0f;
+	demo.engine[3]->particle_velocity.variance[0] = 100.0f;
+	demo.engine[3]->particle_velocity.variance[1] = 100.0f;
 
 	/* fountain 5 */
 	demo.engine[4]->particle_count = 2000;
@@ -191,13 +187,10 @@ int main(int argc, char **argv)
 	demo.engine[4]->max_initial_position[0] = (float)WIDTH + 5;
 	demo.engine[4]->max_initial_position[2] = 0.0f;
 
-	demo.engine[4]->min_initial_velocity[0] = -400.0f;
-	demo.engine[4]->min_initial_velocity[1] = -500.0f;
-	demo.engine[4]->min_initial_velocity[2] = -150.0f;
-
-	demo.engine[4]->max_initial_velocity[0] = -300.0f;
-	demo.engine[4]->max_initial_velocity[1] = -400.0f;
-	demo.engine[4]->max_initial_velocity[2] = 150.0f;
+	demo.engine[4]->particle_velocity.value[0] = -350.0f;
+	demo.engine[4]->particle_velocity.value[1] = -450.0f;
+	demo.engine[4]->particle_velocity.variance[0] = 100.0f;
+	demo.engine[4]->particle_velocity.variance[1] = 100.0f;
 
 	g_idle_add(_update_cb, &demo);
 

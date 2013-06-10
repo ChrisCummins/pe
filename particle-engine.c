@@ -167,21 +167,6 @@ static void _set_initial_position(struct particle_engine *engine,
 	}
 }
 
-static void _set_initial_velocity(struct particle_engine *engine,
-				  float *velocity)
-{
-	int i;
-
-	/* TODO: the random variance in the velocity should be proportional in
-	 * each axis. E.g., a large variance in the Z axis should imply a
-	 * reduced variance in the X and Y axis. */
-	for (i = 0; i < 3; i++) {
-		velocity[i] = (float)g_rand_double_range(engine->priv.rand,
-							 engine->min_initial_velocity[i],
-							 engine->max_initial_velocity[i]);
-	}
-}
-
 static void _set_initial_color(struct particle_engine *engine,
 			       struct color *color)
 {
@@ -237,7 +222,11 @@ static void _create_particle(struct particle_engine *engine,
 	struct particle *particle = &engine->priv.particles[index];
 
 	_set_initial_position(engine, &particle->initial_position[0]);
-	_set_initial_velocity(engine, &particle->initial_velocity[0]);
+
+	/* Set initial velocity */
+	vector_variance_get_value(&engine->particle_velocity, engine->priv.rand,
+				  &particle->initial_velocity[0]);
+
 	_set_initial_color(engine, &particle->initial_color);
 	particle->max_age =
 		double_variance_get_value(&engine->particle_lifespan,
