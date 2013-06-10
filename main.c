@@ -26,7 +26,7 @@ static void paint_cb (struct demo *demo) {
 
 	cogl_framebuffer_clear4f(demo->fb,
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
-				 0.0f, 0.0f, 0.0f, 1);
+				 0.15f, 0.15f, 0.3f, 1);
 
 	for (i = 0; i < G_N_ELEMENTS(demo->engine); i++)
 		particle_engine_paint(demo->engine[i]);
