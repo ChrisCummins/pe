@@ -118,8 +118,8 @@ int main(int argc, char **argv)
 	for (i = 0; i < G_N_ELEMENTS(demo.engine); i++) {
 		demo.engine[i] = particle_engine_new(demo.ctx, demo.fb);
 
-		demo.engine[i]->max_particles = 10000;
-		demo.engine[i]->point_size = 3.0f;
+		demo.engine[i]->particle_count = 10000;
+		demo.engine[i]->particle_size = 3.0f;
 
 		demo.engine[i]->min_initial_position[1] = (float)HEIGHT + 5;
 		demo.engine[i]->max_initial_position[1] = (float)HEIGHT + 5;
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 	demo.engine[2]->max_initial_position[2] = 0.0f;
 
 	/* fountain 4 */
-	demo.engine[3]->max_particles = 2000;
+	demo.engine[3]->particle_count = 2000;
 
 	demo.engine[3]->min_initial_position[0] = -5.0f;
 	demo.engine[3]->min_initial_position[2] = 0.0f;
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
 	demo.engine[3]->max_initial_velocity[2] = 150.0f;
 
 	/* fountain 5 */
-	demo.engine[4]->max_particles = 2000;
+	demo.engine[4]->particle_count = 2000;
 
 	demo.engine[4]->min_initial_position[0] = (float)WIDTH -5;
 	demo.engine[4]->min_initial_position[2] = 0.0f;

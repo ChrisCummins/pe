@@ -40,7 +40,7 @@ void particle_index_to_string(struct particle_engine *engine, int i)
 	struct particle particle;
 
 	g_assert(i >= 0);
-	g_assert(i < engine->max_particles);
+	g_assert(i < engine->particle_count);
 
 	if (!engine->priv.used_particles[i]) {
 		g_print("particle[%d] - unused\n\n", i);
@@ -97,7 +97,7 @@ static CoglPipeline *_create_pipeline(struct particle_engine *engine)
 		cogl_pipeline_set_layer_point_sprite_coords_enabled(pipeline, 0, TRUE, NULL);
 	}
 
-	cogl_pipeline_set_point_size(pipeline, engine->point_size);
+	cogl_pipeline_set_point_size(pipeline, engine->particle_size);
 
 	return pipeline;
 }
@@ -113,13 +113,13 @@ static void _create_resources(struct particle_engine *engine)
 
 	engine->priv.pipeline = _create_pipeline(engine);
 
-	engine->priv.particles = g_new0(struct particle, engine->max_particles);
-	engine->priv.vertices = g_new0(struct vertex, engine->max_particles);
+	engine->priv.particles = g_new0(struct particle, engine->particle_count);
+	engine->priv.vertices = g_new0(struct vertex, engine->particle_count);
 
-	engine->priv.used_particles_count = engine->max_particles;
-	engine->priv.used_particles = g_new0(CoglBool, engine->max_particles);
+	engine->priv.used_particles_count = engine->particle_count;
+	engine->priv.used_particles = g_new0(CoglBool, engine->particle_count);
 
-	for (i = 1; i < engine->max_particles; i++) {
+	for (i = 1; i < engine->particle_count; i++) {
 		*(struct particle **)&engine->priv.particles[i] =
 			engine->priv.particles + i - 1;
 	}
@@ -127,7 +127,7 @@ static void _create_resources(struct particle_engine *engine)
 	engine->priv.attribute_buffer =
 		cogl_attribute_buffer_new(engine->priv.ctx,
 					  sizeof(struct vertex) *
-					  engine->max_particles, engine->priv.vertices);
+					  engine->particle_count, engine->priv.vertices);
 
 	attributes[0] = cogl_attribute_new(engine->priv.attribute_buffer,
 					   "cogl_position_in",
@@ -145,7 +145,7 @@ static void _create_resources(struct particle_engine *engine)
 
 	engine->priv.primitive =
 		cogl_primitive_new_with_attributes(COGL_VERTICES_MODE_POINTS,
-						   engine->max_particles,
+						   engine->particle_count,
 						   attributes,
 						   G_N_ELEMENTS(attributes));
 
@@ -310,7 +310,7 @@ static void _particle_engine_update(struct particle_engine *engine)
 		return;
 	}
 
-	for (i = 0; i < engine->max_particles; i++) {
+	for (i = 0; i < engine->particle_count; i++) {
 		if (engine->priv.used_particles[i]) {
 			gdouble particle_age = engine->priv.current_time -
 				engine->priv.particles[i].creation_time;
@@ -332,7 +332,7 @@ static void _particle_engine_update(struct particle_engine *engine)
 	}
 
 	cogl_buffer_unmap(COGL_BUFFER(engine->priv.attribute_buffer));
-	cogl_primitive_set_n_vertices(engine->priv.primitive, engine->max_particles);
+	cogl_primitive_set_n_vertices(engine->priv.primitive, engine->particle_count);
 }
 
 struct particle_engine* particle_engine_new(CoglContext *ctx,

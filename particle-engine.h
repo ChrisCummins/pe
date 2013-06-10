@@ -40,7 +40,7 @@ struct particle_engine {
 	 * particles will only be created as and when old particles are
 	 * destroyed.
 	 */
-	int max_particles;
+	int particle_count;
 
 	/*
 	 * This controls the rate at which new particles are generated.
@@ -48,9 +48,10 @@ struct particle_engine {
 	int new_particles_per_ms;
 
 	/*
-	 * The size (in pixels) of each particle.
+	 * The size (in pixels) of particles. Each particle is represented by a
+	 * rectangular point of dimensions particle_size × particle_size.
 	 */
-	float point_size;
+	float particle_size;
 
 	float min_initial_velocity[3];
 	float max_initial_velocity[3];
