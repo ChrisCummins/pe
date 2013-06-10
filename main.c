@@ -15,6 +15,8 @@ struct pe {
 
 	struct particle_engine *engine[5];
 
+	guint timeout_id;
+
 	CoglBool swap_ready;
 	GMainLoop *main_loop;
 };
@@ -38,8 +40,17 @@ static void frame_event_cb(CoglOnscreen *onscreen, CoglFrameEvent event,
 		pe->swap_ready = TRUE;
 }
 
+static gboolean _timeout_cb(gpointer data)
 {
-	CoglContext *ctx;
+	struct pe *pe = data;
+	unsigned int i;
+
+	for (i = 0; i < 3; i++)
+		pe->engine[i]->source_active = !pe->engine[i]->source_active;
+
+	return TRUE;
+}
+
 static gboolean _update_cb(gpointer data)
 {
 	struct pe *pe = data;
@@ -123,6 +134,8 @@ int main(int argc, char **argv)
 	}
 
 	/* fountain 1 */
+	pe.engine[0]->source_active = FALSE;
+
 	pe.engine[0]->min_initial_velocity[1] = -800.0f;
 	pe.engine[0]->max_initial_velocity[1] = -1000.0f;
 
