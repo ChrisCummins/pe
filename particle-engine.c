@@ -294,13 +294,17 @@ static void _destroy_particle(struct particle_engine *engine,
 
 static void _particle_engine_update(struct particle_engine *engine)
 {
-	int i;
+	int i, new_particles = 0, max_new_particles;
 	struct vertex *vertices;
 	CoglError *error = NULL;
 
 	/* Update the clocks */
 	engine->last_update_time = engine->current_time;
 	engine->current_time = g_timer_elapsed(engine->timer, NULL);
+
+	/* Calculate how many new particles can be created */
+	max_new_particles = (engine->current_time - engine->last_update_time) *
+		engine->new_particles_per_ms;
 
 	/* Create resources as necessary */
 	_create_resources(engine);
@@ -327,9 +331,11 @@ static void _particle_engine_update(struct particle_engine *engine)
 				_update_particle(engine, &vertices[i], i,
 						 particle_age);
 			}
-		} else if (engine->source_active) {
+		} else if (engine->source_active &&
+			   new_particles < max_new_particles) {
 			/* Create a particle */
 			_create_particle(engine, &vertices[i], i);
+			new_particles++;
 		}
 	}
 

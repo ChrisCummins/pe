@@ -56,6 +56,8 @@ struct particle_engine {
 	gdouble current_time;
 	gdouble last_update_time;
 
+	int new_particles_per_ms;
+
 	float min_initial_velocity[3];
 	float max_initial_velocity[3];
 

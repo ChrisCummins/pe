@@ -131,6 +131,8 @@ int main(int argc, char **argv)
 		demo.engine[i]->max_initial_velocity[0] = 50.0f;
 		demo.engine[i]->max_initial_velocity[1] = -900.0f;
 		demo.engine[i]->max_initial_velocity[2] = 150.0f;
+
+		demo.engine[i]->new_particles_per_ms = 4000;
 	}
 
 	/* fountain 1 */
