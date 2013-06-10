@@ -132,7 +132,6 @@ static void _create_resources(struct particle_engine *engine)
 			engine->particles + i - 1;
 	}
 
-	engine->next_unused_particle = engine->particles + i - 1;
 	engine->attribute_buffer =
 		cogl_attribute_buffer_new(engine->ctx,
 					  sizeof(struct vertex) *

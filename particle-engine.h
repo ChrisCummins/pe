@@ -50,11 +50,6 @@ struct particle_engine {
 
 	CoglAttributeBuffer *attribute_buffer;
 
-	/* The unused particles are linked together in a linked list so we
-	 * can quickly find the next free one. The particle structure is
-	 * reused as a list node to avoid allocating anything */
-	struct particle *next_unused_particle;
-
 	GRand *rand;
 
 	GTimer *timer;
