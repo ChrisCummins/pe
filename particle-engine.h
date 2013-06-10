@@ -55,7 +55,6 @@ struct particle_engine {
 	GTimer *timer;
 	gdouble current_time;
 	gdouble last_update_time;
-	gdouble next_particle_time;
 
 	float min_initial_velocity[3];
 	float max_initial_velocity[3];

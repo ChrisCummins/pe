@@ -161,7 +161,6 @@ static void _create_resources(struct particle_engine *engine)
 		cogl_object_unref(attributes[j]);
 
 	engine->last_update_time = engine->current_time;
-	engine->next_particle_time = engine->current_time;
 }
 
 static void _set_initial_position(struct particle_engine *engine,
@@ -207,12 +206,6 @@ static double _get_max_age(struct particle_engine *engine)
 {
 	/* TODO: this should have some parameters for configuring value/randomness */
 	return g_rand_double_range(engine->rand, 0.25f, 4.0f);
-}
-
-static double _get_next_particle_time(struct particle_engine *engine)
-{
-	/* TODO: this should have some parameters for configuring value/randomness */
-	return engine->current_time + g_rand_double_range(engine->rand, 0.0001f, 0.0002f);
 }
 
 static void _get_particle_position(struct particle_engine *engine,
@@ -274,9 +267,6 @@ static void _create_particle(struct particle_engine *engine,
 
 	engine->used_particles_count++;
 	engine->used_particles[index] = TRUE;
-
-	engine->next_particle_time =
-		_get_next_particle_time(engine);
 }
 
 static void _update_particle(struct particle_engine *engine,
