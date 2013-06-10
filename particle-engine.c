@@ -297,9 +297,6 @@ static void _destroy_particle(struct particle_engine *engine,
 
 	/* Zero the vertex */
 	memset(vertex, 0, sizeof(struct vertex));
-
-	/* g_print("*** DESTROY PARTICLE %d ***\n", index); */
-	/* _particle_index_to_string(engine, index); */
 }
 
 static void _particle_engine_update(struct particle_engine *engine)
