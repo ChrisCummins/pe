@@ -27,32 +27,12 @@ struct vertex {
 };
 
 struct particle_engine {
-	CoglTexture *texture;
-
 	/* Maximum number of particles to generate */
 	int max_particles;
-
-	CoglContext *ctx;
-	CoglFramebuffer *fb;
-	CoglPipeline *pipeline;
-	CoglPrimitive *primitive;
 
 	/* Controls whether new particles are created. If false, no new
 	 * particles are created */
 	CoglBool source_active;
-
-	int used_particles_count;
-	CoglBool *used_particles;
-	struct particle *particles;
-	struct vertex *vertices;
-
-	CoglAttributeBuffer *attribute_buffer;
-
-	GRand *rand;
-
-	GTimer *timer;
-	gdouble current_time;
-	gdouble last_update_time;
 
 	int new_particles_per_ms;
 
@@ -63,6 +43,27 @@ struct particle_engine {
 	float max_initial_position[3];
 
 	float point_size;
+
+	/* <priv> */
+	struct {
+		CoglContext *ctx;
+		CoglFramebuffer *fb;
+		CoglPipeline *pipeline;
+		CoglPrimitive *primitive;
+		CoglTexture *texture;
+		CoglAttributeBuffer *attribute_buffer;
+
+		GRand *rand;
+
+		int used_particles_count;
+		CoglBool *used_particles;
+		struct particle *particles;
+		struct vertex *vertices;
+
+		GTimer *timer;
+		gdouble current_time;
+		gdouble last_update_time;
+	} priv;
 };
 
 struct particle_engine *particle_engine_new(CoglContext *ctx, CoglFramebuffer *fb);
