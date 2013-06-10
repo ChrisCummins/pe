@@ -348,8 +348,6 @@ struct particle_engine* particle_engine_new(CoglContext *ctx,
 {
 	struct particle_engine *engine = g_slice_new0(struct particle_engine);
 
-	engine->colors = g_array_new(FALSE, FALSE, sizeof(struct color));
-
 	engine->source_active = TRUE;
 
 	engine->rand = g_rand_new();
@@ -365,30 +363,6 @@ void particle_engine_free(struct particle_engine *engine)
 {
 	g_rand_free(engine->rand);
 	g_slice_free(struct particle_engine, engine);
-}
-
-void particle_engine_add_color(struct particle_engine *engine,
-			       const unsigned char rgba[4])
-{
-	g_array_set_size(engine->colors, engine->colors->len + 1);
-
-	memcpy(&g_array_index(engine->colors, struct color,
-			      engine->colors->len - 1),
-	       rgba, sizeof(struct color));
-}
-
-void particle_engine_remove_color(struct particle_engine *engine,
-				  const unsigned char color[4])
-{
-	unsigned int i;
-
-	for (i = 0; i < engine->colors->len; i++) {
-		if (!memcmp(&g_array_index(engine->colors, struct color, i),
-			    color, sizeof(struct color))) {
-			g_array_remove_index(engine->colors, i);
-			break;
-		}
-	}
 }
 
 void particle_engine_paint(struct particle_engine *engine)

@@ -28,7 +28,6 @@ struct vertex {
 
 struct particle_engine {
 	CoglTexture *texture;
-	GArray *colors;
 
 	/* Maximum number of particles to generate */
 	int max_particles;
@@ -36,7 +35,6 @@ struct particle_engine {
 	CoglContext *ctx;
 	CoglFramebuffer *fb;
 	CoglPipeline *pipeline;
-	CoglTexture *trexture;
 	CoglPrimitive *primitive;
 
 	/* Controls whether new particles are created. If false, no new
@@ -68,45 +66,8 @@ struct particle_engine {
 };
 
 struct particle_engine *particle_engine_new(CoglContext *ctx, CoglFramebuffer *fb);
+
 void particle_engine_free(struct particle_engine *engine);
-
-/**
- * particle_engine_set_time:
- * @engine: A pointer to the particle engine
- * @msecs: The time in milliseconds
- *
- * Sets the relative time in milliseconds at which to draw the
- * animation for this particle engine. The time does need to be
- * related to wall time and it doesn't need to start from zero. This
- * should be called before every paint to update the animation.
- *
- * Adjusting the time backwards will give undefined results.
- */
-void particle_engine_set_time(struct particle_engine *engine,
-			      int32_t msecs);
-
-/**
- * particle_engine_add_color:
- * @engine: A pointer to the particle engine
- * @color: A color to add as 4 bytes representing RGBA
- *
- * Adds a color to the selection of colors that will be initially
- * chosen for a particle. The colors will be selected randomly and
- * distributed evenly for each new particle.
- */
-void particle_engine_add_color (struct particle_engine *engine,
-				const unsigned char color[4]);
-
-/**
- * particle_engine_remove_color:
- * @engine: A pointer to the particle engine
- * @color: A color to remove as 4 bytes representing RGBA
- *
- * Removes a color from the selection of colors that will be initially
- * chosen for a particle.
- */
-void particle_engine_remove_color (struct particle_engine *engine,
-				   const unsigned char color[4]);
 
 void particle_engine_paint(struct particle_engine *engine);
 
