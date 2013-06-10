@@ -27,22 +27,36 @@ struct vertex {
 };
 
 struct particle_engine {
-	/* Maximum number of particles to generate */
-	int max_particles;
 
-	/* Controls whether new particles are created. If false, no new
-	 * particles are created */
+	/*
+	 * Controls whether new particles are created. If false, no new
+	 * particles are created.
+	 */
 	CoglBool source_active;
 
+	/*
+	 * The maximum number of particles that can exist at any given moment in
+	 * time. When this number of particles has been generated, then new
+	 * particles will only be created as and when old particles are
+	 * destroyed.
+	 */
+	int max_particles;
+
+	/*
+	 * This controls the rate at which new particles are generated.
+	 */
 	int new_particles_per_ms;
+
+	/*
+	 * The size (in pixels) of each particle.
+	 */
+	float point_size;
 
 	float min_initial_velocity[3];
 	float max_initial_velocity[3];
 
 	float min_initial_position[3];
 	float max_initial_position[3];
-
-	float point_size;
 
 	/* <priv> */
 	struct {
