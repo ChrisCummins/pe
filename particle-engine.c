@@ -155,18 +155,6 @@ static void _create_resources(struct particle_engine *engine)
 	engine->priv.last_update_time = engine->priv.current_time;
 }
 
-static void _set_initial_position(struct particle_engine *engine,
-				  float *position)
-{
-	int i;
-
-	for (i = 0; i < 3; i++) {
-		position[i] = (float)g_rand_double_range(engine->priv.rand,
-							 engine->min_initial_position[i],
-							 engine->max_initial_position[i]);
-	}
-}
-
 static void _set_initial_color(struct particle_engine *engine,
 			       struct color *color)
 {
@@ -221,7 +209,9 @@ static void _create_particle(struct particle_engine *engine,
 {
 	struct particle *particle = &engine->priv.particles[index];
 
-	_set_initial_position(engine, &particle->initial_position[0]);
+	/* Set initial position */
+	vector_variance_get_value(&engine->particle_position, engine->priv.rand,
+				  &particle->initial_position[0]);
 
 	/* Set initial velocity */
 	vector_variance_get_value(&engine->particle_velocity, engine->priv.rand,

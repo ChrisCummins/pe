@@ -125,8 +125,19 @@ int main(int argc, char **argv)
 		demo.engine[i]->particle_lifespan.variance = 0.75f;
 		demo.engine[i]->particle_lifespan.type = DOUBLE_VARIANCE_PROPORTIONAL;
 
-		demo.engine[i]->min_initial_position[1] = (float)HEIGHT + 5;
-		demo.engine[i]->max_initial_position[1] = (float)HEIGHT + 5;
+		/* Position variance */
+		demo.engine[i]->particle_position.type = VECTOR_VARIANCE_LINEAR;
+
+		/* X position */
+		demo.engine[i]->particle_position.variance[0] = 10.0f;
+
+		/* Y position */
+		demo.engine[i]->particle_position.value[1] = (float)HEIGHT + 5;
+		demo.engine[i]->particle_position.variance[1] = 10.0f;
+
+		/* Z position */
+		demo.engine[i]->particle_position.value[2] = 0.0f;
+		demo.engine[i]->particle_position.variance[2] = 10.0f;
 
 		demo.engine[i]->particle_velocity.value[0] = 0.0f;
 		demo.engine[i]->particle_velocity.value[1] = -700.0f;
@@ -139,53 +150,25 @@ int main(int argc, char **argv)
 		demo.engine[i]->new_particles_per_ms = 2000;
 	}
 
-	/* fountain 1 */
+	/* Fountain 1 */
 	demo.engine[0]->source_active = FALSE;
-
 	demo.engine[0]->particle_velocity.value[1] = -900.0f;
 
-	demo.engine[0]->min_initial_position[0] = (float)WIDTH / 2 - 5;
-	demo.engine[0]->min_initial_position[2] = 0.0f;
+	/* Individual X positions */
+	demo.engine[0]->particle_position.value[0] = (float)WIDTH / 2;
+	demo.engine[1]->particle_position.value[0] = (float)WIDTH / 4;
+	demo.engine[2]->particle_position.value[0] = ((float)WIDTH / 4) * 3;
+	demo.engine[3]->particle_position.value[0] = 0.0f;
+	demo.engine[4]->particle_position.value[0] = (float)WIDTH;
 
-	demo.engine[0]->max_initial_position[0] = (float) WIDTH / 2 + 5;
-	demo.engine[0]->max_initial_position[2] = 0.0f;
-
-	/* fountain 2 */
-	demo.engine[1]->min_initial_position[0] = (float)WIDTH / 4 - 5;
-	demo.engine[1]->min_initial_position[2] = 0.0f;
-
-	demo.engine[1]->max_initial_position[0] = (float) WIDTH / 4 + 5;
-	demo.engine[1]->max_initial_position[2] = 0.0f;
-
-	/* fountain 3 */
-	demo.engine[2]->min_initial_position[0] = ((float)WIDTH / 4) * 3 - 5;
-	demo.engine[2]->min_initial_position[2] = 0.0f;
-
-	demo.engine[2]->max_initial_position[0] = ((float) WIDTH / 4) * 3 + 5;
-	demo.engine[2]->max_initial_position[2] = 0.0f;
-
-	/* fountain 4 */
+	/* Side fountains */
 	demo.engine[3]->particle_count = 2000;
-
-	demo.engine[3]->min_initial_position[0] = -5.0f;
-	demo.engine[3]->min_initial_position[2] = 0.0f;
-
-	demo.engine[3]->max_initial_position[0] = 5.0f;
-	demo.engine[3]->max_initial_position[2] = 0.0f;
+	demo.engine[4]->particle_count = 2000;
 
 	demo.engine[3]->particle_velocity.value[0] = 350.0f;
 	demo.engine[3]->particle_velocity.value[1] = -450.0f;
 	demo.engine[3]->particle_velocity.variance[0] = 100.0f;
 	demo.engine[3]->particle_velocity.variance[1] = 100.0f;
-
-	/* fountain 5 */
-	demo.engine[4]->particle_count = 2000;
-
-	demo.engine[4]->min_initial_position[0] = (float)WIDTH -5;
-	demo.engine[4]->min_initial_position[2] = 0.0f;
-
-	demo.engine[4]->max_initial_position[0] = (float)WIDTH + 5;
-	demo.engine[4]->max_initial_position[2] = 0.0f;
 
 	demo.engine[4]->particle_velocity.value[0] = -350.0f;
 	demo.engine[4]->particle_velocity.value[1] = -450.0f;
