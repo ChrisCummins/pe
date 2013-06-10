@@ -346,7 +346,7 @@ static void _particle_engine_update(struct particle_engine *engine)
 				_update_particle(engine, &vertices[i], i,
 						 particle_age);
 			}
-		} else /* if (engine->current_time >= engine->next_particle_time) */ {
+		} else if (engine->source_active) {
 			/* Create a particle */
 			_create_particle(engine, &vertices[i], i);
 		}
@@ -362,6 +362,8 @@ struct particle_engine* particle_engine_new(CoglContext *ctx,
 	struct particle_engine *engine = g_slice_new0(struct particle_engine);
 
 	engine->colors = g_array_new(FALSE, FALSE, sizeof(struct color));
+
+	engine->source_active = TRUE;
 
 	engine->rand = g_rand_new();
 	engine->timer = g_timer_new();

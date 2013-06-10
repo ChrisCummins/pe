@@ -39,6 +39,10 @@ struct particle_engine {
 	CoglTexture *trexture;
 	CoglPrimitive *primitive;
 
+	/* Controls whether new particles are created. If false, no new
+	 * particles are created */
+	CoglBool source_active;
+
 	int used_particles_count;
 	CoglBool *used_particles;
 	struct particle *particles;
