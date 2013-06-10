@@ -4,7 +4,7 @@
 #include <glib.h>
 
 /*
- * A double precision variance.
+ * A double precision value.
  */
 struct fuzzy_double {
 	gdouble value;
@@ -16,11 +16,12 @@ struct fuzzy_double {
 	} type;
 };
 
-gdouble fuzzy_double_get_value(struct fuzzy_double *variance,
-			       GRand *rand);
+gdouble fuzzy_double_get_real_value(struct fuzzy_double *variance,
+				    GRand *rand);
 
 /*
- * A three dimensional vector variance.
+ * A 3D vector, can be used for introducing fuzziness to positions, velocities
+ * etc.
  */
 struct fuzzy_vector {
 	float value[3];
@@ -30,11 +31,9 @@ struct fuzzy_vector {
 		VECTOR_VARIANCE_LINEAR,
 		VECTOR_VARIANCE_PROPORTIONAL
 	} type;
-
-	float out[3];
 };
 
-void fuzzy_vector_get_value(struct fuzzy_vector *variance,
-			    GRand *rand, float *value);
+void fuzzy_vector_get_real_value(struct fuzzy_vector *variance,
+				 GRand *rand, float *value);
 
 #endif /* _VARIANCE_H */
