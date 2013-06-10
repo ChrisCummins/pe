@@ -1,13 +1,9 @@
 #ifndef _PARTICLE_ENGINE_H_
 #define _PARTICLE_ENGINE_H_
 
-#include <cogl/cogl.h>
+#include "variance.h"
 
-enum variance_type {
-	VARIANCE_NONE,
-	VARIANCE_LINEAR,
-	VARIANCE_GAUSSIAN
-};
+#include <cogl/cogl.h>
 
 struct color {
 	unsigned char r, g, b, a;
@@ -69,9 +65,7 @@ struct particle_engine {
 	 * variance of 0.5 means that each particle will have a lifespan of
 	 * particle_lifespan ± 50%.
 	 */
-	gdouble particle_lifespan;
-	gdouble particle_lifespan_variance;
-	enum variance_type particle_lifespan_variance_type;
+	struct double_variance particle_lifespan;
 
 	float min_initial_velocity[3];
 	float max_initial_velocity[3];

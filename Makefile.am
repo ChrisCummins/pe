@@ -3,6 +3,7 @@ noinst_PROGRAMS = pe
 pe_SOURCES = 				\
 	main.c 				\
 	particle-engine.c		\
+	variance.c			\
 	$(NULL)
 
 pe_LDADD =				\

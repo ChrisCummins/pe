@@ -194,23 +194,6 @@ static void _set_initial_color(struct particle_engine *engine,
 	color->a = 255;
 }
 
-static double _get_max_age(struct particle_engine *engine)
-{
-	switch (engine->particle_lifespan_variance_type) {
-
-	case VARIANCE_LINEAR:
-	{
-		gdouble v = engine->particle_lifespan / engine->particle_lifespan_variance;
-		return g_rand_double_range(engine->priv.rand,
-					   engine->particle_lifespan - v,
-					   engine->particle_lifespan + v);
-	}
-	case VARIANCE_NONE:
-	default:
-		return engine->particle_lifespan;
-	}
-}
-
 static void _get_particle_position(struct particle_engine *engine,
 				   const struct particle *particle,
 				   gdouble t, float *position)
@@ -256,7 +239,9 @@ static void _create_particle(struct particle_engine *engine,
 	_set_initial_position(engine, &particle->initial_position[0]);
 	_set_initial_velocity(engine, &particle->initial_velocity[0]);
 	_set_initial_color(engine, &particle->initial_color);
-	particle->max_age = _get_max_age(engine);
+	particle->max_age =
+		double_variance_get_value(&engine->particle_lifespan,
+					  engine->priv.rand);
 	particle->creation_time = engine->priv.current_time;
 
 	engine->priv.vertices[index].position[0] = particle->initial_position[0];
