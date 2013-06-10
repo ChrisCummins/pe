@@ -1,7 +1,7 @@
 #ifndef _PARTICLE_ENGINE_H_
 #define _PARTICLE_ENGINE_H_
 
-#include "variance.h"
+#include "fuzzy.h"
 
 #include <cogl/cogl.h>
 
@@ -55,9 +55,9 @@ struct particle_engine {
 	 */
 	float particle_size;
 
-	struct double_variance particle_lifespan;
-	struct vector_variance particle_velocity;
-	struct vector_variance particle_position;
+	struct fuzzy_double particle_lifespan;
+	struct fuzzy_vector particle_velocity;
+	struct fuzzy_vector particle_position;
 
 	/* <priv> */
 	struct {

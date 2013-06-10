@@ -1,7 +1,7 @@
-#include "variance.h"
+#include "fuzzy.h"
 
-gdouble double_variance_get_value(struct double_variance *variance,
-				  GRand *rand)
+gdouble fuzzy_double_get_value(struct fuzzy_double *variance,
+			       GRand *rand)
 {
 	switch (variance->type) {
 
@@ -25,9 +25,8 @@ gdouble double_variance_get_value(struct double_variance *variance,
 	}
 }
 
-void vector_variance_get_value(struct vector_variance *variance,
-			       GRand *rand,
-			       float *value)
+void fuzzy_vector_get_value(struct fuzzy_vector *variance,
+			    GRand *rand, float *value)
 {
 	unsigned int i;
 

@@ -210,17 +210,16 @@ static void _create_particle(struct particle_engine *engine,
 	struct particle *particle = &engine->priv.particles[index];
 
 	/* Set initial position */
-	vector_variance_get_value(&engine->particle_position, engine->priv.rand,
-				  &particle->initial_position[0]);
+	fuzzy_vector_get_value(&engine->particle_position, engine->priv.rand,
+			       &particle->initial_position[0]);
 
 	/* Set initial velocity */
-	vector_variance_get_value(&engine->particle_velocity, engine->priv.rand,
-				  &particle->initial_velocity[0]);
+	fuzzy_vector_get_value(&engine->particle_velocity, engine->priv.rand,
+			       &particle->initial_velocity[0]);
 
 	_set_initial_color(engine, &particle->initial_color);
-	particle->max_age =
-		double_variance_get_value(&engine->particle_lifespan,
-					  engine->priv.rand);
+	particle->max_age = fuzzy_double_get_value(&engine->particle_lifespan,
+						   engine->priv.rand);
 	particle->creation_time = engine->priv.current_time;
 
 	engine->priv.vertices[index].position[0] = particle->initial_position[0];

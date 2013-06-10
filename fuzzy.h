@@ -6,7 +6,7 @@
 /*
  * A double precision variance.
  */
-struct double_variance {
+struct fuzzy_double {
 	gdouble value;
 	gdouble variance;
 	enum {
@@ -16,13 +16,13 @@ struct double_variance {
 	} type;
 };
 
-gdouble double_variance_get_value(struct double_variance *variance,
-				  GRand *rand);
+gdouble fuzzy_double_get_value(struct fuzzy_double *variance,
+			       GRand *rand);
 
 /*
  * A three dimensional vector variance.
  */
-struct vector_variance {
+struct fuzzy_vector {
 	float value[3];
 	float variance[3];
 	enum {
@@ -34,7 +34,7 @@ struct vector_variance {
 	float out[3];
 };
 
-void vector_variance_get_value(struct vector_variance *variance,
-			       GRand *rand, float *value);
+void fuzzy_vector_get_value(struct fuzzy_vector *variance,
+			    GRand *rand, float *value);
 
 #endif /* _VARIANCE_H */
