@@ -1,16 +1,17 @@
-noinst_PROGRAMS = pe
+noinst_PROGRAMS = fountains
 
-pe_SOURCES = 				\
-	main.c 				\
+fountains_SOURCES = fountains.c $(particle_engine_sources)
+
+particle_engine_sources =		\
 	fuzzy.c				\
 	particle-engine.c		\
 	$(NULL)
 
-pe_LDADD =				\
+LDADD =					\
 	$(COGL_LIBS)			\
 	-lm
 
-pe_CFLAGS =				\
+AM_CFLAGS =				\
 	$(COGL_CFLAGS)			\
 	-g				\
 	-O0				\
