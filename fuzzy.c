@@ -14,7 +14,7 @@ float fuzzy_float_get_real_value(struct fuzzy_float *variance,
 	}
 	case FLOAT_VARIANCE_PROPORTIONAL:
 	{
-		float v = variance->value / variance->variance;
+		float v = variance->value * variance->variance;
 		return (float)g_rand_double_range(rand,
 						  variance->value - v,
 						  variance->value + v);
@@ -39,7 +39,7 @@ gdouble fuzzy_double_get_real_value(struct fuzzy_double *variance,
 	}
 	case DOUBLE_VARIANCE_PROPORTIONAL:
 	{
-		gdouble v = variance->value / variance->variance;
+		gdouble v = variance->value * variance->variance;
 		return g_rand_double_range(rand,
 					   variance->value - v,
 					   variance->value + v);
@@ -68,7 +68,7 @@ void fuzzy_vector_get_real_value(struct fuzzy_vector *variance,
 		break;
 	case VECTOR_VARIANCE_PROPORTIONAL:
 		for (i = 0; i < G_N_ELEMENTS(variance->value); i++) {
-			float v = variance->value[i] / variance->variance[i];
+			float v = variance->value[i] * variance->variance[i];
 
 			value[i] = (float)g_rand_double_range(rand,
 							      variance->value[i] - v,
