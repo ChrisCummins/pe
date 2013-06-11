@@ -19,6 +19,22 @@ float fuzzy_float_get_real_value(struct fuzzy_float *variance,
 						  variance->value - v,
 						  variance->value + v);
 	}
+	case FLOAT_VARIANCE_IRWIN_HALL:
+	{
+		int i, n = 12;
+		float u = 0, v;
+
+		for (i = 0; i < n; i++)
+			u += (float)g_rand_double_range(rand, 0.0f, 1.0f);
+
+		u -= n / 2;
+		u /= n / 2;
+
+		v = variance->variance * u;
+		return (float)g_rand_double_range(rand,
+						  variance->value - v,
+						  variance->value + v);
+	}
 	case FLOAT_VARIANCE_NONE:
 	default:
 		return variance->value;
@@ -73,6 +89,23 @@ void fuzzy_vector_get_real_value(struct fuzzy_vector *variance,
 			value[i] = (float)g_rand_double_range(rand,
 							      variance->value[i] - v,
 							      variance->value[i] + v);
+		}
+		break;
+	case VECTOR_VARIANCE_IRWIN_HALL:
+		for(i = 0; i < G_N_ELEMENTS(variance->value); i++) {
+			int j, n = 12;
+			float u = 0, v;
+
+			for (j = 0; j < n; j++)
+				u += (float)g_rand_double_range(rand, 0.0f, 1.0f);
+
+			u -= n / 2;
+			u /= n / 2;
+
+			v = variance->variance[i] * u;
+			value[i]= (float)g_rand_double_range(rand,
+							     variance->value[i] - v,
+							     variance->value[i] + v);
 		}
 		break;
 	case VECTOR_VARIANCE_NONE:
