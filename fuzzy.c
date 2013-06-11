@@ -119,7 +119,7 @@ void fuzzy_vector_get_real_value(struct fuzzy_vector *variance,
 void fuzzy_color_get_real_value(struct fuzzy_color *fuzzy_color, GRand *rand,
 				float *hue, float *saturation, float *luminance)
 {
-	*hue = CLAMP(fuzzy_float_get_real_value(&fuzzy_color->hue, rand), 0.0f, 360.0f);
+	*hue = fmodf(fuzzy_float_get_real_value(&fuzzy_color->hue, rand), 360.0f);
 	*saturation = CLAMP(fuzzy_float_get_real_value(&fuzzy_color->saturation, rand), 0.0f, 1.0f);
 	*luminance = CLAMP(fuzzy_float_get_real_value(&fuzzy_color->luminance, rand), 0.0f, 1.0f);
 }
