@@ -1,5 +1,6 @@
-noinst_PROGRAMS = fountains
+noinst_PROGRAMS = fireworks fountains
 
+fireworks_SOURCES = fireworks.c $(particle_engine_sources)
 fountains_SOURCES = fountains.c $(particle_engine_sources)
 
 particle_engine_sources =		\
