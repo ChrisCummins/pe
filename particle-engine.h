@@ -52,8 +52,19 @@ struct particle_engine {
 	float particle_size;
 
 	struct fuzzy_double particle_lifespan;
-	struct fuzzy_vector particle_velocity;
+
 	struct fuzzy_vector particle_position;
+
+	/*
+	 * A unit vector to describe particle starting direction.
+	 */
+	struct fuzzy_vector particle_direction;
+
+	/*
+	 * The initial particle speed.
+	 */
+	struct fuzzy_float particle_speed;
+
 	struct fuzzy_color particle_color;
 
 	/* <priv> */

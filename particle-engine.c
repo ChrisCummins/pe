@@ -190,6 +190,7 @@ static void _get_particle_color(struct particle_engine *engine,
 static void _create_particle(struct particle_engine *engine,
 			     struct vertex *vertex, int index)
 {
+	float initial_speed;
 	struct particle *particle = &engine->priv.particles[index];
 
 	/* Set initial position */
@@ -198,9 +199,16 @@ static void _create_particle(struct particle_engine *engine,
 				    &particle->initial_position[0]);
 
 	/* Set initial velocity */
-	fuzzy_vector_get_real_value(&engine->particle_velocity,
+	fuzzy_vector_get_real_value(&engine->particle_direction,
 				    engine->priv.rand,
 				    &particle->initial_velocity[0]);
+	initial_speed = fuzzy_float_get_real_value(&engine->particle_speed,
+						   engine->priv.rand);
+
+	/* Multiply unit vector by magnitude */
+	particle->initial_velocity[0] *= initial_speed;
+	particle->initial_velocity[1] *= initial_speed;
+	particle->initial_velocity[2] *= initial_speed;
 
 	/* Set initial color */
 	fuzzy_color_get_cogl_color(&engine->particle_color,

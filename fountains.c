@@ -121,6 +121,7 @@ int main(int argc, char **argv)
 		demo.engine[i]->particle_count = 10000;
 		demo.engine[i]->particle_size = 3.0f;
 
+		/* Lifespan */
 		demo.engine[i]->particle_lifespan.value = 2.0f;
 		demo.engine[i]->particle_lifespan.variance = 0.75f;
 		demo.engine[i]->particle_lifespan.type = DOUBLE_VARIANCE_PROPORTIONAL;
@@ -152,41 +153,43 @@ int main(int argc, char **argv)
 		demo.engine[i]->particle_color.luminance.variance = 0.15f;
 		demo.engine[i]->particle_color.luminance.type = FLOAT_VARIANCE_PROPORTIONAL;
 
-		demo.engine[i]->particle_velocity.value[0] = 0.0f;
-		demo.engine[i]->particle_velocity.value[1] = -700.0f;
-		demo.engine[i]->particle_velocity.value[2] = 0.0f;
-		demo.engine[i]->particle_velocity.variance[0] = 100.0f;
-		demo.engine[i]->particle_velocity.variance[1] = 200.0f;
-		demo.engine[i]->particle_velocity.variance[2] = 300.0f;
-		demo.engine[i]->particle_velocity.type = VECTOR_VARIANCE_LINEAR;
+		/* Direction */
+		demo.engine[i]->particle_direction.value[1] = -1.0f;
+		demo.engine[i]->particle_direction.variance[0] = 0.17f;
+		demo.engine[i]->particle_direction.variance[1] = 0.2f;
+		demo.engine[i]->particle_direction.variance[2] = 0.17f;
+		demo.engine[i]->particle_direction.type = VECTOR_VARIANCE_LINEAR;
+
+		/* Speed */
+		demo.engine[i]->particle_speed.value = 700.0f;
+		demo.engine[i]->particle_speed.variance = 0.2f;
+		demo.engine[i]->particle_speed.type = FLOAT_VARIANCE_PROPORTIONAL;
 
 		demo.engine[i]->new_particles_per_ms = 2000;
 	}
 
-	/* Fountain 1 */
-	demo.engine[0]->source_active = FALSE;
-	demo.engine[0]->particle_velocity.value[1] = -900.0f;
-
-	/* Individual X positions */
+	/* Fountain X positions */
 	demo.engine[0]->particle_position.value[0] = (float)WIDTH / 2;
 	demo.engine[1]->particle_position.value[0] = (float)WIDTH / 4;
 	demo.engine[2]->particle_position.value[0] = ((float)WIDTH / 4) * 3;
 	demo.engine[3]->particle_position.value[0] = 0.0f;
 	demo.engine[4]->particle_position.value[0] = (float)WIDTH;
 
+	/* Central fountain */
+	demo.engine[0]->source_active = FALSE;
+	demo.engine[0]->particle_speed.value = 900.0f;
+
 	/* Side fountains */
 	demo.engine[3]->particle_count = 2000;
 	demo.engine[4]->particle_count = 2000;
-
-	demo.engine[3]->particle_velocity.value[0] = 350.0f;
-	demo.engine[3]->particle_velocity.value[1] = -450.0f;
-	demo.engine[3]->particle_velocity.variance[0] = 100.0f;
-	demo.engine[3]->particle_velocity.variance[1] = 100.0f;
-
-	demo.engine[4]->particle_velocity.value[0] = -350.0f;
-	demo.engine[4]->particle_velocity.value[1] = -450.0f;
-	demo.engine[4]->particle_velocity.variance[0] = 100.0f;
-	demo.engine[4]->particle_velocity.variance[1] = 100.0f;
+	demo.engine[3]->particle_speed.value = 600.0f;
+	demo.engine[4]->particle_speed.value = 600.0f;
+	demo.engine[3]->particle_speed.variance = 0.05f;
+	demo.engine[4]->particle_speed.variance = 0.05f;
+	demo.engine[3]->particle_direction.value[0] = 0.5f;  /* X component */
+	demo.engine[4]->particle_direction.value[0] = -0.5f; /* X component */
+	demo.engine[3]->particle_direction.value[1] = -0.7f; /* Y component */
+	demo.engine[4]->particle_direction.value[1] = -0.7f; /* Y component */
 
 	g_idle_add(_update_cb, &demo);
 
