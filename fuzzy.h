@@ -41,6 +41,19 @@
 
 #include <glib.h>
 
+struct fuzzy_float {
+	float value;
+	float variance;
+	enum {
+		FLOAT_VARIANCE_NONE,
+		FLOAT_VARIANCE_LINEAR,
+		FLOAT_VARIANCE_PROPORTIONAL
+	} type;
+};
+
+float fuzzy_float_get_real_value(struct fuzzy_float *variance,
+				 GRand *rand);
+
 /*
  * A double precision value.
  */

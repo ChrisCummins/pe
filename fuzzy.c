@@ -1,5 +1,30 @@
 #include "fuzzy.h"
 
+float fuzzy_float_get_real_value(struct fuzzy_float *variance,
+				 GRand *rand)
+{
+	switch (variance->type) {
+
+	case FLOAT_VARIANCE_LINEAR:
+	{
+		float v = variance->variance / 2;
+		return (float)g_rand_double_range(rand,
+						  variance->value - v,
+						  variance->value + v);
+	}
+	case FLOAT_VARIANCE_PROPORTIONAL:
+	{
+		float v = variance->value / variance->variance;
+		return (float)g_rand_double_range(rand,
+						  variance->value - v,
+						  variance->value + v);
+	}
+	case FLOAT_VARIANCE_NONE:
+	default:
+		return variance->value;
+	}
+}
+
 gdouble fuzzy_double_get_real_value(struct fuzzy_double *variance,
 				    GRand *rand)
 {
