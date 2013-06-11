@@ -155,15 +155,15 @@ int main(int argc, char **argv)
 
 		/* Direction */
 		demo.engine[i]->particle_direction.value[1] = -1.0f;
-		demo.engine[i]->particle_direction.variance[0] = 0.17f;
-		demo.engine[i]->particle_direction.variance[1] = 0.2f;
-		demo.engine[i]->particle_direction.variance[2] = 0.17f;
-		demo.engine[i]->particle_direction.type = VECTOR_VARIANCE_LINEAR;
+		demo.engine[i]->particle_direction.variance[0] = 0.5f;
+		demo.engine[i]->particle_direction.variance[1] = 0.5f;
+		demo.engine[i]->particle_direction.variance[2] = 0.5f;
+		demo.engine[i]->particle_direction.type = VECTOR_VARIANCE_IRWIN_HALL;
 
 		/* Speed */
 		demo.engine[i]->particle_speed.value = 700.0f;
-		demo.engine[i]->particle_speed.variance = 0.2f;
-		demo.engine[i]->particle_speed.type = FLOAT_VARIANCE_PROPORTIONAL;
+		demo.engine[i]->particle_speed.variance = 250.0f;
+		demo.engine[i]->particle_speed.type = FLOAT_VARIANCE_IRWIN_HALL;
 
 		demo.engine[i]->new_particles_per_ms = 2000;
 	}
@@ -178,6 +178,10 @@ int main(int argc, char **argv)
 	/* Central fountain */
 	demo.engine[0]->source_active = FALSE;
 	demo.engine[0]->particle_speed.value = 900.0f;
+	demo.engine[0]->particle_direction.variance[0] = 0.3f;
+	demo.engine[0]->particle_direction.variance[1] = 0.3f;
+	demo.engine[0]->particle_direction.variance[2] = 0.3f;
+	demo.engine[0]->particle_speed.variance = 250.0f;
 
 	/* Side fountains */
 	demo.engine[3]->particle_count = 2000;
