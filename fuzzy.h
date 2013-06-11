@@ -39,6 +39,7 @@
 #ifndef _VARIANCE_H
 #define _VARIANCE_H
 
+#include <cogl/cogl.h>
 #include <glib.h>
 
 struct fuzzy_float {
@@ -86,5 +87,17 @@ struct fuzzy_vector {
 
 void fuzzy_vector_get_real_value(struct fuzzy_vector *variance,
 				 GRand *rand, float *value);
+
+struct fuzzy_color {
+	struct fuzzy_float hue;
+	struct fuzzy_float saturation;
+	struct fuzzy_float luminance;
+};
+
+void fuzzy_color_get_real_value(struct fuzzy_color *fuzzy_color, GRand *rand,
+				float *hue, float *saturation, float *luminance);
+
+void fuzzy_color_get_cogl_color(struct fuzzy_color *fuzzy_color, GRand *rand,
+				CoglColor *color);
 
 #endif /* _VARIANCE_H */
