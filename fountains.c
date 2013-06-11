@@ -40,7 +40,7 @@ static void frame_event_cb(CoglOnscreen *onscreen, CoglFrameEvent event,
 		demo->swap_ready = TRUE;
 }
 
-static gboolean _timeout_cb(gpointer data)
+static gboolean timeout_cb(gpointer data)
 {
 	struct demo *demo = data;
 	unsigned int i;
@@ -51,7 +51,7 @@ static gboolean _timeout_cb(gpointer data)
 	return TRUE;
 }
 
-static gboolean _update_cb(gpointer data)
+static gboolean update_cb(gpointer data)
 {
 	struct demo *demo = data;
 	CoglPollFD *poll_fds;
@@ -197,11 +197,11 @@ int main(int argc, char **argv)
 
 	cogl_onscreen_add_frame_callback(COGL_ONSCREEN(demo.fb),
 					 frame_event_cb, &demo, NULL);
-	demo.timeout_id = g_timeout_add(5000, _timeout_cb, &demo);
+	demo.timeout_id = g_timeout_add(5000, timeout_cb, &demo);
 
 	init_particle_engines(&demo);
 
-	g_idle_add(_update_cb, &demo);
+	g_idle_add(update_cb, &demo);
 
 	loop = g_main_loop_new (NULL, TRUE);
 	g_main_loop_run (loop);
