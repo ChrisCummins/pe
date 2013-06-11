@@ -9,11 +9,11 @@ void particle_to_string(struct particle *particle) {
 		particle->initial_position[1],
 		particle->initial_position[2]);
 
-	g_print("particle.initial_color    = rgba(%d, %d, %d, %d)\n",
-		particle->initial_color.r,
-		particle->initial_color.g,
-		particle->initial_color.b,
-		particle->initial_color.a);
+	g_print("particle.initial_color    = rgba(%.2f, %.2f, %.2f, %.2f)\n",
+		cogl_color_get_red(&particle->initial_color),
+		cogl_color_get_green(&particle->initial_color),
+		cogl_color_get_blue(&particle->initial_color),
+		cogl_color_get_alpha(&particle->initial_color));
 
 	g_print("particle.initial_velocity = [%f, %f, %f]\n",
 		particle->initial_velocity[0],
@@ -27,12 +27,6 @@ void particle_to_string(struct particle *particle) {
 		particle->max_age);
 
 	g_print("\n");
-}
-
-void color_to_string(struct color *color)
-{
-	g_print("rgba(%d, %d, %d, %d)\n",
-		color->r, color->g, color->b, color->a);
 }
 
 void particle_index_to_string(struct particle_engine *engine, int i)
@@ -59,17 +53,17 @@ void particle_index_to_string(struct particle_engine *engine, int i)
 		engine->priv.vertices[i].position[1],
 		engine->priv.vertices[i].position[2]);
 
-	g_print("particle[%d].initial_color    = rgba(%d, %d, %d, %d)\n", i,
-		particle.initial_color.r,
-		particle.initial_color.g,
-		particle.initial_color.b,
-		particle.initial_color.a);
+	g_print("particle[%d].initial_color    = rgba(%.2f, %.2f, %.2f, %.2f)\n", i,
+		cogl_color_get_red(&particle.initial_color),
+		cogl_color_get_green(&particle.initial_color),
+		cogl_color_get_blue(&particle.initial_color),
+		cogl_color_get_alpha(&particle.initial_color));
 
-	g_print("vertices[%d].color            = rgba(%d, %d, %d, %d)\n", i,
-		engine->priv.vertices[i].color.r,
-		engine->priv.vertices[i].color.g,
-		engine->priv.vertices[i].color.b,
-		engine->priv.vertices[i].color.a);
+	g_print("vertices[%d].color            = rgba(%.2f, %.2f, %.2f, %.2f)\n", i,
+		cogl_color_get_red(&engine->priv.vertices[i].color),
+		cogl_color_get_green(&engine->priv.vertices[i].color),
+		cogl_color_get_blue(&engine->priv.vertices[i].color),
+		cogl_color_get_alpha(&engine->priv.vertices[i].color));
 
 	g_print("particle[%d].initial_velocity = [%f, %f, %f]\n", i,
 		particle.initial_velocity[0],
@@ -141,7 +135,7 @@ static void _create_resources(struct particle_engine *engine)
 					   sizeof(struct vertex),
 					   G_STRUCT_OFFSET(struct vertex,
 							   color),
-					   4, COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE);
+					   4, COGL_ATTRIBUTE_TYPE_FLOAT);
 
 	engine->priv.primitive =
 		cogl_primitive_new_with_attributes(COGL_VERTICES_MODE_POINTS,
@@ -153,18 +147,6 @@ static void _create_resources(struct particle_engine *engine)
 		cogl_object_unref(attributes[j]);
 
 	engine->priv.last_update_time = engine->priv.current_time;
-}
-
-static void _set_initial_color(struct particle_engine *engine,
-			       struct color *color)
-{
-	unsigned char lum = (unsigned char)g_rand_int_range(engine->priv.rand, 150, 255);
-
-	/* TODO: this should have some parameters for configuring value/randomness */
-	color->r = lum;
-	color->g = lum;
-	color->b = (unsigned char)g_rand_int_range(engine->priv.rand, 230, 255);
-	color->a = 255;
 }
 
 static void _get_particle_position(struct particle_engine *engine,
@@ -194,14 +176,15 @@ static void _get_particle_position(struct particle_engine *engine,
 
 static void _get_particle_color(struct particle_engine *engine,
 				const struct particle *particle,
-				gdouble t, struct color *color)
+				gdouble t, CoglColor *color)
 {
 	gdouble remaining_time = 1.0f - t;
 
-	color->r = (unsigned char)(particle->initial_color.r * remaining_time);
-	color->g = (unsigned char)(particle->initial_color.g * remaining_time);
-	color->b = (unsigned char)(particle->initial_color.b * remaining_time);
-	color->a = (unsigned char)(particle->initial_color.a * remaining_time);
+	cogl_color_init_from_4f(color,
+				cogl_color_get_red(&particle->initial_color) * remaining_time,
+				cogl_color_get_green(&particle->initial_color) * remaining_time,
+				cogl_color_get_blue(&particle->initial_color) * remaining_time,
+				cogl_color_get_alpha(&particle->initial_color) * remaining_time);
 }
 
 static void _create_particle(struct particle_engine *engine,
@@ -219,7 +202,11 @@ static void _create_particle(struct particle_engine *engine,
 				    engine->priv.rand,
 				    &particle->initial_velocity[0]);
 
-	_set_initial_color(engine, &particle->initial_color);
+	/* Set initial color */
+	fuzzy_color_get_cogl_color(&engine->particle_color,
+				   engine->priv.rand,
+				   &particle->initial_color);
+
 	particle->max_age = fuzzy_double_get_real_value(&engine->particle_lifespan,
 							engine->priv.rand);
 	particle->creation_time = engine->priv.current_time;
@@ -228,10 +215,11 @@ static void _create_particle(struct particle_engine *engine,
 	engine->priv.vertices[index].position[1] = particle->initial_position[1];
 	engine->priv.vertices[index].position[2] = particle->initial_position[2];
 
-	engine->priv.vertices[index].color.r = particle->initial_color.r;
-	engine->priv.vertices[index].color.g = particle->initial_color.g;
-	engine->priv.vertices[index].color.b = particle->initial_color.b;
-	engine->priv.vertices[index].color.a = particle->initial_color.a;
+	cogl_color_init_from_4f(&engine->priv.vertices[index].color,
+				cogl_color_get_red(&particle->initial_color),
+				cogl_color_get_green(&particle->initial_color),
+				cogl_color_get_blue(&particle->initial_color),
+				cogl_color_get_alpha(&particle->initial_color));
 
 	engine->priv.used_particles_count++;
 	engine->priv.used_particles[index] = TRUE;

@@ -139,6 +139,19 @@ int main(int argc, char **argv)
 		demo.engine[i]->particle_position.value[2] = 0.0f;
 		demo.engine[i]->particle_position.variance[2] = 10.0f;
 
+		/* Color */
+		demo.engine[i]->particle_color.hue.value = 236.0f;
+		demo.engine[i]->particle_color.hue.variance = 0.05f;
+		demo.engine[i]->particle_color.hue.type = FLOAT_VARIANCE_PROPORTIONAL;
+
+		demo.engine[i]->particle_color.saturation.value = 1.0f;
+		demo.engine[i]->particle_color.saturation.variance = 0.0f;
+		demo.engine[i]->particle_color.saturation.type = FLOAT_VARIANCE_NONE;
+
+		demo.engine[i]->particle_color.luminance.value = 0.9f;
+		demo.engine[i]->particle_color.luminance.variance = 0.15f;
+		demo.engine[i]->particle_color.luminance.type = FLOAT_VARIANCE_PROPORTIONAL;
+
 		demo.engine[i]->particle_velocity.value[0] = 0.0f;
 		demo.engine[i]->particle_velocity.value[1] = -700.0f;
 		demo.engine[i]->particle_velocity.value[2] = 0.0f;

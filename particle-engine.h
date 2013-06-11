@@ -5,14 +5,10 @@
 
 #include <cogl/cogl.h>
 
-struct color {
-	unsigned char r, g, b, a;
-};
-
 struct particle {
 	float initial_position[3];
 	float initial_velocity[3];
-	struct color initial_color;
+	CoglColor initial_color;
 
 	/* Time of creation in milliseconds relative to the start of the engine
 	 * when the particle was created */
@@ -25,7 +21,7 @@ struct particle {
 
 struct vertex {
 	float position[3];
-	struct color color;
+	CoglColor color;
 };
 
 struct particle_engine {
@@ -58,6 +54,7 @@ struct particle_engine {
 	struct fuzzy_double particle_lifespan;
 	struct fuzzy_vector particle_velocity;
 	struct fuzzy_vector particle_position;
+	struct fuzzy_color particle_color;
 
 	/* <priv> */
 	struct {
