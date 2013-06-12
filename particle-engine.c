@@ -310,16 +310,20 @@ static void _destroy_particle(struct particle_engine *engine,
 static void _particle_engine_update(struct particle_engine *engine)
 {
 	int i, new_particles = 0, max_new_particles;
+	gdouble tick_time;
 	struct vertex *vertices;
 	CoglError *error = NULL;
 
 	/* Update the clocks */
 	engine->priv->last_update_time = engine->priv->current_time;
 	engine->priv->current_time = g_timer_elapsed(engine->priv->timer, NULL);
+	tick_time= engine->priv->current_time - engine->priv->last_update_time;
 
-	/* Calculate how many new particles can be created */
-	max_new_particles = (engine->priv->current_time - engine->priv->last_update_time) *
-		engine->new_particles_per_ms;
+	/* The maximum number of new particles to create for this tick. This can
+	 * be zero, for example in the case where the emitter isn't active.
+	 */
+	max_new_particles = engine->source_active ?
+		tick_time * engine->new_particles_per_ms : 0;
 
 	/* Create resources as necessary */
 	_create_resources(engine);
@@ -346,8 +350,7 @@ static void _particle_engine_update(struct particle_engine *engine)
 				_update_particle(engine, &vertices[i], i,
 						 particle_age);
 			}
-		} else if (engine->source_active &&
-			   new_particles < max_new_particles) {
+		} else if (new_particles < max_new_particles) {
 			/* Create a particle */
 			_create_particle(engine, &vertices[i], i);
 			new_particles++;
