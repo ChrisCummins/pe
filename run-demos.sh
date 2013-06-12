@@ -1,5 +1,5 @@
 # List of demonstrations
-demos=(fountains fireworks)
+demos=(snow fountains fireworks)
 
 # Time to run each demonstration for
 time=30
