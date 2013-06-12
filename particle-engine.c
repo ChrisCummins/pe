@@ -128,9 +128,9 @@ static void _get_particle_position(struct particle_engine *engine,
 		 * Displacement:
 		 *         s = ut + 0.5×(at²)
 		 */
-		position[i] = (particle->initial_position[i] +
-			       particle->initial_velocity[i] * elapsed_time +
-			       engine->acceleration[i] * half_elapsed_time2);
+		position[i] = particle->initial_position[i] +
+			particle->initial_velocity[i] * elapsed_time +
+			engine->acceleration[i] * half_elapsed_time2;
 	}
 }
 
