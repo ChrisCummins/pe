@@ -51,8 +51,14 @@ struct particle_engine {
 	 */
 	float particle_size;
 
+	/*
+	 * The length of time (in seconds) that a particle exists for.
+	 */
 	struct fuzzy_double particle_lifespan;
 
+	/*
+	 * The starting position for particles.
+	 */
 	struct fuzzy_vector particle_position;
 
 	/*
@@ -65,6 +71,12 @@ struct particle_engine {
 	 */
 	struct fuzzy_float particle_speed;
 
+	/*
+	 * The initial particle color. Once created, a particle maintains the
+	 * same color for the duration of it's lifespan, but it's opacity is
+	 * related to it's age, so a particle begins opaque and fades into
+	 * transparency.
+	 */
 	struct fuzzy_color particle_color;
 
 	/*
