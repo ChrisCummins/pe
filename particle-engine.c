@@ -248,8 +248,8 @@ static void _get_particle_velocity(struct particle_engine *engine,
 	particle->initial_velocity[2] *= initial_speed / mag;
 }
 
-static void _create_particle(struct particle_engine *engine,
-			     struct vertex *vertex, int index)
+static void create_particle(struct particle_engine *engine,
+			    struct vertex *vertex, int index)
 {
 	struct particle *particle = &engine->priv->particles[index];
 
@@ -284,9 +284,9 @@ static void _create_particle(struct particle_engine *engine,
 	engine->priv->active_particles[index] = TRUE;
 }
 
-static void _update_particle(struct particle_engine *engine,
-			     struct vertex *vertex, int index,
-			     gdouble particle_age)
+static void update_particle(struct particle_engine *engine,
+			    struct vertex *vertex, int index,
+			    gdouble particle_age)
 {
 	struct particle particle = engine->priv->particles[index];
 
@@ -297,8 +297,8 @@ static void _update_particle(struct particle_engine *engine,
 	_get_particle_color(engine, &particle, t, &vertex->color);
 }
 
-static void _destroy_particle(struct particle_engine *engine,
-			      struct vertex *vertex, int index)
+static void destroy_particle(struct particle_engine *engine,
+			     struct vertex *vertex, int index)
 {
 	engine->priv->active_particles_count--;
 	engine->priv->active_particles[index] = FALSE;
@@ -307,7 +307,7 @@ static void _destroy_particle(struct particle_engine *engine,
 	memset(vertex, 0, sizeof(struct vertex));
 }
 
-static void _particle_engine_update(struct particle_engine *engine)
+static void tick(struct particle_engine *engine)
 {
 	int i, new_particles = 0, max_new_particles;
 	gdouble tick_time;
@@ -317,7 +317,7 @@ static void _particle_engine_update(struct particle_engine *engine)
 	/* Update the clocks */
 	engine->priv->last_update_time = engine->priv->current_time;
 	engine->priv->current_time = g_timer_elapsed(engine->priv->timer, NULL);
-	tick_time= engine->priv->current_time - engine->priv->last_update_time;
+	tick_time = engine->priv->current_time - engine->priv->last_update_time;
 
 	/* The maximum number of new particles to create for this tick. This can
 	 * be zero, for example in the case where the emitter isn't active.
@@ -337,22 +337,26 @@ static void _particle_engine_update(struct particle_engine *engine)
 		return;
 	}
 
+	/*
+	 * Iterate over every particle and update/destroy/create as necessary.
+	 */
 	for (i = 0; i < engine->particle_count; i++) {
+
 		if (engine->priv->active_particles[i]) {
 			gdouble particle_age = engine->priv->current_time -
 				engine->priv->particles[i].creation_time;
 
 			if (particle_age >= engine->priv->particles[i].max_age) {
 				/* If a particle has expired, remove it */
-				_destroy_particle(engine, &vertices[i], i);
+				destroy_particle(engine, &vertices[i], i);
 			} else {
 				/* Otherwise, update it's position and color */
-				_update_particle(engine, &vertices[i], i,
-						 particle_age);
+				update_particle(engine, &vertices[i], i,
+						particle_age);
 			}
 		} else if (new_particles < max_new_particles) {
 			/* Create a particle */
-			_create_particle(engine, &vertices[i], i);
+			create_particle(engine, &vertices[i], i);
 			new_particles++;
 		}
 	}
@@ -389,7 +393,7 @@ void particle_engine_free(struct particle_engine *engine)
 
 void particle_engine_paint(struct particle_engine *engine)
 {
-	_particle_engine_update(engine);
+	tick(engine);
 
 	cogl_framebuffer_draw_primitive(engine->priv->fb,
 					engine->priv->pipeline,
