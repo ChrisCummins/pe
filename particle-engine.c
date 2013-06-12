@@ -290,7 +290,7 @@ static void _particle_engine_update(struct particle_engine *engine)
 				   COGL_BUFFER_MAP_HINT_DISCARD, &error);
 
 	if (error != NULL) {
-		g_error("failed to map buffer: %s", error->message);
+		g_error(G_STRLOC " failed to map buffer: %s", error->message);
 		return;
 	}
 
