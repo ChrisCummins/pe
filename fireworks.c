@@ -185,6 +185,9 @@ int main(int argc, char **argv)
 		demo.engine[i]->source_active = FALSE;
 		demo.engine[i]->particle_count = 10000;
 		demo.engine[i]->particle_size = 2.0f;
+		demo.engine[i]->acceleration[0] = 0.0f;
+		demo.engine[i]->acceleration[1] = 400.0f;
+		demo.engine[i]->acceleration[2] = 0.0f;
 	}
 
 	demo.last_active = -1;

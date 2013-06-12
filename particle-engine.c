@@ -153,9 +153,6 @@ static void _get_particle_position(struct particle_engine *engine,
 				   const struct particle *particle,
 				   gdouble t, float *position)
 {
-	/* TODO: this should have some parameters for configuring acceleration
-	 * (perhaps a gravity + wind abstraction?) */
-	static const float acceleration[3] = { 10.0f, 700.0f, 0.0f };
 	float elapsed_time = (float)(engine->priv.current_time - particle->creation_time);
 	float half_elapsed_time2 = (float)(elapsed_time * elapsed_time * 0.5f);
 	unsigned int i;
@@ -170,7 +167,7 @@ static void _get_particle_position(struct particle_engine *engine,
 		 */
 		position[i] = (particle->initial_position[i] +
 			       particle->initial_velocity[i] * elapsed_time +
-			       acceleration[i] * half_elapsed_time2);
+			       engine->acceleration[i] * half_elapsed_time2);
 	}
 }
 

@@ -67,6 +67,12 @@ struct particle_engine {
 
 	struct fuzzy_color particle_color;
 
+	/*
+	 * A uniform global force which is applied to every particle. Can be
+	 * used to model gravity, wind etc.
+	 */
+	float acceleration[3];
+
 	/* <priv> */
 	struct {
 		CoglContext *ctx;

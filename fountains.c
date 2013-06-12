@@ -130,6 +130,10 @@ static void init_particle_engines(struct demo *demo)
 		demo->engine[i]->particle_speed.type = FLOAT_VARIANCE_IRWIN_HALL;
 
 		demo->engine[i]->new_particles_per_ms = 2000;
+
+		demo->engine[i]->acceleration[0] = 10.0f;
+		demo->engine[i]->acceleration[1] = 700.0f;
+		demo->engine[i]->acceleration[2] = 0.0f;
 	}
 
 	/* Fountain X positions */
