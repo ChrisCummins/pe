@@ -32,8 +32,8 @@ struct particle_engine_priv {
 
 	GRand *rand;
 
-	int used_particles_count;
-	CoglBool *used_particles;
+	int active_particles_count;
+	CoglBool *active_particles;
 	struct particle *particles;
 	struct vertex *vertices;
 
@@ -75,7 +75,7 @@ void particle_index_to_string(struct particle_engine *engine, int i)
 	g_assert(i >= 0);
 	g_assert(i < engine->particle_count);
 
-	if (!engine->priv->used_particles[i]) {
+	if (!engine->priv->active_particles[i]) {
 		g_print("particle[%d] - unused\n\n", i);
 		return;
 	}
@@ -149,8 +149,8 @@ static void _create_resources(struct particle_engine *engine)
 	engine->priv->particles = g_new0(struct particle, engine->particle_count);
 	engine->priv->vertices = g_new0(struct vertex, engine->particle_count);
 
-	engine->priv->used_particles_count = engine->particle_count;
-	engine->priv->used_particles = g_new0(CoglBool, engine->particle_count);
+	engine->priv->active_particles_count = 0;
+	engine->priv->active_particles = g_new0(CoglBool, engine->particle_count);
 
 	for (i = 1; i < engine->particle_count; i++) {
 		*(struct particle **)&engine->priv->particles[i] =
@@ -280,8 +280,8 @@ static void _create_particle(struct particle_engine *engine,
 				cogl_color_get_blue(&particle->initial_color),
 				cogl_color_get_alpha(&particle->initial_color));
 
-	engine->priv->used_particles_count++;
-	engine->priv->used_particles[index] = TRUE;
+	engine->priv->active_particles_count++;
+	engine->priv->active_particles[index] = TRUE;
 }
 
 static void _update_particle(struct particle_engine *engine,
@@ -300,8 +300,8 @@ static void _update_particle(struct particle_engine *engine,
 static void _destroy_particle(struct particle_engine *engine,
 			      struct vertex *vertex, int index)
 {
-	engine->priv->used_particles_count--;
-	engine->priv->used_particles[index] = FALSE;
+	engine->priv->active_particles_count--;
+	engine->priv->active_particles[index] = FALSE;
 
 	/* Zero the vertex */
 	memset(vertex, 0, sizeof(struct vertex));
@@ -334,7 +334,7 @@ static void _particle_engine_update(struct particle_engine *engine)
 	}
 
 	for (i = 0; i < engine->particle_count; i++) {
-		if (engine->priv->used_particles[i]) {
+		if (engine->priv->active_particles[i]) {
 			gdouble particle_age = engine->priv->current_time -
 				engine->priv->particles[i].creation_time;
 
