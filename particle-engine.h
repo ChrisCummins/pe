@@ -5,25 +5,14 @@
 
 #include <cogl/cogl.h>
 
-struct particle {
-	float initial_position[3];
-	float initial_velocity[3];
-	CoglColor initial_color;
+/* Private particle engine structures */
+struct vertex;
+struct particle;
+struct particle_engine_priv;
 
-	/* Time of creation in milliseconds relative to the start of the engine
-	 * when the particle was created */
-	gdouble creation_time;
-
-	/* The maximum age of this particle in msecs. The particle will linearly
-	 * fade out until this age */
-	gdouble max_age;
-};
-
-struct vertex {
-	float position[3];
-	CoglColor color;
-};
-
+/*
+ * A particle engine.
+ */
 struct particle_engine {
 
 	/*
@@ -86,25 +75,7 @@ struct particle_engine {
 	float acceleration[3];
 
 	/* <priv> */
-	struct {
-		CoglContext *ctx;
-		CoglFramebuffer *fb;
-		CoglPipeline *pipeline;
-		CoglPrimitive *primitive;
-		CoglTexture *texture;
-		CoglAttributeBuffer *attribute_buffer;
-
-		GRand *rand;
-
-		int used_particles_count;
-		CoglBool *used_particles;
-		struct particle *particles;
-		struct vertex *vertices;
-
-		GTimer *timer;
-		gdouble current_time;
-		gdouble last_update_time;
-	} priv;
+	struct particle_engine_priv *priv;
 };
 
 struct particle_engine *particle_engine_new(CoglContext *ctx, CoglFramebuffer *fb);
