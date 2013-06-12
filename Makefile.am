@@ -1,8 +1,9 @@
-noinst_PROGRAMS = fireworks fountains snow
+noinst_PROGRAMS = fireworks fountains snow catherine_wheel
 
 fireworks_SOURCES = fireworks.c $(particle_engine_sources)
 fountains_SOURCES = fountains.c $(particle_engine_sources)
 snow_SOURCES = snow.c $(particle_engine_sources)
+catherine_wheel_SOURCES = catherine-wheel.c $(particle_engine_sources)
 
 particle_engine_sources =		\
 	fuzzy.c				\

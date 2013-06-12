@@ -140,6 +140,7 @@ Thumbs.db
 #
 !.gitignore
 
+/catherine_wheel
 /fireworks
 /fountains
 /snow
