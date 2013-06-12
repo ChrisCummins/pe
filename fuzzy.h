@@ -26,6 +26,10 @@
  *                            range of possible values is linearly distributed
  *                            from [50, 150] (100 ± 50%).
  *
+ *               IRWIN HALL   This is a fast computation to roughly approximate
+ *                            a normal distribution, so the random values will
+ *                            be normally distributed across the variance range.
+ *
  *               NONE         No fuzziness, this represents a real and
  *                            deterministic value.
  *
