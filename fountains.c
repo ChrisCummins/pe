@@ -111,7 +111,6 @@ static void init_particle_engines(struct demo *demo)
 		demo->engine[i]->particle_color.hue.type = FLOAT_VARIANCE_PROPORTIONAL;
 
 		demo->engine[i]->particle_color.saturation.value = 1.0f;
-		demo->engine[i]->particle_color.saturation.variance = 0.0f;
 		demo->engine[i]->particle_color.saturation.type = FLOAT_VARIANCE_NONE;
 
 		demo->engine[i]->particle_color.luminance.value = 0.9f;
