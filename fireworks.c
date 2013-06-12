@@ -47,8 +47,8 @@ static void ignite_firework(struct demo *demo, int i) {
 
 	/* Lifespan */
 	demo->engine[i]->particle_lifespan.value = g_random_double_range(0.75, 2);
-	demo->engine[i]->particle_lifespan.variance = 0.75f;
-	demo->engine[i]->particle_lifespan.type = DOUBLE_VARIANCE_PROPORTIONAL;
+	demo->engine[i]->particle_lifespan.variance = 1.5f;
+	demo->engine[i]->particle_lifespan.type = DOUBLE_VARIANCE_LINEAR;
 
 	/* Direction */
 	demo->engine[i]->particle_direction.variance[0] = 1.0f;
