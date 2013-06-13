@@ -15,6 +15,10 @@ struct particle {
 	/* The maximum age of this particle in msecs. The particle will linearly
 	 * fade out until this age */
 	gdouble max_age;
+
+	/* Time to live. This value represents the age of the particle. When it
+	 * reaches zero, the particle ist destroyed. */
+	gdouble ttl;
 };
 
 struct vertex {
@@ -114,7 +118,7 @@ static void _create_resources(struct particle_engine *engine)
 
 static void _get_particle_position(struct particle_engine *engine,
 				   const struct particle *particle,
-				   gdouble t, float *position)
+				   float *position)
 {
 	float elapsed_time = (float)(engine->priv->current_time - particle->creation_time);
 	float half_elapsed_time2 = (float)(elapsed_time * elapsed_time * 0.5f);
@@ -136,15 +140,15 @@ static void _get_particle_position(struct particle_engine *engine,
 
 static void _get_particle_color(struct particle_engine *engine,
 				const struct particle *particle,
-				gdouble t, CoglColor *color)
+				CoglColor *color)
 {
-	gdouble remaining_time = 1.0f - t;
+	gdouble t = particle->ttl / particle->max_age;
 
 	cogl_color_init_from_4f(color,
-				cogl_color_get_red(&particle->initial_color) * remaining_time,
-				cogl_color_get_green(&particle->initial_color) * remaining_time,
-				cogl_color_get_blue(&particle->initial_color) * remaining_time,
-				cogl_color_get_alpha(&particle->initial_color) * remaining_time);
+				cogl_color_get_red(&particle->initial_color) * t,
+				cogl_color_get_green(&particle->initial_color) * t,
+				cogl_color_get_blue(&particle->initial_color) * t,
+				cogl_color_get_alpha(&particle->initial_color) * t);
 }
 
 static void _get_particle_velocity(struct particle_engine *engine,
@@ -192,6 +196,7 @@ static void create_particle(struct particle_engine *engine,
 
 	particle->max_age = fuzzy_double_get_real_value(&engine->particle_lifespan,
 							engine->priv->rand);
+	particle->ttl = particle->max_age;
 	particle->creation_time = engine->priv->current_time;
 
 	engine->priv->vertices[index].position[0] = particle->initial_position[0];
@@ -210,15 +215,12 @@ static void create_particle(struct particle_engine *engine,
 
 static void update_particle(struct particle_engine *engine,
 			    struct vertex *vertex, int index,
-			    gdouble particle_age)
+			    gdouble tick_time)
 {
-	struct particle particle = engine->priv->particles[index];
+	struct particle *particle = &engine->priv->particles[index];
 
-	gdouble t = particle_age / (float)particle.max_age;
-
-	_get_particle_position(engine, &particle, t,
-			       &vertex->position[0]);
-	_get_particle_color(engine, &particle, t, &vertex->color);
+	_get_particle_position(engine, particle, &vertex->position[0]);
+	_get_particle_color(engine, particle, &vertex->color);
 }
 
 static void destroy_particle(struct particle_engine *engine,
@@ -265,18 +267,18 @@ static void tick(struct particle_engine *engine)
 	 * Iterate over every particle and update/destroy/create as necessary.
 	 */
 	for (i = 0; i < engine->particle_count; i++) {
-
 		if (engine->priv->active_particles[i]) {
-			gdouble particle_age = engine->priv->current_time -
-				engine->priv->particles[i].creation_time;
+			struct particle *particle = &engine->priv->particles[i];
 
-			if (particle_age >= engine->priv->particles[i].max_age) {
+			particle->ttl -= tick_time;
+
+			if (particle->ttl > 0) {
+				/* Update the particle's position and color */
+				update_particle(engine, &vertices[i], i,
+						tick_time);
+			} else {
 				/* If a particle has expired, remove it */
 				destroy_particle(engine, &vertices[i], i);
-			} else {
-				/* Otherwise, update it's position and color */
-				update_particle(engine, &vertices[i], i,
-						particle_age);
 			}
 		} else if (new_particles < max_new_particles) {
 			/* Create a particle */
