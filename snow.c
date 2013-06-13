@@ -55,7 +55,7 @@ static gboolean update_cb(gpointer data)
 	int64_t timeout;
 
 	/* Change the direction and velocity of wind over time */
-	demo->engine->acceleration[0] = 15 *
+	demo->engine->acceleration[0] = 0.3 *
 		sin(0.25 * g_timer_elapsed(demo->timer, NULL));
 
 	/* Change the rate at which new snow appears over time */
@@ -88,9 +88,7 @@ static void init_particle_engine(struct demo *demo)
 	demo->engine->new_particles_per_ms = 250;
 
 	/* Global force */
-	demo->engine->acceleration[0] = 0.0f;
-	demo->engine->acceleration[1] = 40.0f;
-	demo->engine->acceleration[2] = 0.0f;
+	demo->engine->acceleration[1] = 0.6;
 
 	/* Particle position */
 	demo->engine->particle_position.value[0] = WIDTH / 2;
@@ -99,8 +97,8 @@ static void init_particle_engine(struct demo *demo)
 	demo->engine->particle_position.type = VECTOR_VARIANCE_LINEAR;
 
 	/* Particle speed */
-	demo->engine->particle_speed.value = 30.0f;
-	demo->engine->particle_speed.variance = 1.0f;
+	demo->engine->particle_speed.value = 0.06;
+	demo->engine->particle_speed.variance = 0.02;
 	demo->engine->particle_speed.type = FLOAT_VARIANCE_PROPORTIONAL;
 
 	/* Direction */

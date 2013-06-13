@@ -112,7 +112,7 @@ static void init_particle_engines(struct demo *demo)
 		demo->engine[i]->new_particles_per_ms = demo->engine[i]->particle_count / 2;
 
 		/* Global force */
-		demo->engine[i]->acceleration[1] = 700.0f;
+		demo->engine[i]->acceleration[1] = 14;
 
 		/* Particle position */
 		demo->engine[i]->particle_position.value[0] = WIDTH / 2;
@@ -123,7 +123,7 @@ static void init_particle_engines(struct demo *demo)
 		demo->engine[i]->particle_position.type = VECTOR_VARIANCE_LINEAR;
 
 		/* Particle speed */
-		demo->engine[i]->particle_speed.value = 600.0f;
+		demo->engine[i]->particle_speed.value = 12;
 		demo->engine[i]->particle_speed.variance = 0.1;
 		demo->engine[i]->particle_speed.type = FLOAT_VARIANCE_PROPORTIONAL;
 

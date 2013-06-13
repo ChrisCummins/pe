@@ -57,7 +57,7 @@ static void ignite_firework(struct demo *demo, int i) {
 	demo->engine[i]->particle_direction.type = VECTOR_VARIANCE_LINEAR;
 
 	/* Speed */
-	demo->engine[i]->particle_speed.value = g_random_double_range(300, 700);
+	demo->engine[i]->particle_speed.value = g_random_double_range(4, 14);
 	demo->engine[i]->particle_speed.variance = 0.3f;
 	demo->engine[i]->particle_speed.type = FLOAT_VARIANCE_PROPORTIONAL;
 
@@ -185,9 +185,7 @@ int main(int argc, char **argv)
 		demo.engine[i]->source_active = FALSE;
 		demo.engine[i]->particle_count = 10000;
 		demo.engine[i]->particle_size = 2.0f;
-		demo.engine[i]->acceleration[0] = 0.0f;
-		demo.engine[i]->acceleration[1] = 400.0f;
-		demo.engine[i]->acceleration[2] = 0.0f;
+		demo.engine[i]->acceleration[1] = 8;
 	}
 
 	demo.last_active = -1;

@@ -125,12 +125,12 @@ static void init_particle_engines(struct demo *demo)
 		demo->engine[i]->particle_direction.type = VECTOR_VARIANCE_IRWIN_HALL;
 
 		/* Speed */
-		demo->engine[i]->particle_speed.value = 700.0f;
-		demo->engine[i]->particle_speed.variance = 250.0f;
+		demo->engine[i]->particle_speed.value = 14;
+		demo->engine[i]->particle_speed.variance = 5;
 		demo->engine[i]->particle_speed.type = FLOAT_VARIANCE_IRWIN_HALL;
 
-		demo->engine[i]->acceleration[0] = 10.0f;
-		demo->engine[i]->acceleration[1] = 700.0f;
+		demo->engine[i]->acceleration[0] = 0.2;
+		demo->engine[i]->acceleration[1] = 14;
 		demo->engine[i]->acceleration[2] = 0.0f;
 	}
 
@@ -143,19 +143,18 @@ static void init_particle_engines(struct demo *demo)
 
 	/* Central fountain */
 	demo->engine[0]->source_active = FALSE;
-	demo->engine[0]->particle_speed.value = 900.0f;
+	demo->engine[0]->particle_speed.value = 18.0f;
 	demo->engine[0]->particle_direction.variance[0] = 0.3f;
 	demo->engine[0]->particle_direction.variance[1] = 0.3f;
 	demo->engine[0]->particle_direction.variance[2] = 0.3f;
-	demo->engine[0]->particle_speed.variance = 250.0f;
 
 	/* Side fountains */
 	demo->engine[3]->particle_count = 5000;
 	demo->engine[4]->particle_count = 5000;
 	demo->engine[4]->new_particles_per_ms = 2000;
 	demo->engine[4]->new_particles_per_ms = 2000;
-	demo->engine[3]->particle_speed.value = 600.0f;
-	demo->engine[4]->particle_speed.value = 600.0f;
+	demo->engine[3]->particle_speed.value = 12;
+	demo->engine[4]->particle_speed.value = 12;
 	demo->engine[3]->particle_speed.variance = 0.05f;
 	demo->engine[4]->particle_speed.variance = 0.05f;
 	demo->engine[3]->particle_direction.value[0] = 0.5f;  /* X component */
