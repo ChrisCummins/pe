@@ -37,7 +37,7 @@ static void paint_cb(struct demo *demo) {
 
 	cogl_framebuffer_clear4f(demo->fb,
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
-				 0.0f, 0.0f, 0.1f, 1);
+				 0, 0, 0, 1);
 
 	for (i = 0; i < G_N_ELEMENTS(demo->engine); i++)
 		particle_engine_paint(demo->engine[i]);
@@ -107,7 +107,7 @@ static void init_particle_engines(struct demo *demo)
 
 	for (i = 0; i < G_N_ELEMENTS(demo->engine); i++) {
 		demo->engine[i] = particle_engine_new(demo->ctx, demo->fb);
-		demo->engine[i]->particle_count = 85000;
+		demo->engine[i]->particle_count = 80000;
 		demo->engine[i]->particle_size = 1.0f;
 		demo->engine[i]->new_particles_per_ms = demo->engine[i]->particle_count / 2;
 
@@ -138,12 +138,14 @@ static void init_particle_engines(struct demo *demo)
 		demo->engine[i]->particle_lifespan.type = DOUBLE_VARIANCE_LINEAR;
 
 		/* Color */
-		demo->engine[i]->particle_color.hue.value = 26;
-		demo->engine[i]->particle_color.hue.variance = 26;
+		demo->engine[i]->particle_color.hue.value = 32;
+		demo->engine[i]->particle_color.hue.variance = 20;
 		demo->engine[i]->particle_color.hue.type = FLOAT_VARIANCE_LINEAR;
 
 		demo->engine[i]->particle_color.saturation.value = 1;
 		demo->engine[i]->particle_color.luminance.value = 0.6;
+		demo->engine[i]->particle_color.luminance.variance = 0.4;
+		demo->engine[i]->particle_color.luminance.type = FLOAT_VARIANCE_LINEAR;
 	}
 }
 
