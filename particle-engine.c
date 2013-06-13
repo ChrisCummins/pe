@@ -8,10 +8,6 @@ struct particle {
 	float initial_velocity[3];
 	CoglColor initial_color;
 
-	/* Time of creation in milliseconds relative to the start of the engine
-	 * when the particle was created */
-	gdouble creation_time;
-
 	/* The maximum age of this particle in msecs. The particle will linearly
 	 * fade out until this age */
 	gdouble max_age;
@@ -162,7 +158,6 @@ static void create_particle(struct particle_engine *engine,
 	particle->max_age = fuzzy_double_get_real_value(&engine->particle_lifespan,
 							engine->priv->rand);
 	particle->ttl = particle->max_age;
-	particle->creation_time = engine->priv->current_time;
 
 	engine->priv->vertices[index].position[0] = particle->initial_position[0];
 	engine->priv->vertices[index].position[1] = particle->initial_position[1];
@@ -183,7 +178,7 @@ static void update_particle_position(struct particle_engine *engine,
 				     float *acceleration,
 				     float *position)
 {
-	float elapsed_time = (float)(engine->priv->current_time - particle->creation_time);
+	float elapsed_time = (float)(particle->max_age - particle->ttl);
 	float half_elapsed_time2 = (float)(elapsed_time * elapsed_time * 0.5f);
 	unsigned int i;
 
