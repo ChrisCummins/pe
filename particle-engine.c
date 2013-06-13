@@ -200,8 +200,7 @@ static void _get_particle_position(struct particle_engine *engine,
 	}
 }
 
-static void _get_particle_color(struct particle_engine *engine,
-				const struct particle *particle,
+static void _get_particle_color(const struct particle *particle,
 				CoglColor *color)
 {
 	gdouble t = particle->ttl / particle->max_age;
@@ -220,7 +219,7 @@ static void update_particle(struct particle_engine *engine,
 	struct particle *particle = &engine->priv->particles[index];
 
 	_get_particle_position(engine, particle, &vertex->position[0]);
-	_get_particle_color(engine, particle, &vertex->color);
+	_get_particle_color(particle, &vertex->color);
 }
 
 static void destroy_particle(struct particle_engine *engine,
