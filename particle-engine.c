@@ -178,9 +178,9 @@ static void create_particle(struct particle_engine *engine,
 	engine->priv->active_particles[index] = TRUE;
 }
 
-static void _get_particle_position(struct particle_engine *engine,
-				   const struct particle *particle,
-				   float *position)
+static void update_particle_position(struct particle_engine *engine,
+				     const struct particle *particle,
+				     float *position)
 {
 	float elapsed_time = (float)(engine->priv->current_time - particle->creation_time);
 	float half_elapsed_time2 = (float)(elapsed_time * elapsed_time * 0.5f);
@@ -200,8 +200,8 @@ static void _get_particle_position(struct particle_engine *engine,
 	}
 }
 
-static void _get_particle_color(const struct particle *particle,
-				CoglColor *color)
+static void update_particle_color(const struct particle *particle,
+				  CoglColor *color)
 {
 	gdouble t = particle->ttl / particle->max_age;
 
@@ -218,8 +218,8 @@ static void update_particle(struct particle_engine *engine,
 {
 	struct particle *particle = &engine->priv->particles[index];
 
-	_get_particle_position(engine, particle, &vertex->position[0]);
-	_get_particle_color(particle, &vertex->color);
+	update_particle_position(engine, particle, &vertex->position[0]);
+	update_particle_color(particle, &vertex->color);
 }
 
 static void destroy_particle(struct particle_engine *engine,
