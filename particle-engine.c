@@ -116,41 +116,6 @@ static void _create_resources(struct particle_engine *engine)
 	engine->priv->last_update_time = engine->priv->current_time;
 }
 
-static void _get_particle_position(struct particle_engine *engine,
-				   const struct particle *particle,
-				   float *position)
-{
-	float elapsed_time = (float)(engine->priv->current_time - particle->creation_time);
-	float half_elapsed_time2 = (float)(elapsed_time * elapsed_time * 0.5f);
-	unsigned int i;
-
-	for (i = 0; i < 3; i++) {
-		/* u = initial velocity,
-		 * a = acceleration,
-		 * t = time
-		 *
-		 * Displacement:
-		 *         s = ut + 0.5×(at²)
-		 */
-		position[i] = particle->initial_position[i] +
-			particle->initial_velocity[i] * elapsed_time +
-			engine->acceleration[i] * half_elapsed_time2;
-	}
-}
-
-static void _get_particle_color(struct particle_engine *engine,
-				const struct particle *particle,
-				CoglColor *color)
-{
-	gdouble t = particle->ttl / particle->max_age;
-
-	cogl_color_init_from_4f(color,
-				cogl_color_get_red(&particle->initial_color) * t,
-				cogl_color_get_green(&particle->initial_color) * t,
-				cogl_color_get_blue(&particle->initial_color) * t,
-				cogl_color_get_alpha(&particle->initial_color) * t);
-}
-
 static void _get_particle_velocity(struct particle_engine *engine,
 				   struct particle *particle)
 {
@@ -211,6 +176,41 @@ static void create_particle(struct particle_engine *engine,
 
 	engine->priv->active_particles_count++;
 	engine->priv->active_particles[index] = TRUE;
+}
+
+static void _get_particle_position(struct particle_engine *engine,
+				   const struct particle *particle,
+				   float *position)
+{
+	float elapsed_time = (float)(engine->priv->current_time - particle->creation_time);
+	float half_elapsed_time2 = (float)(elapsed_time * elapsed_time * 0.5f);
+	unsigned int i;
+
+	for (i = 0; i < 3; i++) {
+		/* u = initial velocity,
+		 * a = acceleration,
+		 * t = time
+		 *
+		 * Displacement:
+		 *         s = ut + 0.5×(at²)
+		 */
+		position[i] = particle->initial_position[i] +
+			particle->initial_velocity[i] * elapsed_time +
+			engine->acceleration[i] * half_elapsed_time2;
+	}
+}
+
+static void _get_particle_color(struct particle_engine *engine,
+				const struct particle *particle,
+				CoglColor *color)
+{
+	gdouble t = particle->ttl / particle->max_age;
+
+	cogl_color_init_from_4f(color,
+				cogl_color_get_red(&particle->initial_color) * t,
+				cogl_color_get_green(&particle->initial_color) * t,
+				cogl_color_get_blue(&particle->initial_color) * t,
+				cogl_color_get_alpha(&particle->initial_color) * t);
 }
 
 static void update_particle(struct particle_engine *engine,
