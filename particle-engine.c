@@ -8,7 +8,7 @@ struct particle {
 	float velocity[3];
 	CoglColor initial_color;
 
-	/* The maximum age of this particle in msecs. The particle will linearly
+	/* The maximum age of this particle in seconds. The particle will linearly
 	 * fade out until this age */
 	gdouble max_age;
 
