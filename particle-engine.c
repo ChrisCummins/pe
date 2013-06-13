@@ -213,11 +213,10 @@ static void update_particle_color(const struct particle *particle,
 }
 
 static void update_particle(struct particle_engine *engine,
-			    struct vertex *vertex, int index,
+			    struct particle *particle,
+			    struct vertex *vertex,
 			    gdouble tick_time)
 {
-	struct particle *particle = &engine->priv->particles[index];
-
 	update_particle_position(engine, particle, &vertex->position[0]);
 	update_particle_color(particle, &vertex->color);
 }
@@ -273,7 +272,7 @@ static void tick(struct particle_engine *engine)
 
 			if (particle->ttl > 0) {
 				/* Update the particle's position and color */
-				update_particle(engine, &vertices[i], i,
+				update_particle(engine, particle, &vertices[i],
 						tick_time);
 			} else {
 				/* If a particle has expired, remove it */
