@@ -42,7 +42,7 @@ struct particle_engine_priv {
 	gdouble last_update_time;
 };
 
-static CoglPipeline *_create_pipeline(struct particle_engine *engine)
+static CoglPipeline *create_pipeline(struct particle_engine *engine)
 {
 	CoglPipeline *pipeline = cogl_pipeline_new(engine->priv->ctx);
 
@@ -59,7 +59,7 @@ static CoglPipeline *_create_pipeline(struct particle_engine *engine)
 	return pipeline;
 }
 
-static void _create_resources(struct particle_engine *engine)
+static void create_resources(struct particle_engine *engine)
 {
 	CoglAttribute *attributes[2];
 	unsigned int i;
@@ -67,8 +67,7 @@ static void _create_resources(struct particle_engine *engine)
 	if (engine->priv->pipeline != NULL)
 		return;
 
-	engine->priv->pipeline = _create_pipeline(engine);
-
+	engine->priv->pipeline = create_pipeline(engine);
 	engine->priv->particles = g_new0(struct particle, engine->particle_count);
 	engine->priv->vertices = g_new0(struct vertex, engine->particle_count);
 
@@ -106,11 +105,17 @@ static void _create_resources(struct particle_engine *engine)
 	engine->priv->last_update_time = engine->priv->current_time;
 }
 
-static void _get_particle_velocity(struct particle_engine *engine,
-				   struct particle *particle)
+static void create_particle(struct particle_engine *engine, int index)
 {
+	struct particle *particle = &engine->priv->particles[index];
+	struct vertex *vertex = &engine->priv->vertices[index];
 	float initial_speed, mag;
+	unsigned int i;
 
+	/* Get position */
+	fuzzy_vector_get_real_value(&engine->particle_position,
+				    engine->priv->rand,
+				    &particle->initial_position[0]);
 	/* Get speed */
 	initial_speed = fuzzy_float_get_real_value(&engine->particle_speed,
 						   engine->priv->rand);
@@ -125,24 +130,12 @@ static void _get_particle_velocity(struct particle_engine *engine,
 		   (particle->initial_velocity[1] * particle->initial_velocity[1]) +
 		   (particle->initial_velocity[2] * particle->initial_velocity[2]));
 
-	/* Scale to direction unit vector */
-	particle->initial_velocity[0] *= initial_speed / mag;
-	particle->initial_velocity[1] *= initial_speed / mag;
-	particle->initial_velocity[2] *= initial_speed / mag;
-}
+	for (i = 0; i < 3; i++) {
+		/* Scale velocity from unit vector */
+		particle->initial_velocity[i] *= initial_speed / mag;
 
-static void create_particle(struct particle_engine *engine,
-			    struct vertex *vertex, int index)
-{
-	struct particle *particle = &engine->priv->particles[index];
-
-	/* Set initial position */
-	fuzzy_vector_get_real_value(&engine->particle_position,
-				    engine->priv->rand,
-				    &particle->initial_position[0]);
-
-	/* Set initial velocity */
-	_get_particle_velocity(engine, &engine->priv->particles[index]);
+		vertex->position[i] = particle->initial_position[i];
+	}
 
 	/* Set initial color */
 	fuzzy_color_get_cogl_color(&engine->particle_color,
@@ -152,10 +145,6 @@ static void create_particle(struct particle_engine *engine,
 	particle->max_age = fuzzy_double_get_real_value(&engine->particle_lifespan,
 							engine->priv->rand);
 	particle->ttl = particle->max_age;
-
-	engine->priv->vertices[index].position[0] = particle->initial_position[0];
-	engine->priv->vertices[index].position[1] = particle->initial_position[1];
-	engine->priv->vertices[index].position[2] = particle->initial_position[2];
 
 	cogl_color_init_from_4f(&engine->priv->vertices[index].color,
 				cogl_color_get_red(&particle->initial_color),
@@ -167,14 +156,17 @@ static void create_particle(struct particle_engine *engine,
 	engine->priv->active_particles[index] = TRUE;
 }
 
-static void update_particle_position(const struct particle *particle,
-				     float *acceleration,
-				     float *position)
+static void update_particle(struct particle *particle,
+			    float *acceleration,
+			    struct vertex *vertex,
+			    gdouble tick_time)
 {
 	float elapsed_time = (float)(particle->max_age - particle->ttl);
 	float half_elapsed_time2 = (float)(elapsed_time * elapsed_time * 0.5f);
+	gdouble t = particle->ttl / particle->max_age;
 	unsigned int i;
 
+	/* Update position */
 	for (i = 0; i < 3; i++) {
 		/* u = initial velocity,
 		 * a = acceleration,
@@ -183,31 +175,17 @@ static void update_particle_position(const struct particle *particle,
 		 * Displacement:
 		 *         s = ut + 0.5×(at²)
 		 */
-		position[i] = particle->initial_position[i] +
+		vertex->position[i] = particle->initial_position[i] +
 			particle->initial_velocity[i] * elapsed_time +
 			acceleration[i] * half_elapsed_time2;
 	}
-}
 
-static void update_particle_color(const struct particle *particle,
-				  CoglColor *color)
-{
-	gdouble t = particle->ttl / particle->max_age;
-
-	cogl_color_init_from_4f(color,
+	/* Update color */
+	cogl_color_init_from_4f(&vertex->color,
 				cogl_color_get_red(&particle->initial_color) * t,
 				cogl_color_get_green(&particle->initial_color) * t,
 				cogl_color_get_blue(&particle->initial_color) * t,
 				cogl_color_get_alpha(&particle->initial_color) * t);
-}
-
-static void update_particle(struct particle *particle,
-			    float *acceleration,
-			    struct vertex *vertex,
-			    gdouble tick_time)
-{
-	update_particle_position(particle, acceleration, &vertex->position[0]);
-	update_particle_color(particle, &vertex->color);
 }
 
 static void destroy_particle(struct particle_engine *engine,
@@ -239,7 +217,7 @@ static void tick(struct particle_engine *engine)
 		tick_time * engine->new_particles_per_ms : 0;
 
 	/* Create resources as necessary */
-	_create_resources(engine);
+	create_resources(engine);
 
 	vertices = cogl_buffer_map(COGL_BUFFER(engine->priv->attribute_buffer),
 				   COGL_BUFFER_ACCESS_WRITE,
@@ -269,7 +247,7 @@ static void tick(struct particle_engine *engine)
 			}
 		} else if (new_particles < max_new_particles) {
 			/* Create a particle */
-			create_particle(engine, &vertices[i], i);
+			create_particle(engine, i);
 			new_particles++;
 		}
 	}
