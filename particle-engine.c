@@ -62,8 +62,7 @@ static CoglPipeline *_create_pipeline(struct particle_engine *engine)
 static void _create_resources(struct particle_engine *engine)
 {
 	CoglAttribute *attributes[2];
-	int i;
-	unsigned int j;
+	unsigned int i;
 
 	if (engine->priv->pipeline != NULL)
 		return;
@@ -75,11 +74,6 @@ static void _create_resources(struct particle_engine *engine)
 
 	engine->priv->active_particles_count = 0;
 	engine->priv->active_particles = g_new0(CoglBool, engine->particle_count);
-
-	for (i = 1; i < engine->particle_count; i++) {
-		*(struct particle **)&engine->priv->particles[i] =
-			engine->priv->particles + i - 1;
-	}
 
 	engine->priv->attribute_buffer =
 		cogl_attribute_buffer_new(engine->priv->ctx,
@@ -106,8 +100,8 @@ static void _create_resources(struct particle_engine *engine)
 						   attributes,
 						   G_N_ELEMENTS(attributes));
 
-	for (j = 0; j < G_N_ELEMENTS(attributes); j++)
-		cogl_object_unref(attributes[j]);
+	for (i = 0; i < G_N_ELEMENTS(attributes); i++)
+		cogl_object_unref(attributes[i]);
 
 	engine->priv->last_update_time = engine->priv->current_time;
 }
