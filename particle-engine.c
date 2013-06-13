@@ -4,8 +4,8 @@
 #include "particle-engine.h"
 
 struct particle {
-	float initial_position[3];
-	float initial_velocity[3];
+	float position[3];
+	float velocity[3];
 	CoglColor initial_color;
 
 	/* The maximum age of this particle in msecs. The particle will linearly
@@ -115,7 +115,7 @@ static void create_particle(struct particle_engine *engine, int index)
 	/* Get position */
 	fuzzy_vector_get_real_value(&engine->particle_position,
 				    engine->priv->rand,
-				    &particle->initial_position[0]);
+				    &particle->position[0]);
 	/* Get speed */
 	initial_speed = fuzzy_float_get_real_value(&engine->particle_speed,
 						   engine->priv->rand);
@@ -123,18 +123,18 @@ static void create_particle(struct particle_engine *engine, int index)
 	/* Get direction */
 	fuzzy_vector_get_real_value(&engine->particle_direction,
 				    engine->priv->rand,
-				    &particle->initial_velocity[0]);
+				    &particle->velocity[0]);
 
 	/* Get direction unit vector magnitude */
-	mag = sqrt((particle->initial_velocity[0] * particle->initial_velocity[0]) +
-		   (particle->initial_velocity[1] * particle->initial_velocity[1]) +
-		   (particle->initial_velocity[2] * particle->initial_velocity[2]));
+	mag = sqrt((particle->velocity[0] * particle->velocity[0]) +
+		   (particle->velocity[1] * particle->velocity[1]) +
+		   (particle->velocity[2] * particle->velocity[2]));
 
 	for (i = 0; i < 3; i++) {
 		/* Scale velocity from unit vector */
-		particle->initial_velocity[i] *= initial_speed / mag;
+		particle->velocity[i] *= initial_speed / mag;
 
-		vertex->position[i] = particle->initial_position[i];
+		vertex->position[i] = particle->position[i];
 	}
 
 	/* Set initial color */
@@ -161,23 +161,14 @@ static void update_particle(struct particle *particle,
 			    struct vertex *vertex,
 			    gdouble tick_time)
 {
-	float elapsed_time = (float)(particle->max_age - particle->ttl);
-	float half_elapsed_time2 = (float)(elapsed_time * elapsed_time * 0.5f);
 	gdouble t = particle->ttl / particle->max_age;
 	unsigned int i;
 
-	/* Update position */
+	/* Update position, using v = u + at */
 	for (i = 0; i < 3; i++) {
-		/* u = initial velocity,
-		 * a = acceleration,
-		 * t = time
-		 *
-		 * Displacement:
-		 *         s = ut + 0.5×(at²)
-		 */
-		vertex->position[i] = particle->initial_position[i] +
-			particle->initial_velocity[i] * elapsed_time +
-			acceleration[i] * half_elapsed_time2;
+		particle->velocity[i] += acceleration[i] * tick_time;
+		particle->position[i] += particle->velocity[i];
+		vertex->position[i] = particle->position[i];
 	}
 
 	/* Update color */
