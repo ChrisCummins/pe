@@ -173,8 +173,7 @@ static void create_particle(struct particle_engine *engine,
 	engine->priv->active_particles[index] = TRUE;
 }
 
-static void update_particle_position(struct particle_engine *engine,
-				     const struct particle *particle,
+static void update_particle_position(const struct particle *particle,
 				     float *acceleration,
 				     float *position)
 {
@@ -208,12 +207,12 @@ static void update_particle_color(const struct particle *particle,
 				cogl_color_get_alpha(&particle->initial_color) * t);
 }
 
-static void update_particle(struct particle_engine *engine,
-			    struct particle *particle,
+static void update_particle(struct particle *particle,
+			    float *acceleration,
 			    struct vertex *vertex,
 			    gdouble tick_time)
 {
-	update_particle_position(engine, particle, engine->acceleration, &vertex->position[0]);
+	update_particle_position(particle, acceleration, &vertex->position[0]);
 	update_particle_color(particle, &vertex->color);
 }
 
@@ -268,8 +267,8 @@ static void tick(struct particle_engine *engine)
 
 			if (particle->ttl > 0) {
 				/* Update the particle's position and color */
-				update_particle(engine, particle, &vertices[i],
-						tick_time);
+				update_particle(particle, engine->acceleration,
+						&vertices[i], tick_time);
 			} else {
 				/* If a particle has expired, remove it */
 				destroy_particle(engine, &vertices[i], i);
