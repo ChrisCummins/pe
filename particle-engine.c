@@ -180,6 +180,7 @@ static void create_particle(struct particle_engine *engine,
 
 static void update_particle_position(struct particle_engine *engine,
 				     const struct particle *particle,
+				     float *acceleration,
 				     float *position)
 {
 	float elapsed_time = (float)(engine->priv->current_time - particle->creation_time);
@@ -196,7 +197,7 @@ static void update_particle_position(struct particle_engine *engine,
 		 */
 		position[i] = particle->initial_position[i] +
 			particle->initial_velocity[i] * elapsed_time +
-			engine->acceleration[i] * half_elapsed_time2;
+			acceleration[i] * half_elapsed_time2;
 	}
 }
 
@@ -217,7 +218,7 @@ static void update_particle(struct particle_engine *engine,
 			    struct vertex *vertex,
 			    gdouble tick_time)
 {
-	update_particle_position(engine, particle, &vertex->position[0]);
+	update_particle_position(engine, particle, engine->acceleration, &vertex->position[0]);
 	update_particle_color(particle, &vertex->color);
 }
 
