@@ -117,14 +117,11 @@ static void init_particle_engines(struct demo *demo)
 		/* Particle position */
 		demo->engine[i]->particle_position.value[0] = WIDTH / 2;
 		demo->engine[i]->particle_position.value[1] = HEIGHT / 2;
-		demo->engine[i]->particle_position.variance[0] = 10;
-		demo->engine[i]->particle_position.variance[1] = 10;
-		demo->engine[i]->particle_position.variance[2] = 10;
-		demo->engine[i]->particle_position.type = VECTOR_VARIANCE_LINEAR;
+		demo->engine[i]->particle_position.type = VECTOR_VARIANCE_NONE;
 
 		/* Particle speed */
-		demo->engine[i]->particle_speed.value = 12;
-		demo->engine[i]->particle_speed.variance = 0.1;
+		demo->engine[i]->particle_speed.value = 22;
+		demo->engine[i]->particle_speed.variance = 0.6;
 		demo->engine[i]->particle_speed.type = FLOAT_VARIANCE_PROPORTIONAL;
 
 		/* Direction */
@@ -133,9 +130,9 @@ static void init_particle_engines(struct demo *demo)
 		demo->engine[i]->particle_direction.type = VECTOR_VARIANCE_IRWIN_HALL;
 
 		/* Lifespan */
-		demo->engine[i]->particle_lifespan.value = 2;
-		demo->engine[i]->particle_lifespan.variance = 1.75;
-		demo->engine[i]->particle_lifespan.type = DOUBLE_VARIANCE_LINEAR;
+		demo->engine[i]->particle_lifespan.value = 1.5;
+		demo->engine[i]->particle_lifespan.variance = 0.95;
+		demo->engine[i]->particle_lifespan.type = DOUBLE_VARIANCE_PROPORTIONAL;
 
 		/* Color */
 		demo->engine[i]->particle_color.hue.value = 32;
