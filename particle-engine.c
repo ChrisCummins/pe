@@ -195,14 +195,15 @@ static void update_particle(struct particle_engine *engine,
 
 static void tick(struct particle_engine *engine)
 {
+	struct particle_engine_priv *priv = engine->priv;
 	int i, new_particles = 0, max_new_particles;
 	gdouble tick_time;
 	CoglError *error = NULL;
 
 	/* Update the clocks */
-	engine->priv->last_update_time = engine->priv->current_time;
-	engine->priv->current_time = g_timer_elapsed(engine->priv->timer, NULL);
-	tick_time = engine->priv->current_time - engine->priv->last_update_time;
+	priv->last_update_time = priv->current_time;
+	priv->current_time = g_timer_elapsed(priv->timer, NULL);
+	tick_time = priv->current_time - priv->last_update_time;
 
 	/* The maximum number of new particles to create for this tick. This can
 	 * be zero, for example in the case where the emitter isn't active.
@@ -213,9 +214,9 @@ static void tick(struct particle_engine *engine)
 	/* Create resources as necessary */
 	create_resources(engine);
 
-	engine->priv->vertices = cogl_buffer_map(COGL_BUFFER(engine->priv->attribute_buffer),
-						 COGL_BUFFER_ACCESS_WRITE,
-						 COGL_BUFFER_MAP_HINT_DISCARD, &error);
+	priv->vertices = cogl_buffer_map(COGL_BUFFER(priv->attribute_buffer),
+					 COGL_BUFFER_ACCESS_WRITE,
+					 COGL_BUFFER_MAP_HINT_DISCARD, &error);
 
 	if (error != NULL) {
 		g_error(G_STRLOC " failed to map buffer: %s", error->message);
@@ -226,8 +227,8 @@ static void tick(struct particle_engine *engine)
 	 * Iterate over every particle and update/destroy/create as necessary.
 	 */
 	for (i = 0; i < engine->particle_count; i++) {
-		if (engine->priv->active_particles[i]) {
-			struct particle *particle = &engine->priv->particles[i];
+		if (priv->active_particles[i]) {
+			struct particle *particle = &priv->particles[i];
 
 			particle->ttl -= tick_time;
 
@@ -245,8 +246,8 @@ static void tick(struct particle_engine *engine)
 		}
 	}
 
-	cogl_buffer_unmap(COGL_BUFFER(engine->priv->attribute_buffer));
-	cogl_primitive_set_n_vertices(engine->priv->primitive, engine->particle_count);
+	cogl_buffer_unmap(COGL_BUFFER(priv->attribute_buffer));
+	cogl_primitive_set_n_vertices(priv->primitive, engine->particle_count);
 }
 
 struct particle_engine* particle_engine_new(CoglContext *ctx,
