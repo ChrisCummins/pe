@@ -5,21 +5,19 @@
 
 #include <cogl/cogl.h>
 
-/* Private particle engine structures */
-struct vertex;
-struct particle;
+/* <priv> */
 struct particle_emitter_priv;
 
 /*
- * A particle engine.
+ * A particle emitter
  */
 struct particle_emitter {
 
 	/*
-	 * Controls whether new particles are created. If false, no new
+	 * Controls whether the particle emitter is active. If false, no new
 	 * particles are created.
 	 */
-	CoglBool source_active;
+	CoglBool active;
 
 	/*
 	 * The maximum number of particles that can exist at any given moment in
@@ -80,8 +78,8 @@ struct particle_emitter {
 
 struct particle_emitter *particle_emitter_new(CoglContext *ctx, CoglFramebuffer *fb);
 
-void particle_emitter_free(struct particle_emitter *engine);
+void particle_emitter_free(struct particle_emitter *emitter);
 
-void particle_emitter_paint(struct particle_emitter *engine);
+void particle_emitter_paint(struct particle_emitter *emitter);
 
 #endif /* _PARTICLE_EMITTER_H_ */

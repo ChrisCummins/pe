@@ -1,7 +1,7 @@
 /*
  *         snow.c -- A snowy night scene.
  *
- * This simple demo consists of a single particle engine which emits a steady
+ * This simple demo consists of a single particle emitter which emits a steady
  * stream of snowflakes into a light breeze. This demonstrates the support for
  * changing the global acceleration force and particle creation rate in real
  * time.
@@ -21,7 +21,7 @@ struct demo {
 	CoglMatrix view;
 	int width, height;
 
-	struct particle_emitter *engine;
+	struct particle_emitter *emitter;
 
 	GTimer *timer;
 
@@ -36,7 +36,7 @@ static void paint_cb(struct demo *demo) {
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
 				 0.0f, 0.0f, 0.1f, 1);
 
-	particle_emitter_paint(demo->engine);
+	particle_emitter_paint(demo->emitter);
 }
 
 static void frame_event_cb(CoglOnscreen *onscreen, CoglFrameEvent event,
@@ -55,12 +55,12 @@ static gboolean update_cb(gpointer data)
 	int64_t timeout;
 
 	/* Change the direction and velocity of wind over time */
-	demo->engine->acceleration[0] = 0.3 *
+	demo->emitter->acceleration[0] = 0.3 *
 		sin(0.25 * g_timer_elapsed(demo->timer, NULL));
 
 	/* Change the rate at which new snow appears over time */
 	demo->snow_rate += g_random_double_range(0, 0.005);
-	demo->engine->new_particles_per_ms = 30 +
+	demo->emitter->new_particles_per_ms = 30 +
 		fabs(300 * sin(demo->snow_rate));
 
 	if (demo->swap_ready) {
@@ -82,38 +82,38 @@ static gboolean update_cb(gpointer data)
 
 static void init_particle_emitter(struct demo *demo)
 {
-	demo->engine = particle_emitter_new(demo->ctx, demo->fb);
-	demo->engine->particle_count = 2000;
-	demo->engine->particle_size = 4.0f;
-	demo->engine->new_particles_per_ms = 250;
+	demo->emitter = particle_emitter_new(demo->ctx, demo->fb);
+	demo->emitter->particle_count = 2000;
+	demo->emitter->particle_size = 4.0f;
+	demo->emitter->new_particles_per_ms = 250;
 
 	/* Global force */
-	demo->engine->acceleration[1] = 0.6;
+	demo->emitter->acceleration[1] = 0.6;
 
 	/* Particle position */
-	demo->engine->particle_position.value[0] = WIDTH / 2;
-	demo->engine->particle_position.variance[0] = WIDTH + WIDTH / 2;
-	demo->engine->particle_position.value[1] = -80;
-	demo->engine->particle_position.type = VECTOR_VARIANCE_LINEAR;
+	demo->emitter->particle_position.value[0] = WIDTH / 2;
+	demo->emitter->particle_position.variance[0] = WIDTH + WIDTH / 2;
+	demo->emitter->particle_position.value[1] = -80;
+	demo->emitter->particle_position.type = VECTOR_VARIANCE_LINEAR;
 
 	/* Particle speed */
-	demo->engine->particle_speed.value = 0.06;
-	demo->engine->particle_speed.variance = 0.02;
-	demo->engine->particle_speed.type = FLOAT_VARIANCE_PROPORTIONAL;
+	demo->emitter->particle_speed.value = 0.06;
+	demo->emitter->particle_speed.variance = 0.02;
+	demo->emitter->particle_speed.type = FLOAT_VARIANCE_PROPORTIONAL;
 
 	/* Direction */
-	demo->engine->particle_direction.value[1] = 0.5f;
-	demo->engine->particle_direction.variance[0] = 0.8;
-	demo->engine->particle_direction.type = VECTOR_VARIANCE_IRWIN_HALL;
+	demo->emitter->particle_direction.value[1] = 0.5f;
+	demo->emitter->particle_direction.variance[0] = 0.8;
+	demo->emitter->particle_direction.type = VECTOR_VARIANCE_IRWIN_HALL;
 
 	/* Lifespan */
-	demo->engine->particle_lifespan.value = 6.5f;
-	demo->engine->particle_lifespan.variance = 1.5f;
-	demo->engine->particle_lifespan.type = DOUBLE_VARIANCE_LINEAR;
+	demo->emitter->particle_lifespan.value = 6.5f;
+	demo->emitter->particle_lifespan.variance = 1.5f;
+	demo->emitter->particle_lifespan.type = DOUBLE_VARIANCE_LINEAR;
 
 	/* Color */
-	demo->engine->particle_color.saturation.value = 1.0f;
-	demo->engine->particle_color.luminance.value = 1.0f;
+	demo->emitter->particle_color.saturation.value = 1.0f;
+	demo->emitter->particle_color.luminance.value = 1.0f;
 }
 
 int main(int argc, char **argv)

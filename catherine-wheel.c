@@ -22,7 +22,7 @@ struct demo {
 	CoglMatrix view;
 	int width, height;
 
-	struct particle_emitter *engine[3];
+	struct particle_emitter *emitter[3];
 
 	GTimer *timer;
 	gdouble spin_rate;
@@ -39,8 +39,8 @@ static void paint_cb(struct demo *demo) {
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
 				 0, 0, 0, 1);
 
-	for (i = 0; i < G_N_ELEMENTS(demo->engine); i++)
-		particle_emitter_paint(demo->engine[i]);
+	for (i = 0; i < G_N_ELEMENTS(demo->emitter); i++)
+		particle_emitter_paint(demo->emitter[i]);
 }
 
 static void frame_event_cb(CoglOnscreen *onscreen, CoglFrameEvent event,
@@ -59,19 +59,19 @@ static void update_catherine_wheel(struct demo *demo) {
 	if (demo->spin_rate < RATE_MAX)
 		demo->spin_rate += RATE_INC;
 
-	for (i = 0; i < G_N_ELEMENTS(demo->engine); i++) {
+	for (i = 0; i < G_N_ELEMENTS(demo->emitter); i++) {
 		gdouble x = i * demo->angle_between_emitters + spin;
 		gdouble x_cos = cos(x);
 		gdouble x_sin = sin(x);
 
 
-		demo->engine[i]->particle_position.value[0] =
+		demo->emitter[i]->particle_position.value[0] =
 			WIDTH / 2 + WHEEL_RADIUS * x_cos;
-		demo->engine[i]->particle_position.value[1] =
+		demo->emitter[i]->particle_position.value[1] =
 			HEIGHT / 2 - WHEEL_RADIUS * x_sin;
 
-		demo->engine[i]->particle_direction.value[0] = x_sin;
-		demo->engine[i]->particle_direction.value[1] = x_cos;
+		demo->emitter[i]->particle_direction.value[0] = x_sin;
+		demo->emitter[i]->particle_direction.value[1] = x_cos;
 	}
 }
 
@@ -105,44 +105,44 @@ static void init_particle_emitters(struct demo *demo)
 {
 	unsigned int i;
 
-	for (i = 0; i < G_N_ELEMENTS(demo->engine); i++) {
-		demo->engine[i] = particle_emitter_new(demo->ctx, demo->fb);
-		demo->engine[i]->particle_count = 80000;
-		demo->engine[i]->particle_size = 1.0f;
-		demo->engine[i]->new_particles_per_ms = demo->engine[i]->particle_count / 2;
+	for (i = 0; i < G_N_ELEMENTS(demo->emitter); i++) {
+		demo->emitter[i] = particle_emitter_new(demo->ctx, demo->fb);
+		demo->emitter[i]->particle_count = 80000;
+		demo->emitter[i]->particle_size = 1.0f;
+		demo->emitter[i]->new_particles_per_ms = demo->emitter[i]->particle_count / 2;
 
 		/* Global force */
-		demo->engine[i]->acceleration[1] = 14;
+		demo->emitter[i]->acceleration[1] = 14;
 
 		/* Particle position */
-		demo->engine[i]->particle_position.value[0] = WIDTH / 2;
-		demo->engine[i]->particle_position.value[1] = HEIGHT / 2;
-		demo->engine[i]->particle_position.type = VECTOR_VARIANCE_NONE;
+		demo->emitter[i]->particle_position.value[0] = WIDTH / 2;
+		demo->emitter[i]->particle_position.value[1] = HEIGHT / 2;
+		demo->emitter[i]->particle_position.type = VECTOR_VARIANCE_NONE;
 
 		/* Particle speed */
-		demo->engine[i]->particle_speed.value = 22;
-		demo->engine[i]->particle_speed.variance = 0.6;
-		demo->engine[i]->particle_speed.type = FLOAT_VARIANCE_PROPORTIONAL;
+		demo->emitter[i]->particle_speed.value = 22;
+		demo->emitter[i]->particle_speed.variance = 0.6;
+		demo->emitter[i]->particle_speed.type = FLOAT_VARIANCE_PROPORTIONAL;
 
 		/* Direction */
-		demo->engine[i]->particle_direction.variance[0] = 0.7;
-		demo->engine[i]->particle_direction.variance[1] = 0.7;
-		demo->engine[i]->particle_direction.type = VECTOR_VARIANCE_IRWIN_HALL;
+		demo->emitter[i]->particle_direction.variance[0] = 0.7;
+		demo->emitter[i]->particle_direction.variance[1] = 0.7;
+		demo->emitter[i]->particle_direction.type = VECTOR_VARIANCE_IRWIN_HALL;
 
 		/* Lifespan */
-		demo->engine[i]->particle_lifespan.value = 1.5;
-		demo->engine[i]->particle_lifespan.variance = 0.95;
-		demo->engine[i]->particle_lifespan.type = DOUBLE_VARIANCE_PROPORTIONAL;
+		demo->emitter[i]->particle_lifespan.value = 1.5;
+		demo->emitter[i]->particle_lifespan.variance = 0.95;
+		demo->emitter[i]->particle_lifespan.type = DOUBLE_VARIANCE_PROPORTIONAL;
 
 		/* Color */
-		demo->engine[i]->particle_color.hue.value = 32;
-		demo->engine[i]->particle_color.hue.variance = 20;
-		demo->engine[i]->particle_color.hue.type = FLOAT_VARIANCE_LINEAR;
+		demo->emitter[i]->particle_color.hue.value = 32;
+		demo->emitter[i]->particle_color.hue.variance = 20;
+		demo->emitter[i]->particle_color.hue.type = FLOAT_VARIANCE_LINEAR;
 
-		demo->engine[i]->particle_color.saturation.value = 1;
-		demo->engine[i]->particle_color.luminance.value = 0.6;
-		demo->engine[i]->particle_color.luminance.variance = 0.4;
-		demo->engine[i]->particle_color.luminance.type = FLOAT_VARIANCE_LINEAR;
+		demo->emitter[i]->particle_color.saturation.value = 1;
+		demo->emitter[i]->particle_color.luminance.value = 0.6;
+		demo->emitter[i]->particle_color.luminance.variance = 0.4;
+		demo->emitter[i]->particle_color.luminance.type = FLOAT_VARIANCE_LINEAR;
 	}
 }
 
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
 
 	demo.timer = g_timer_new();
 	demo.spin_rate = 0;
-	demo.angle_between_emitters = 2 * M_PI / G_N_ELEMENTS(demo.engine);
+	demo.angle_between_emitters = 2 * M_PI / G_N_ELEMENTS(demo.emitter);
 
 	g_idle_add(update_cb, &demo);
 	loop = g_main_loop_new (NULL, TRUE);
