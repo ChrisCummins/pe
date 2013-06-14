@@ -268,8 +268,23 @@ struct particle_engine* particle_engine_new(CoglContext *ctx,
 
 void particle_engine_free(struct particle_engine *engine)
 {
-	g_rand_free(engine->priv->rand);
-	g_slice_free(struct particle_engine_priv, engine->priv);
+	struct particle_engine_priv *priv = engine->priv;
+
+	cogl_object_unref(priv->ctx);
+	cogl_object_unref(priv->fb);
+	cogl_object_unref(priv->pipeline);
+	cogl_object_unref(priv->primitive);
+	cogl_object_unref(priv->texture);
+	cogl_object_unref(priv->attribute_buffer);
+
+	g_rand_free(priv->rand);
+	g_timer_destroy(priv->timer);
+
+	g_free(priv->active_particles);
+	g_free(priv->particles);
+	g_free(priv->vertices);
+
+	g_slice_free(struct particle_engine_priv, priv);
 	g_slice_free(struct particle_engine, engine);
 }
 
