@@ -153,7 +153,6 @@ static void create_particle(struct particle_engine *engine,
 				cogl_color_get_blue(&particle->initial_color),
 				cogl_color_get_alpha(&particle->initial_color));
 
-	engine->priv->active_particles_count++;
 	engine->priv->active_particles[index] = TRUE;
 }
 
@@ -162,7 +161,6 @@ static void destroy_particle(struct particle_engine *engine,
 {
 	struct particle_engine_priv *priv = engine->priv;
 
-	priv->active_particles_count--;
 	priv->active_particles[index] = FALSE;
 
 	/* Zero the vertex */
@@ -196,7 +194,8 @@ static void update_particle(struct particle_engine *engine,
 static void tick(struct particle_engine *engine)
 {
 	struct particle_engine_priv *priv = engine->priv;
-	int i, new_particles = 0, max_new_particles;
+	int i, updated_particles = 0, destroyed_particles = 0;
+	int new_particles = 0, max_new_particles;
 	gdouble tick_time;
 	CoglError *error = NULL;
 
@@ -238,13 +237,19 @@ static void tick(struct particle_engine *engine)
 			} else {
 				/* If a particle has expired, remove it */
 				destroy_particle(engine, i);
+				destroyed_particles++;
 			}
+
+			updated_particles++;
 		} else if (new_particles < max_new_particles) {
 			/* Create a particle */
 			create_particle(engine, i);
 			new_particles++;
 		}
 	}
+
+	/* Update particle count */
+	priv->active_particles_count += new_particles - destroyed_particles;
 
 	cogl_buffer_unmap(COGL_BUFFER(priv->attribute_buffer));
 	cogl_primitive_set_n_vertices(priv->primitive, engine->particle_count);
