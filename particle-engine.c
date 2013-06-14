@@ -170,10 +170,11 @@ static void destroy_particle(struct particle_engine *engine,
 }
 
 static void update_particle(struct particle_engine *engine,
-			    struct particle *particle,
-			    struct vertex *vertex,
+			    int index,
 			    gdouble tick_time)
 {
+	struct particle *particle = &engine->priv->particles[index];
+	struct vertex *vertex = &engine->priv->vertices[index];
 	gdouble t = particle->ttl / particle->max_age;
 	unsigned int i;
 
@@ -196,7 +197,6 @@ static void tick(struct particle_engine *engine)
 {
 	int i, new_particles = 0, max_new_particles;
 	gdouble tick_time;
-	struct vertex *vertices;
 	CoglError *error = NULL;
 
 	/* Update the clocks */
@@ -213,9 +213,9 @@ static void tick(struct particle_engine *engine)
 	/* Create resources as necessary */
 	create_resources(engine);
 
-	vertices = cogl_buffer_map(COGL_BUFFER(engine->priv->attribute_buffer),
-				   COGL_BUFFER_ACCESS_WRITE,
-				   COGL_BUFFER_MAP_HINT_DISCARD, &error);
+	engine->priv->vertices = cogl_buffer_map(COGL_BUFFER(engine->priv->attribute_buffer),
+						 COGL_BUFFER_ACCESS_WRITE,
+						 COGL_BUFFER_MAP_HINT_DISCARD, &error);
 
 	if (error != NULL) {
 		g_error(G_STRLOC " failed to map buffer: %s", error->message);
@@ -233,8 +233,7 @@ static void tick(struct particle_engine *engine)
 
 			if (particle->ttl > 0) {
 				/* Update the particle's position and color */
-				update_particle(engine, particle, &vertices[i],
-						tick_time);
+				update_particle(engine, i, tick_time);
 			} else {
 				/* If a particle has expired, remove it */
 				destroy_particle(engine, i);
