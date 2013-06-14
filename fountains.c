@@ -1,6 +1,6 @@
 #include "config.h"
 
-#include "particle-engine.h"
+#include "particle-emitter.h"
 
 #include <cogl/cogl.h>
 
@@ -13,7 +13,7 @@ struct demo {
 	CoglMatrix view;
 	int width, height;
 
-	struct particle_engine *engine[5];
+	struct particle_emitter *engine[5];
 
 	guint timeout_id;
 
@@ -29,7 +29,7 @@ static void paint_cb (struct demo *demo) {
 				 0.15f, 0.15f, 0.3f, 1);
 
 	for (i = 0; i < G_N_ELEMENTS(demo->engine); i++)
-		particle_engine_paint(demo->engine[i]);
+		particle_emitter_paint(demo->engine[i]);
 }
 
 static void frame_event_cb(CoglOnscreen *onscreen, CoglFrameEvent event,
@@ -75,12 +75,12 @@ static gboolean update_cb(gpointer data)
 	return TRUE;
 }
 
-static void init_particle_engines(struct demo *demo)
+static void init_particle_emitters(struct demo *demo)
 {
 	unsigned int i;
 
 	for (i = 0; i < G_N_ELEMENTS(demo->engine); i++) {
-		demo->engine[i] = particle_engine_new(demo->ctx, demo->fb);
+		demo->engine[i] = particle_emitter_new(demo->ctx, demo->fb);
 
 		demo->engine[i]->particle_count = 60000;
 		demo->engine[i]->particle_size = 2.0f;
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
 					 frame_event_cb, &demo, NULL);
 	demo.timeout_id = g_timeout_add(5000, timeout_cb, &demo);
 
-	init_particle_engines(&demo);
+	init_particle_emitters(&demo);
 
 	g_idle_add(update_cb, &demo);
 

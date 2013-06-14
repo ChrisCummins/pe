@@ -4,7 +4,7 @@
  */
 #include "config.h"
 
-#include "particle-engine.h"
+#include "particle-emitter.h"
 
 #include <cogl/cogl.h>
 
@@ -22,7 +22,7 @@ struct demo {
 	CoglMatrix view;
 	int width, height;
 
-	struct particle_engine *engine[3];
+	struct particle_emitter *engine[3];
 
 	GTimer *timer;
 	gdouble spin_rate;
@@ -40,7 +40,7 @@ static void paint_cb(struct demo *demo) {
 				 0, 0, 0, 1);
 
 	for (i = 0; i < G_N_ELEMENTS(demo->engine); i++)
-		particle_engine_paint(demo->engine[i]);
+		particle_emitter_paint(demo->engine[i]);
 }
 
 static void frame_event_cb(CoglOnscreen *onscreen, CoglFrameEvent event,
@@ -101,12 +101,12 @@ static gboolean update_cb(gpointer data)
 	return TRUE;
 }
 
-static void init_particle_engines(struct demo *demo)
+static void init_particle_emitters(struct demo *demo)
 {
 	unsigned int i;
 
 	for (i = 0; i < G_N_ELEMENTS(demo->engine); i++) {
-		demo->engine[i] = particle_engine_new(demo->ctx, demo->fb);
+		demo->engine[i] = particle_emitter_new(demo->ctx, demo->fb);
 		demo->engine[i]->particle_count = 80000;
 		demo->engine[i]->particle_size = 1.0f;
 		demo->engine[i]->new_particles_per_ms = demo->engine[i]->particle_count / 2;
@@ -183,7 +183,7 @@ int main(int argc, char **argv)
 	cogl_onscreen_add_frame_callback(COGL_ONSCREEN(demo.fb),
 					 frame_event_cb, &demo, NULL);
 
-	init_particle_engines(&demo);
+	init_particle_emitters(&demo);
 
 	demo.timer = g_timer_new();
 	demo.spin_rate = 0;

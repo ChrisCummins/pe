@@ -1,5 +1,5 @@
-#ifndef _PARTICLE_ENGINE_H_
-#define _PARTICLE_ENGINE_H_
+#ifndef _PARTICLE_EMITTER_H_
+#define _PARTICLE_EMITTER_H_
 
 #include "fuzzy.h"
 
@@ -8,12 +8,12 @@
 /* Private particle engine structures */
 struct vertex;
 struct particle;
-struct particle_engine_priv;
+struct particle_emitter_priv;
 
 /*
  * A particle engine.
  */
-struct particle_engine {
+struct particle_emitter {
 
 	/*
 	 * Controls whether new particles are created. If false, no new
@@ -75,13 +75,13 @@ struct particle_engine {
 	float acceleration[3];
 
 	/* <priv> */
-	struct particle_engine_priv *priv;
+	struct particle_emitter_priv *priv;
 };
 
-struct particle_engine *particle_engine_new(CoglContext *ctx, CoglFramebuffer *fb);
+struct particle_emitter *particle_emitter_new(CoglContext *ctx, CoglFramebuffer *fb);
 
-void particle_engine_free(struct particle_engine *engine);
+void particle_emitter_free(struct particle_emitter *engine);
 
-void particle_engine_paint(struct particle_engine *engine);
+void particle_emitter_paint(struct particle_emitter *engine);
 
-#endif /* _PARTICLE_ENGINE_H_ */
+#endif /* _PARTICLE_EMITTER_H_ */

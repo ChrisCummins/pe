@@ -8,7 +8,7 @@
  */
 #include "config.h"
 
-#include "particle-engine.h"
+#include "particle-emitter.h"
 
 #include <cogl/cogl.h>
 
@@ -21,7 +21,7 @@ struct demo {
 	CoglMatrix view;
 	int width, height;
 
-	struct particle_engine *engine;
+	struct particle_emitter *engine;
 
 	GTimer *timer;
 
@@ -36,7 +36,7 @@ static void paint_cb(struct demo *demo) {
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
 				 0.0f, 0.0f, 0.1f, 1);
 
-	particle_engine_paint(demo->engine);
+	particle_emitter_paint(demo->engine);
 }
 
 static void frame_event_cb(CoglOnscreen *onscreen, CoglFrameEvent event,
@@ -80,9 +80,9 @@ static gboolean update_cb(gpointer data)
 	return TRUE;
 }
 
-static void init_particle_engine(struct demo *demo)
+static void init_particle_emitter(struct demo *demo)
 {
-	demo->engine = particle_engine_new(demo->ctx, demo->fb);
+	demo->engine = particle_emitter_new(demo->ctx, demo->fb);
 	demo->engine->particle_count = 2000;
 	demo->engine->particle_size = 4.0f;
 	demo->engine->new_particles_per_ms = 250;
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 	cogl_onscreen_add_frame_callback(COGL_ONSCREEN(demo.fb),
 					 frame_event_cb, &demo, NULL);
 
-	init_particle_engine(&demo);
+	init_particle_emitter(&demo);
 
 	demo.timer = g_timer_new();
 	demo.snow_rate = 0;

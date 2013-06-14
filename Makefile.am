@@ -7,7 +7,7 @@ catherine_wheel_SOURCES = catherine-wheel.c $(particle_engine_sources)
 
 particle_engine_sources =		\
 	fuzzy.c				\
-	particle-engine.c		\
+	particle-emitter.c		\
 	$(NULL)
 
 LDADD =					\

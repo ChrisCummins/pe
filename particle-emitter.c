@@ -1,7 +1,7 @@
 #include <cogl/cogl.h>
 #include <string.h>
 
-#include "particle-engine.h"
+#include "particle-emitter.h"
 
 #define particle_exists(engine, index) (engine)->priv->active_particles[(index)]
 
@@ -24,7 +24,7 @@ struct vertex {
 	CoglColor color;
 };
 
-struct particle_engine_priv {
+struct particle_emitter_priv {
 	CoglContext *ctx;
 	CoglFramebuffer *fb;
 	CoglPipeline *pipeline;
@@ -44,7 +44,7 @@ struct particle_engine_priv {
 	gdouble last_update_time;
 };
 
-static CoglPipeline *create_pipeline(struct particle_engine *engine)
+static CoglPipeline *create_pipeline(struct particle_emitter *engine)
 {
 	CoglPipeline *pipeline = cogl_pipeline_new(engine->priv->ctx);
 
@@ -61,7 +61,7 @@ static CoglPipeline *create_pipeline(struct particle_engine *engine)
 	return pipeline;
 }
 
-static void create_resources(struct particle_engine *engine)
+static void create_resources(struct particle_emitter *engine)
 {
 	CoglAttribute *attributes[2];
 	unsigned int i;
@@ -107,7 +107,7 @@ static void create_resources(struct particle_engine *engine)
 	engine->priv->last_update_time = engine->priv->current_time;
 }
 
-static void create_particle(struct particle_engine *engine,
+static void create_particle(struct particle_emitter *engine,
 			    int index)
 {
 	struct particle *particle = &engine->priv->particles[index];
@@ -158,10 +158,10 @@ static void create_particle(struct particle_engine *engine,
 	engine->priv->active_particles[index] = TRUE;
 }
 
-static void destroy_particle(struct particle_engine *engine,
+static void destroy_particle(struct particle_emitter *engine,
 			     int index)
 {
-	struct particle_engine_priv *priv = engine->priv;
+	struct particle_emitter_priv *priv = engine->priv;
 
 	priv->active_particles[index] = FALSE;
 
@@ -169,7 +169,7 @@ static void destroy_particle(struct particle_engine *engine,
 	memset(&priv->vertices[index], 0, sizeof(struct vertex));
 }
 
-static void update_particle(struct particle_engine *engine,
+static void update_particle(struct particle_emitter *engine,
 			    int index,
 			    gdouble tick_time)
 {
@@ -193,9 +193,9 @@ static void update_particle(struct particle_engine *engine,
 				cogl_color_get_alpha(&particle->initial_color) * t);
 }
 
-static void tick(struct particle_engine *engine)
+static void tick(struct particle_emitter *engine)
 {
-	struct particle_engine_priv *priv = engine->priv;
+	struct particle_emitter_priv *priv = engine->priv;
 	int i, updated_particles = 0, destroyed_particles = 0;
 	int new_particles = 0, max_new_particles;
 	gdouble tick_time;
@@ -266,11 +266,11 @@ static void tick(struct particle_engine *engine)
 	cogl_primitive_set_n_vertices(priv->primitive, engine->particle_count);
 }
 
-struct particle_engine* particle_engine_new(CoglContext *ctx,
+struct particle_emitter* particle_emitter_new(CoglContext *ctx,
 					    CoglFramebuffer *fb)
 {
-	struct particle_engine *engine = g_slice_new0(struct particle_engine);
-	struct particle_engine_priv *priv = g_slice_new0(struct particle_engine_priv);
+	struct particle_emitter *engine = g_slice_new0(struct particle_emitter);
+	struct particle_emitter_priv *priv = g_slice_new0(struct particle_emitter_priv);
 
 	engine->source_active = TRUE;
 
@@ -285,9 +285,9 @@ struct particle_engine* particle_engine_new(CoglContext *ctx,
 	return engine;
 }
 
-void particle_engine_free(struct particle_engine *engine)
+void particle_emitter_free(struct particle_emitter *engine)
 {
-	struct particle_engine_priv *priv = engine->priv;
+	struct particle_emitter_priv *priv = engine->priv;
 
 	cogl_object_unref(priv->ctx);
 	cogl_object_unref(priv->fb);
@@ -303,11 +303,11 @@ void particle_engine_free(struct particle_engine *engine)
 	g_free(priv->particles);
 	g_free(priv->vertices);
 
-	g_slice_free(struct particle_engine_priv, priv);
-	g_slice_free(struct particle_engine, engine);
+	g_slice_free(struct particle_emitter_priv, priv);
+	g_slice_free(struct particle_emitter, engine);
 }
 
-void particle_engine_paint(struct particle_engine *engine)
+void particle_emitter_paint(struct particle_emitter *engine)
 {
 	tick(engine);
 
