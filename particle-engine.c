@@ -3,6 +3,8 @@
 
 #include "particle-engine.h"
 
+#define particle_exists(engine, index) (engine)->priv->active_particles[(index)]
+
 struct particle {
 	float position[3];
 	float velocity[3];
@@ -199,9 +201,13 @@ static void tick(struct particle_engine *engine)
 	gdouble tick_time;
 	CoglError *error = NULL;
 
+	/* Create resources as necessary */
+	create_resources(engine);
+
 	/* Update the clocks */
 	priv->last_update_time = priv->current_time;
 	priv->current_time = g_timer_elapsed(priv->timer, NULL);
+
 	tick_time = priv->current_time - priv->last_update_time;
 
 	/* The maximum number of new particles to create for this tick. This can
@@ -209,9 +215,6 @@ static void tick(struct particle_engine *engine)
 	 */
 	max_new_particles = engine->source_active ?
 		tick_time * engine->new_particles_per_ms : 0;
-
-	/* Create resources as necessary */
-	create_resources(engine);
 
 	priv->vertices = cogl_buffer_map(COGL_BUFFER(priv->attribute_buffer),
 					 COGL_BUFFER_ACCESS_WRITE,
@@ -222,18 +225,26 @@ static void tick(struct particle_engine *engine)
 		return;
 	}
 
-	/*
-	 * Iterate over every particle and update/destroy/create as necessary.
+	/* Iterate over every particle and update/destroy/create as
+	 * necessary.
 	 */
 	for (i = 0; i < engine->particle_count; i++) {
-		if (priv->active_particles[i]) {
-			struct particle *particle = &priv->particles[i];
 
-			particle->ttl -= tick_time;
+		/* Break early if there's nothing left to do */
+		if (updated_particles >= priv->active_particles_count &&
+		    new_particles >= max_new_particles) {
+			break;
+		}
+
+		if (particle_exists(engine, i)) {
+			struct particle *particle = &priv->particles[i];
 
 			if (particle->ttl > 0) {
 				/* Update the particle's position and color */
 				update_particle(engine, i, tick_time);
+
+				/* Age the particle */
+				particle->ttl -= tick_time;
 			} else {
 				/* If a particle has expired, remove it */
 				destroy_particle(engine, i);
