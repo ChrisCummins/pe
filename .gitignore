@@ -140,6 +140,7 @@ Thumbs.db
 #
 !.gitignore
 
+/galaxy
 /catherine_wheel
 /fireworks
 /fountains
