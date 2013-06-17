@@ -5,15 +5,29 @@
 #include <cogl/cogl.h>
 #include <string.h>
 
-#define particle_exists(emitter, index) (emitter)->priv->active_particles[(index)]
+struct particle {
+	/* Whether the particle is active or not. */
+	CoglBool active;
+
+	/* Particle velocity */
+	float velocity[3];
+
+	/* The maximum age of this particle in seconds. The particle will linearly
+	 * fade out until this age */
+	gdouble max_age;
+
+	/* Time to live. This value represents the age of the particle. When it
+	 * reaches zero, the particle ist destroyed. */
+	gdouble ttl;
+};
 
 struct particle_emitter_priv {
 	GTimer *timer;
 	gdouble current_time;
 	gdouble last_update_time;
 
+	struct particle *particles;
 	int active_particles_count;
-	CoglBool *active_particles;
 
 	GRand *rand;
 
@@ -27,8 +41,8 @@ static void create_resources(struct particle_emitter *emitter)
 	struct particle_emitter_priv *priv = emitter->priv;
 
 	priv->active_particles_count = 0;
-	priv->active_particles = g_new0(CoglBool,
-					emitter->particle_count);
+
+	priv->particles = g_new0(struct particle, emitter->particle_count);
 
 	priv->engine = particle_engine_new(priv->ctx, priv->fb,
 					   emitter->particle_count,
@@ -38,15 +52,18 @@ static void create_resources(struct particle_emitter *emitter)
 static void create_particle(struct particle_emitter *emitter,
 			    int index)
 {
-	struct particle *particle =
-		particle_engine_get_particle(emitter->priv->engine, index);
-	float initial_speed, mag;
+	struct particle_emitter_priv *priv = emitter->priv;
+	struct particle *particle = &priv->particles[index];
+	float *position, initial_speed, mag;
+	CoglColor *color;
 	unsigned int i;
+
+	position = particle_engine_get_particle_position(priv->engine, index);
+	color = particle_engine_get_particle_color(priv->engine, index);
 
 	/* Get position */
 	fuzzy_vector_get_real_value(&emitter->particle_position,
-				    emitter->priv->rand,
-				    &particle->position[0]);
+				    emitter->priv->rand, position);
 	/* Get speed */
 	initial_speed = fuzzy_float_get_real_value(&emitter->particle_speed,
 						   emitter->priv->rand);
@@ -61,74 +78,64 @@ static void create_particle(struct particle_emitter *emitter,
 		   (particle->velocity[1] * particle->velocity[1]) +
 		   (particle->velocity[2] * particle->velocity[2]));
 
-	for (i = 0; i < 3; i++) {
-		/* Scale velocity from unit vector */
+	/* Scale velocity from unit vector */
+	for (i = 0; i < 3; i++)
 		particle->velocity[i] *= initial_speed / mag;
-	}
 
 	/* Set initial color */
 	fuzzy_color_get_cogl_color(&emitter->particle_color,
-				   emitter->priv->rand,
-				   &particle->color);
+				   emitter->priv->rand, color);
 
 	particle->max_age = fuzzy_double_get_real_value(&emitter->particle_lifespan,
 							emitter->priv->rand);
 	particle->ttl = particle->max_age;
-
-	emitter->priv->active_particles[index] = TRUE;
-	particle_engine_set_particle_state(emitter->priv->engine, index,
-					   PARTICLE_STATE_DIRTY_POSITION |
-					   PARTICLE_STATE_DIRTY_COLOR);
+	particle->active = TRUE;
 }
 
 static void destroy_particle(struct particle_emitter *emitter,
 			     int index)
 {
 	struct particle_emitter_priv *priv = emitter->priv;
-	struct particle *particle =
-		particle_engine_get_particle(priv->engine, index);
+	struct particle *particle = &priv->particles[index];
+	float *position = particle_engine_get_particle_position(priv->engine,
+								index);
+	CoglColor *color = particle_engine_get_particle_color(priv->engine,
+							      index);
 
-	priv->active_particles[index] = FALSE;
+	particle->active = FALSE;
 
 	/* Zero the particle */
-	memset(particle, 0, sizeof(struct particle));
-
-	particle_engine_set_particle_state(priv->engine, index,
-					   PARTICLE_STATE_DIRTY_POSITION |
-					   PARTICLE_STATE_DIRTY_COLOR);
+	memset(position, 0, sizeof(float) * 3);
+	cogl_color_init_from_4f(color, 0, 0, 0, 0);
 }
 
 static void update_particle(struct particle_emitter *emitter,
 			    int index,
 			    gdouble tick_time)
 {
-	struct particle_emitter_priv *priv;
-	struct particle *particle;
+	struct particle_emitter_priv *priv = emitter->priv;
+	struct particle *particle = &priv->particles[index];
+	float *position = particle_engine_get_particle_position(priv->engine,
+								index);
+	CoglColor *color = particle_engine_get_particle_color(priv->engine,
+							      index);
 	float t, r, g, b, a;
 	unsigned int i;
-
-	priv = emitter->priv;
-	particle = particle_engine_get_particle(priv->engine, index);
 
 	/* Update position, using v = u + at */
 	for (i = 0; i < 3; i++) {
 		particle->velocity[i] += emitter->acceleration[i] * tick_time;
-		particle->position[i] += particle->velocity[i];
-
+		position[i] += particle->velocity[i];
 	}
 
 	/* Fade color over time */
 	t = tick_time / particle->max_age;
-	r = cogl_color_get_red(&particle->color) - t;
-	g = cogl_color_get_green(&particle->color) - t;
-	b = cogl_color_get_blue(&particle->color) - t;
-	a = cogl_color_get_alpha(&particle->color) - t;
+	r = cogl_color_get_red(color) - t;
+	g = cogl_color_get_green(color) - t;
+	b = cogl_color_get_blue(color) - t;
+	a = cogl_color_get_alpha(color) - t;
 
-	cogl_color_init_from_4f(&particle->color, r, g, b, a);
-
-	particle_engine_set_particle_state(priv->engine, index,
-					   PARTICLE_STATE_DIRTY_POSITION |
-					   PARTICLE_STATE_DIRTY_COLOR);
+	cogl_color_init_from_4f(color, r, g, b, a);
 }
 
 static void tick(struct particle_emitter *emitter)
@@ -155,10 +162,17 @@ static void tick(struct particle_emitter *emitter)
 	max_new_particles = emitter->active ?
 		tick_time * emitter->new_particles_per_ms : 0;
 
+	/* We must first map the particle engine's buffer before reading or
+	 * writing particle data.
+	 */
+	particle_engine_push_buffer(priv->engine,
+				    COGL_BUFFER_ACCESS_READ_WRITE, 0);
+
 	/* Iterate over every particle and update/destroy/create as
 	 * necessary.
 	 */
 	for (i = 0; i < emitter->particle_count; i++) {
+		struct particle *particle = &priv->particles[i];
 
 		/* Break early if there's nothing left to do */
 		if (updated_particles >= priv->active_particles_count &&
@@ -166,10 +180,7 @@ static void tick(struct particle_emitter *emitter)
 			break;
 		}
 
-		if (particle_exists(emitter, i)) {
-			struct particle *particle =
-				particle_engine_get_particle(priv->engine, i);
-
+		if (particle->active) {
 			if (particle->ttl > 0) {
 				/* Update the particle's position and color */
 				update_particle(emitter, i, tick_time);
@@ -189,6 +200,11 @@ static void tick(struct particle_emitter *emitter)
 			new_particles++;
 		}
 	}
+
+	/* We can safely unmap the changes we have made to the particle buffer
+	 * now.
+	 */
+	particle_engine_pop_buffer(priv->engine);
 
 	/* Update particle count */
 	priv->active_particles_count += new_particles - destroyed_particles;
@@ -223,7 +239,6 @@ void particle_emitter_free(struct particle_emitter *emitter)
 	g_rand_free(priv->rand);
 	g_timer_destroy(priv->timer);
 
-	g_free(priv->active_particles);
 	particle_engine_free(priv->engine);
 
 	g_slice_free(struct particle_emitter_priv, priv);
