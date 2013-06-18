@@ -31,16 +31,16 @@ static void paint_cb(struct demo *demo) {
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
 				 0.0f, 0.0f, 0.0f, 1);
 
-	cogl_framebuffer_push_matrix (demo->fb);
+	cogl_framebuffer_push_matrix(demo->fb);
 
-	cogl_framebuffer_translate (demo->fb, WIDTH / 2, HEIGHT / 2, 0);
+	cogl_framebuffer_translate(demo->fb, WIDTH / 2, HEIGHT / 2, 0);
 
 	cogl_framebuffer_rotate (demo->fb, 70, 1, 0, 0);
 	cogl_framebuffer_rotate (demo->fb, rotation, 0, 0.4, 1);
 
 	particle_swarm_paint(demo->swarm);
 
-	cogl_framebuffer_pop_matrix (demo->fb);
+	cogl_framebuffer_pop_matrix(demo->fb);
 }
 
 static void frame_event_cb(CoglOnscreen *onscreen, CoglFrameEvent event,
