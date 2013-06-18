@@ -30,7 +30,8 @@ struct particle_swarm {
 	/* The radius of the swarm. */
 	struct fuzzy_float radius;
 
-	/* The inclination of particle orbits, as an angle in radians. */
+	/* The inclination of particle orbits, as an angle in radians relative
+	 * to the equatorial (reference) plane. */
 	struct fuzzy_float inclination;
 
 	/* The number of particles in the swarm. */

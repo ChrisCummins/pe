@@ -6,12 +6,14 @@
 #include <string.h>
 
 struct particle {
+	/* The radius of the orbit */
 	float radius;
 
 	/* The angular velocity in the orbital plane (in radians per
 	 * millisecond). */
 	float speed;
 
+	/* The orbital period offset, in seconds. */
 	gdouble t_offset;
 };
 
