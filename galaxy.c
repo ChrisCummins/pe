@@ -79,7 +79,7 @@ static void init_particle_system(struct demo *demo)
 {
 	demo->system = particle_system_new(demo->ctx, demo->fb);
 
-	demo->system->type = SYSTEM_TYPE_KEPLER_ORBIT;
+	demo->system->type = SYSTEM_TYPE_CIRCULAR_ORBIT;
 	demo->system->particle_count = 50000;
 	demo->system->particle_size = 1.0f;
 

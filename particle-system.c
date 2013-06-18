@@ -87,26 +87,32 @@ static void create_particle(struct particle_system *system,
 	/* Get the ascending node */
 	particle->ascending_node = g_random_double_range(0, M_PI * 2);
 
-	/* Get orbital radius */
-	particle->radius = fuzzy_float_get_real_value(&system->radius, priv->rand);
-
-	/* Orbital velocity */
-	particle->speed = system->u / particle->radius;
-
-	/* In a circular orbit, the orbital period is:
-	 *
-	 *    T = 2pi * sqrt(r^3 / μ)
-	 *
-	 * r - radius
-	 * μ - standard gravitational parameter
-	 */
-	period = 2 * M_PI * sqrt(powf(particle->radius, 3) / system->u);
-
-	/* Start the orbit at a random point around it's circumference. */
-	particle->t_offset = g_rand_double_range(priv->rand, 0, period);
-
 	/* Particle color. */
 	fuzzy_color_get_cogl_color(&system->particle_color, priv->rand, color);
+
+	switch (system->type) {
+	case SYSTEM_TYPE_CIRCULAR_ORBIT:
+		/* Get orbital radius */
+		particle->radius = fuzzy_float_get_real_value(&system->radius,
+							      priv->rand);
+
+		/* Orbital velocity */
+		particle->speed = system->u / particle->radius;
+
+		/* In a circular orbit, the orbital period is:
+		 *
+		 *    T = 2pi * sqrt(r^3 / μ)
+		 *
+		 * r - radius
+		 * μ - standard gravitational parameter
+		 */
+		period = 2 * M_PI * sqrt(powf(particle->radius, 3) / system->u);
+
+		/* Start the orbit at a random point around it's circumference. */
+		particle->t_offset = g_rand_double_range(priv->rand, 0, period);
+
+		break;
+	}
 }
 
 static void create_resources(struct particle_system *system)
@@ -134,20 +140,34 @@ static void update_particle(struct particle_system *system,
 {
 	struct particle_system_priv *priv = system->priv;
 	struct particle *particle = &priv->particles[index];
-	float *position, time, theta, x, y, z;
+	float *position, time, x, y, z;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 
 	/* Get the particle age. */
 	time = particle->t_offset + priv->current_time;
 
-	/* Get the angular position. */
-	theta = fmod(time * particle->speed, M_PI * 2);
+	switch (system->type) {
+	case SYSTEM_TYPE_CIRCULAR_ORBIT:
+	{
+		float theta;
 
-	/* Object space coordinates. */
-	x = cosf(theta) * particle->radius;
-	y = sinf(theta) * particle->radius;
-	z = 0;
+		/* Get the angular position. */
+		theta = fmod(time * particle->speed, M_PI * 2);
+
+		/* Object space coordinates. */
+		x = cosf(theta) * particle->radius;
+		y = sinf(theta) * particle->radius;
+		z = 0;
+
+		break;
+	}
+	default:
+		g_warning(G_STRLOC "Unrecognised particle system type %d",
+			  system->type);
+		x = y = z = 0;
+		break;
+	}
 
 	/* FIXME: Rotate around Z axis to the ascending node */
 	/* x = x * cosf(particle->ascending_node) - y * sinf(particle->ascending_node); */

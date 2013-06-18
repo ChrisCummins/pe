@@ -13,7 +13,7 @@ struct particle_system {
 
 	/* The type of system. */
 	enum {
-	  	SYSTEM_TYPE_KEPLER_ORBIT,
+	  	SYSTEM_TYPE_CIRCULAR_ORBIT,
 	} type;
 
 	/* The position of the center of gravity of the system. */
