@@ -91,8 +91,9 @@ static void init_particle_swarm(struct demo *demo)
 	demo->swarm->radius.type = FLOAT_VARIANCE_IRWIN_HALL;
 
 	/* Orbital inclination */
-	demo->swarm->inclination.variance = M_PI / 2;
-	demo->swarm->inclination.type = FLOAT_VARIANCE_IRWIN_HALL;
+	demo->swarm->inclination.value = 0;
+	demo->swarm->inclination.variance = M_PI * 2;
+	demo->swarm->inclination.type = FLOAT_VARIANCE_LINEAR;
 
 	/* Color */
 	demo->swarm->particle_color.hue.value = 28;

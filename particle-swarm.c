@@ -15,6 +15,13 @@ struct particle {
 
 	/* The orbital period offset, in seconds. */
 	gdouble t_offset;
+
+	/* Longitude of ascending node, in radians. */
+	float ascending_node;
+
+	/* Inclination in radians from equatorial plane. If inclination is >
+	 * pi/2, orbit is retrograde. */
+	float inclination;
 };
 
 struct particle_swarm_priv {
@@ -69,24 +76,19 @@ static void create_particle(struct particle_swarm *swarm,
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle *particle = &priv->particles[index];
-	float *position, period, theta, radius, y_rad, x_rad;
+	float period;
 	CoglColor *color;
 
-	position = particle_engine_get_particle_position(priv->engine, index);
 	color = particle_engine_get_particle_color(priv->engine, index);
 
-	/* Get perpendicular angle */
-	theta = fuzzy_float_get_real_value(&swarm->inclination, priv->rand);
+	/* Get angle of inclination */
+	particle->inclination = fuzzy_float_get_real_value(&swarm->inclination, priv->rand);
+
+	/* Get the ascending node */
+	particle->ascending_node = g_random_double_range(0, M_PI * 2);
 
 	/* Get orbital radius */
-	radius = fuzzy_float_get_real_value(&swarm->radius, priv->rand);
-
-	/* Horizontal and vertical components of radius */
-	y_rad = sinf(theta) * radius;
-	x_rad = sqrt(radius * radius - y_rad * y_rad);
-
-	position[2] = y_rad;
-	particle->radius = x_rad;
+	particle->radius = fuzzy_float_get_real_value(&swarm->radius, priv->rand);
 
 	/* Orbital velocity */
 	particle->speed = swarm->u / particle->radius;
@@ -132,7 +134,7 @@ static void update_particle(struct particle_swarm *swarm,
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle *particle = &priv->particles[index];
-	float *position, time, theta, c, s;
+	float *position, time, theta, x, y, z;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 
@@ -142,13 +144,23 @@ static void update_particle(struct particle_swarm *swarm,
 	/* Get the angular position. */
 	theta = fmod(time * particle->speed, M_PI * 2);
 
-	/* Derive the X and Y components of this position. */
-	c = cos(theta);
-	s = sin(theta);
+	/* Object space coordinates. */
+	x = cosf(theta) * particle->radius;
+	y = sinf(theta) * particle->radius;
+	z = 0;
+
+	/* FIXME: Rotate around Z axis to the ascending node */
+	/* x = x * cosf(particle->ascending_node) - y * sinf(particle->ascending_node); */
+	/* y = x * sinf(particle->ascending_node) + y * cosf(particle->ascending_node); */
+
+	/* FIXME: Rotate about X axis to the inclination */
+	/* y = y * cosf(particle->inclination) - z * sinf(particle->inclination); */
+	/* z = y * sinf(particle->inclination) + z * cosf(particle->inclination); */
 
 	/* Update the new position. */
-	position[0] = swarm->cog[0] + particle->radius * c;
-	position[1] = swarm->cog[1] + particle->radius * s;
+	position[0] = swarm->cog[0] + x;
+	position[1] = swarm->cog[1] + y;
+	position[2] = swarm->cog[2] + z;
 }
 
 static void tick(struct particle_swarm *swarm)
