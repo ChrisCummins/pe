@@ -1,9 +1,9 @@
 /*
- *         galaxy.c -- A particle swarm demo.
+ *         galaxy.c -- A particle system demo.
  */
 #include "config.h"
 
-#include "particle-swarm.h"
+#include "particle-system.h"
 
 #define WIDTH 1024
 #define HEIGHT 768
@@ -14,7 +14,7 @@ struct demo {
 	CoglMatrix view;
 	int width, height;
 
-	struct particle_swarm *swarm;
+	struct particle_system *system;
 
 	GTimer *timer;
 
@@ -38,7 +38,7 @@ static void paint_cb(struct demo *demo) {
 	cogl_framebuffer_rotate (demo->fb, 70, 1, 0, 0);
 	cogl_framebuffer_rotate (demo->fb, rotation, 0, 0.4, 1);
 
-	particle_swarm_paint(demo->swarm);
+	particle_system_paint(demo->system);
 
 	cogl_framebuffer_pop_matrix(demo->fb);
 }
@@ -75,34 +75,35 @@ static gboolean update_cb(gpointer data)
 	return TRUE;
 }
 
-static void init_particle_swarm(struct demo *demo)
+static void init_particle_system(struct demo *demo)
 {
-	demo->swarm = particle_swarm_new(demo->ctx, demo->fb);
+	demo->system = particle_system_new(demo->ctx, demo->fb);
 
-	demo->swarm->type = SWARM_TYPE_KEPLER_ORBIT;
-	demo->swarm->particle_count = 50000;
-	demo->swarm->particle_size = 1.0f;
+	demo->system->type = SYSTEM_TYPE_KEPLER_ORBIT;
+	demo->system->particle_count = 50000;
+	demo->system->particle_size = 1.0f;
 
 	/* Center of gravity */
-	demo->swarm->u = 7;
+	demo->system->u = 7;
 
 	/* Particle radius */
-	demo->swarm->radius.variance = 3500;
-	demo->swarm->radius.type = FLOAT_VARIANCE_IRWIN_HALL;
+	demo->system->radius.value = 0;
+	demo->system->radius.variance = 3500;
+	demo->system->radius.type = FLOAT_VARIANCE_IRWIN_HALL;
 
 	/* Orbital inclination */
-	demo->swarm->inclination.value = 0;
-	demo->swarm->inclination.variance = M_PI * 2;
-	demo->swarm->inclination.type = FLOAT_VARIANCE_LINEAR;
+	demo->system->inclination.value = 0;
+	demo->system->inclination.variance = M_PI / 2;
+	demo->system->inclination.type = FLOAT_VARIANCE_LINEAR;
 
 	/* Color */
-	demo->swarm->particle_color.hue.value = 28;
-	demo->swarm->particle_color.hue.variance = 360;
-	demo->swarm->particle_color.hue.type = FLOAT_VARIANCE_LINEAR;
-	demo->swarm->particle_color.saturation.value = 1;
-	demo->swarm->particle_color.luminance.value = 0.85;
-	demo->swarm->particle_color.luminance.variance = 0.2;
-	demo->swarm->particle_color.luminance.type = FLOAT_VARIANCE_PROPORTIONAL;
+	demo->system->particle_color.hue.value = 28;
+	demo->system->particle_color.hue.variance = 360;
+	demo->system->particle_color.hue.type = FLOAT_VARIANCE_LINEAR;
+	demo->system->particle_color.saturation.value = 1;
+	demo->system->particle_color.luminance.value = 0.85;
+	demo->system->particle_color.luminance.variance = 0.2;
+	demo->system->particle_color.luminance.type = FLOAT_VARIANCE_PROPORTIONAL;
 }
 
 int main(int argc, char **argv)
@@ -142,7 +143,7 @@ int main(int argc, char **argv)
 	cogl_onscreen_add_frame_callback(COGL_ONSCREEN(demo.fb),
 					 frame_event_cb, &demo, NULL);
 
-	init_particle_swarm(&demo);
+	init_particle_system(&demo);
 
 	demo.timer = g_timer_new();
 

@@ -1,4 +1,4 @@
-#include "particle-swarm.h"
+#include "particle-system.h"
 
 #include "particle-engine.h"
 
@@ -24,7 +24,7 @@ struct particle {
 	float inclination;
 };
 
-struct particle_swarm_priv {
+struct particle_system_priv {
 	GTimer *timer;
 	gdouble current_time;
 	gdouble last_update_time;
@@ -38,11 +38,11 @@ struct particle_swarm_priv {
 	struct particle_engine *engine;
 };
 
-struct particle_swarm* particle_swarm_new(CoglContext *ctx,
-					  CoglFramebuffer *fb)
+struct particle_system* particle_system_new(CoglContext *ctx,
+					    CoglFramebuffer *fb)
 {
-	struct particle_swarm *swarm = g_slice_new0(struct particle_swarm);
-	struct particle_swarm_priv *priv = g_slice_new0(struct particle_swarm_priv);
+	struct particle_system *system = g_slice_new0(struct particle_system);
+	struct particle_system_priv *priv = g_slice_new0(struct particle_system_priv);
 
 	priv->ctx = cogl_object_ref(ctx);
 	priv->fb = cogl_object_ref(fb);
@@ -50,14 +50,14 @@ struct particle_swarm* particle_swarm_new(CoglContext *ctx,
 	priv->timer = g_timer_new();
 	priv->rand = g_rand_new();
 
-	swarm->priv = priv;
+	system->priv = priv;
 
-	return swarm;
+	return system;
 }
 
-void particle_swarm_free(struct particle_swarm *swarm)
+void particle_system_free(struct particle_system *system)
 {
-	struct particle_swarm_priv *priv = swarm->priv;
+	struct particle_system_priv *priv = system->priv;
 
 	cogl_object_unref(priv->ctx);
 	cogl_object_unref(priv->fb);
@@ -67,14 +67,14 @@ void particle_swarm_free(struct particle_swarm *swarm)
 
 	particle_engine_free(priv->engine);
 
-	g_slice_free(struct particle_swarm_priv, priv);
-	g_slice_free(struct particle_swarm, swarm);
+	g_slice_free(struct particle_system_priv, priv);
+	g_slice_free(struct particle_system, system);
 }
 
-static void create_particle(struct particle_swarm *swarm,
+static void create_particle(struct particle_system *system,
 			    int index)
 {
-	struct particle_swarm_priv *priv = swarm->priv;
+	struct particle_system_priv *priv = system->priv;
 	struct particle *particle = &priv->particles[index];
 	float period;
 	CoglColor *color;
@@ -82,16 +82,16 @@ static void create_particle(struct particle_swarm *swarm,
 	color = particle_engine_get_particle_color(priv->engine, index);
 
 	/* Get angle of inclination */
-	particle->inclination = fuzzy_float_get_real_value(&swarm->inclination, priv->rand);
+	particle->inclination = fuzzy_float_get_real_value(&system->inclination, priv->rand);
 
 	/* Get the ascending node */
 	particle->ascending_node = g_random_double_range(0, M_PI * 2);
 
 	/* Get orbital radius */
-	particle->radius = fuzzy_float_get_real_value(&swarm->radius, priv->rand);
+	particle->radius = fuzzy_float_get_real_value(&system->radius, priv->rand);
 
 	/* Orbital velocity */
-	particle->speed = swarm->u / particle->radius;
+	particle->speed = system->u / particle->radius;
 
 	/* In a circular orbit, the orbital period is:
 	 *
@@ -100,39 +100,39 @@ static void create_particle(struct particle_swarm *swarm,
 	 * r - radius
 	 * μ - standard gravitational parameter
 	 */
-	period = 2 * M_PI * sqrt(powf(particle->radius, 3) / swarm->u);
+	period = 2 * M_PI * sqrt(powf(particle->radius, 3) / system->u);
 
 	/* Start the orbit at a random point around it's circumference. */
 	particle->t_offset = g_rand_double_range(priv->rand, 0, period);
 
 	/* Particle color. */
-	fuzzy_color_get_cogl_color(&swarm->particle_color, priv->rand, color);
+	fuzzy_color_get_cogl_color(&system->particle_color, priv->rand, color);
 }
 
-static void create_resources(struct particle_swarm *swarm)
+static void create_resources(struct particle_system *system)
 {
-	struct particle_swarm_priv *priv = swarm->priv;
+	struct particle_system_priv *priv = system->priv;
 	int i;
 
 	priv->engine = particle_engine_new(priv->ctx, priv->fb,
-					   swarm->particle_count,
-					   swarm->particle_size);
+					   system->particle_count,
+					   system->particle_size);
 
-	priv->particles = g_new0(struct particle, swarm->particle_count);
+	priv->particles = g_new0(struct particle, system->particle_count);
 
 	particle_engine_push_buffer(priv->engine,
 				    COGL_BUFFER_ACCESS_READ_WRITE, 0);
 
-	for (i = 0; i < swarm->particle_count; i++)
-		create_particle(swarm, i);
+	for (i = 0; i < system->particle_count; i++)
+		create_particle(system, i);
 
 	particle_engine_pop_buffer(priv->engine);
 }
 
-static void update_particle(struct particle_swarm *swarm,
+static void update_particle(struct particle_system *system,
 			    int index)
 {
-	struct particle_swarm_priv *priv = swarm->priv;
+	struct particle_system_priv *priv = system->priv;
 	struct particle *particle = &priv->particles[index];
 	float *position, time, theta, x, y, z;
 
@@ -158,20 +158,20 @@ static void update_particle(struct particle_swarm *swarm,
 	/* z = y * sinf(particle->inclination) + z * cosf(particle->inclination); */
 
 	/* Update the new position. */
-	position[0] = swarm->cog[0] + x;
-	position[1] = swarm->cog[1] + y;
-	position[2] = swarm->cog[2] + z;
+	position[0] = system->cog[0] + x;
+	position[1] = system->cog[1] + y;
+	position[2] = system->cog[2] + z;
 }
 
-static void tick(struct particle_swarm *swarm)
+static void tick(struct particle_system *system)
 {
-	struct particle_swarm_priv *priv = swarm->priv;
+	struct particle_system_priv *priv = system->priv;
 	struct particle_engine *engine = priv->engine;
 	int i;
 
 	/* Create resources as necessary */
 	if (!engine)
-		create_resources(swarm);
+		create_resources(system);
 
 	/* Update the clocks */
 	priv->last_update_time = priv->current_time;
@@ -184,15 +184,15 @@ static void tick(struct particle_swarm *swarm)
 				    COGL_BUFFER_ACCESS_READ_WRITE, 0);
 
 	/* Iterate over every particle and update them. */
-	for (i = 0; i < swarm->particle_count; i++)
-		update_particle(swarm, i);
+	for (i = 0; i < system->particle_count; i++)
+		update_particle(system, i);
 
 	/* Unmap the modified particle buffer. */
 	particle_engine_pop_buffer(priv->engine);
 }
 
-void particle_swarm_paint(struct particle_swarm *swarm)
+void particle_system_paint(struct particle_system *system)
 {
-	tick(swarm);
-	particle_engine_paint(swarm->priv->engine);
+	tick(system);
+	particle_engine_paint(system->priv->engine);
 }
