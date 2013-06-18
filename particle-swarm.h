@@ -13,7 +13,7 @@ struct particle_swarm {
 
 	/* The type of swarm. */
 	enum {
-	  	SWARM_TYPE_ORBIT,
+	  	SWARM_TYPE_KEPLER_ORBIT,
 	} type;
 
 	/* The position of the center of gravity of the swarm. */

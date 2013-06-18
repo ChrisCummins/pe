@@ -79,7 +79,7 @@ static void init_particle_swarm(struct demo *demo)
 {
 	demo->swarm = particle_swarm_new(demo->ctx, demo->fb);
 
-	demo->swarm->type = SWARM_TYPE_ORBIT;
+	demo->swarm->type = SWARM_TYPE_KEPLER_ORBIT;
 	demo->swarm->particle_count = 50000;
 	demo->swarm->particle_size = 1.0f;
 
