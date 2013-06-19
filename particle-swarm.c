@@ -30,6 +30,9 @@ struct particle_swarm_priv {
 	 * repelled. */
 	float boundary_max[2];
 
+	float velocity_sum[2];
+	float position_sum[2];
+
 	CoglContext *ctx;
 	CoglFramebuffer *fb;
 	struct particle_engine *engine;
@@ -127,25 +130,18 @@ update_particle_cohesion(struct particle_swarm *swarm, int index,
 			 float tick_time, float *v)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
-	float *position, c[2] = { 0 }, cohesion;
+	float *position, c[2], cohesion;
 	int i;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 
-	/* First, we sum up the positions of all of the other boids: */
-	for (i = 0; i < swarm->particle_count; i++) {
-		if (i != index) {
-			float *pos;
-
-			pos = particle_engine_get_particle_position(priv->engine, i);
-
-			c[0] += pos[0];
-			c[1] += pos[1];
-		}
+	/* We calculate the sum of all other particle positions: */
+	for (i = 0; i < 2; i++) {
+		c[i] = priv->position_sum[i] - position[i];
 	}
 
-	/* We divide this value to produce an average boid position, or 'center
-	 * of mass': */
+	/* We divide this sum to produce an average boid position, or 'center of
+	 * mass' of the swarm: */
 	c[0] /= swarm->particle_count - 1;
 	c[1] /= swarm->particle_count - 1;
 
@@ -205,23 +201,16 @@ update_particle_alignment(struct particle_swarm *swarm, int index,
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle *particle = &priv->particles[index];
-	float c[2] = { 0 };
+	float c[2];
 	int i;
 
-	/* First, we sum up the velocities of all of the other boids: */
-	for (i = 0; i < swarm->particle_count; i++) {
-		if (i != index) {
-			float *vel;
-
-			vel = &priv->particles[index].velocity[0];
-
-			c[0] += vel[0];
-			c[1] += vel[1];
-		}
+	/* We calculate the sum of all other particle velocities: */
+	for (i = 0; i < 2; i++) {
+		c[i] = priv->velocity_sum[i] - particle->velocity[i];
 	}
 
-	/* We divide this value to produce an average boid velocity, or 'center
-	 * of mass': */
+	/* We divide this value to produce an average boid velocity of the
+	 * swarm: */
 	c[0] /= swarm->particle_count - 1;
 	c[1] /= swarm->particle_count - 1;
 
@@ -296,7 +285,7 @@ static void tick(struct particle_swarm *swarm)
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle_engine *engine = priv->engine;
 	float tick_time;
-	int i;
+	int i, j;
 
 	/* Create resources as necessary */
 	if (!engine)
@@ -312,6 +301,19 @@ static void tick(struct particle_swarm *swarm)
 	 */
 	particle_engine_push_buffer(priv->engine,
 				    COGL_BUFFER_ACCESS_READ_WRITE, 0);
+
+	/* Sum the total velocity and position of all the particles: */
+	priv->velocity_sum[0] = priv->velocity_sum[1] = 0;
+	priv->position_sum[0] = priv->position_sum[1] = 0;
+
+	for (i = 0; i < swarm->particle_count; i++) {
+		float *position = particle_engine_get_particle_position(priv->engine, i);
+
+		for (j = 0; j < 2; j++) {
+			priv->velocity_sum[j] += priv->particles[i].velocity[j];
+			priv->position_sum[j] += position[j];
+		}
+	}
 
 	/* Iterate over every particle and update them. */
 	for (i = 0; i < swarm->particle_count; i++)
