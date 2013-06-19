@@ -11,7 +11,6 @@
 #define SEPARATION_RATE 0.003
 #define ALIGNMENT_RATE 0.1
 
-#define BOUNDARY_THRESHOLD 200
 #define BOUNDARY_RATE 1
 
 struct particle {
@@ -27,6 +26,17 @@ struct particle_swarm_priv {
 	GRand *rand;
 
 	struct particle *particles;
+
+	/* The hard particle boundaries. */
+	float boundary[2];
+
+	/* The soft minimum boundary thresholds at which particles are
+	 * repelled. */
+	float boundary_min[2];
+
+	/* The soft maximum boundary thresholds at which particles are
+	 * repelled. */
+	float boundary_max[2];
 
 	CoglContext *ctx;
 	CoglFramebuffer *fb;
@@ -81,7 +91,7 @@ static void create_particle(struct particle_swarm *swarm,
 	fuzzy_color_get_cogl_color(&swarm->particle_color, priv->rand, color);
 
 	/* Starting position is a random point along top or bottom */
-	position[0] = g_rand_int_range(priv->rand, 0, swarm->width);
+	position[0] = g_rand_int_range(priv->rand, 0, priv->boundary[0]);
 
 	seed = g_rand_int_range(priv->rand, -1, 1);
 	position[1] = seed ? -20 : swarm->height + 20;
@@ -99,6 +109,14 @@ static void create_resources(struct particle_swarm *swarm)
 					   swarm->particle_size);
 
 	priv->particles = g_new0(struct particle, swarm->particle_count);
+
+	priv->boundary[0] = swarm->width;
+	priv->boundary[1] = swarm->height;
+
+	for (i = 0; i < 2; i++) {
+		priv->boundary_min[i] = priv->boundary[i] / 4;
+		priv->boundary_max[i] = priv->boundary[i] - priv->boundary_min[i];
+	}
 
 	particle_engine_push_buffer(priv->engine,
 				    COGL_BUFFER_ACCESS_READ_WRITE, 0);
@@ -222,21 +240,19 @@ update_particle_boundaries(struct particle_swarm *swarm, int index,
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	float *position, accel;
+	int i;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 
 	v[0] = v[1] = 0;
 	accel = BOUNDARY_RATE * tick_time;
 
-	if (position[0] < BOUNDARY_THRESHOLD)
-		v[0] = accel;
-	else if (position[0] > swarm->width - BOUNDARY_THRESHOLD)
-		v[0] = -accel;
-
-	if (position[1] < BOUNDARY_THRESHOLD)
-		v[1] = accel;
-	else if (position[1] > swarm->height - BOUNDARY_THRESHOLD)
-		v[1] = -accel;
+	for (i = 0; i < 2; i++) {
+		if (position[i] < priv->boundary_min[i])
+			v[i] = accel;
+		else if (position[i] > priv->boundary_max[i])
+			v[1] = -accel;
+	}
 }
 
 static void
