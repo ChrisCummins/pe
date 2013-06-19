@@ -7,7 +7,6 @@
 
 /* FIXME: This should be a configurable properties */
 #define COHESION_RATE 0.03
-#define SEPARATION_RATE 0.003
 #define ALIGNMENT_RATE 0.1
 
 struct particle {
@@ -191,8 +190,8 @@ update_particle_seperation(struct particle_swarm *swarm, int index,
 
 			if (distance < swarm->particle_distance) {
 				/* FIXME: is this correct? */
-				v[0] -= (pos[0] - position[0]) * SEPARATION_RATE;
-				v[1] -= (pos[1] - position[1]) * SEPARATION_RATE;
+				v[0] -= (pos[0] - position[0]) * swarm->particle_repulsion_rate;
+				v[1] -= (pos[1] - position[1]) * swarm->particle_repulsion_rate;
 			}
 		}
 	}
