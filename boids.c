@@ -76,6 +76,7 @@ static void init_particle_swarm(struct demo *demo)
 
 	swarm->particle_speed = 4;
 	swarm->particle_size = 2.0f;
+	swarm->particle_distance = 25;
 
 	swarm->width = demo->width;
 	swarm->height = demo->height;

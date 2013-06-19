@@ -7,7 +7,6 @@
 
 /* FIXME: This should be a configurable properties */
 #define COHESION_RATE 0.03
-#define SEPARATION 25
 #define SEPARATION_RATE 0.003
 #define ALIGNMENT_RATE 0.1
 
@@ -190,8 +189,8 @@ update_particle_seperation(struct particle_swarm *swarm, int index,
 
 			distance = sqrt(dx * dx + dy * dy);
 
-			/* FIXME: is this correct? */
-			if (distance < SEPARATION) {
+			if (distance < swarm->particle_distance) {
+				/* FIXME: is this correct? */
 				v[0] -= (pos[0] - position[0]) * SEPARATION_RATE;
 				v[1] -= (pos[1] - position[1]) * SEPARATION_RATE;
 			}
