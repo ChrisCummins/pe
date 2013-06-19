@@ -6,7 +6,6 @@
 #include <string.h>
 
 /* FIXME: This should be a configurable properties */
-#define COHESION_RATE 0.03
 #define ALIGNMENT_RATE 0.1
 
 struct particle {
@@ -131,7 +130,7 @@ update_particle_cohesion(struct particle_swarm *swarm, int index,
 			 float tick_time, float *v)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
-	float *position, c[2] = { 0 };
+	float *position, c[2] = { 0 }, cohesion;
 	int i;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
@@ -153,10 +152,12 @@ update_particle_cohesion(struct particle_swarm *swarm, int index,
 	c[0] /= swarm->particle_count - 1;
 	c[1] /= swarm->particle_count - 1;
 
+	cohesion = tick_time * swarm->particle_cohesion_rate;
+
 	/* We move the boid by an amount proportional to the distance between
 	 * it's current position and the center of mass: */
-	v[0] = (c[0] - position[0]) * tick_time * COHESION_RATE;
-	v[1] = (c[1] - position[1]) * tick_time * COHESION_RATE;
+	v[0] = (c[0] - position[0]) * cohesion;
+	v[1] = (c[1] - position[1]) * cohesion;
 }
 
 /*
