@@ -79,6 +79,7 @@ static void init_particle_swarm(struct demo *demo)
 
 	swarm->width = demo->width;
 	swarm->height = demo->height;
+	swarm->boundary_repulsion_rate = 1;
 
 	/* Color */
 	swarm->particle_color.hue.variance = 10;

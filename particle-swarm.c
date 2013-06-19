@@ -11,8 +11,6 @@
 #define SEPARATION_RATE 0.003
 #define ALIGNMENT_RATE 0.1
 
-#define BOUNDARY_RATE 1
-
 struct particle {
 	float position[2];
 	float velocity[2];
@@ -245,7 +243,7 @@ update_particle_boundaries(struct particle_swarm *swarm, int index,
 	position = particle_engine_get_particle_position(priv->engine, index);
 
 	v[0] = v[1] = 0;
-	accel = BOUNDARY_RATE * tick_time;
+	accel = swarm->boundary_repulsion_rate * tick_time;
 
 	for (i = 0; i < 2; i++) {
 		if (position[i] < priv->boundary_min[i])
