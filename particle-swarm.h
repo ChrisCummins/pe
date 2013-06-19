@@ -30,6 +30,9 @@ struct particle_swarm {
 	/* The rate at which particles are attracted to each-other */
 	float particle_cohesion_rate;
 
+	/* The rate of consistency between particle velocities */
+	float particle_velocity_consistency;
+
 	/* The distance at which particles begin to repel each-other */
 	float particle_distance;
 	/* The rate at which particles are repelled from each-other */

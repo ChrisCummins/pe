@@ -5,9 +5,6 @@
 #include <cogl/cogl.h>
 #include <string.h>
 
-/* FIXME: This should be a configurable properties */
-#define ALIGNMENT_RATE 0.1
-
 struct particle {
 	float position[2];
 	float velocity[2];
@@ -227,8 +224,8 @@ update_particle_alignment(struct particle_swarm *swarm, int index,
 	c[0] /= swarm->particle_count - 1;
 	c[1] /= swarm->particle_count - 1;
 
-	v[0] = (c[0] - particle->velocity[0]) * ALIGNMENT_RATE;
-	v[1] = (c[1] - particle->velocity[1]) * ALIGNMENT_RATE;
+	v[0] = (c[0] - particle->velocity[0]) * swarm->particle_velocity_consistency;
+	v[1] = (c[1] - particle->velocity[1]) * swarm->particle_velocity_consistency;
 }
 
 static void

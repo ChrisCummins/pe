@@ -78,6 +78,7 @@ static void init_particle_swarm(struct demo *demo)
 	swarm->particle_size = 2.0f;
 
 	swarm->particle_cohesion_rate = 0.03;
+	swarm->particle_velocity_consistency = 0.1;
 
 	swarm->particle_distance = 25;
 	swarm->particle_repulsion_rate = 0.003;
