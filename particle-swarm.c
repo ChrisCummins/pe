@@ -198,6 +198,7 @@ update_particle_seperation(struct particle_swarm *swarm, int index,
 /*
  * Rule 3: Boids try to match velocity with near boids.
  */
+/* FIXME: Is this really working? */
 static void
 update_particle_alignment(struct particle_swarm *swarm, int index,
 			  float tick_time, float *v)
