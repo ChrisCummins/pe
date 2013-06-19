@@ -73,6 +73,8 @@ static void init_particle_swarm(struct demo *demo)
 	demo->swarm = swarm = particle_swarm_new(demo->ctx, demo->fb);
 
 	swarm->particle_count = 1000;
+
+	swarm->particle_speed = 4;
 	swarm->particle_size = 2.0f;
 
 	swarm->width = demo->width;

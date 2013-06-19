@@ -14,8 +14,6 @@
 #define BOUNDARY_THRESHOLD 200
 #define BOUNDARY_RATE 1
 
-#define SPEED_LIMIT 4
-
 struct particle {
 	float position[2];
 	float velocity[2];
@@ -275,7 +273,7 @@ static void update_particle(struct particle_swarm *swarm,
 		/* Sum individual velocity changes */
 		particle->velocity[i] += seperation[i] + cohesion[i] + alignment[i] + boundary[i];
 
-		enforce_speed_limit(particle->velocity, SPEED_LIMIT);
+		enforce_speed_limit(particle->velocity, swarm->particle_speed);
 
 		/* Update position */
 		position[i] += particle->velocity[i];
