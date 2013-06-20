@@ -83,8 +83,10 @@ static void init_particle_swarm(struct demo *demo)
 	swarm->particle_distance = 15;
 	swarm->particle_repulsion_rate = 0.010;
 
+	/* Boundaries */
 	swarm->width = demo->width;
 	swarm->height = demo->height;
+	swarm->boundary_threshold = 0.15;
 	swarm->boundary_repulsion_rate = 3;
 
 	/* Color */

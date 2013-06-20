@@ -109,7 +109,8 @@ static void create_resources(struct particle_swarm *swarm)
 	priv->boundary[1] = swarm->height;
 
 	for (i = 0; i < 2; i++) {
-		priv->boundary_min[i] = priv->boundary[i] / 4;
+		priv->boundary_min[i] = priv->boundary[i] *
+			swarm->boundary_threshold;
 		priv->boundary_max[i] = priv->boundary[i] - priv->boundary_min[i];
 	}
 

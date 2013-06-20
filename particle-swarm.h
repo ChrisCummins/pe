@@ -20,7 +20,8 @@ struct particle_swarm {
 
 	float width;
 	float height;
-
+	/* The threshold at which particles are repelled from the boundaries. */
+	float boundary_threshold;
 	/* The rate at which particles are repelled from the boundaries */
 	float boundary_repulsion_rate;
 
