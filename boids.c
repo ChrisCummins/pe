@@ -25,7 +25,7 @@ struct demo {
 static void paint_cb(struct demo *demo) {
 	cogl_framebuffer_clear4f(demo->fb,
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
-				 0.1, 0, 0, 1);
+				 0.3, 0.3, 0.4, 1);
 
 	cogl_framebuffer_push_matrix(demo->fb);
 
@@ -88,11 +88,11 @@ static void init_particle_swarm(struct demo *demo)
 	swarm->boundary_repulsion_rate = 4;
 
 	/* Color */
-	swarm->particle_color.hue.variance = 10;
-	swarm->particle_color.hue.type = FLOAT_VARIANCE_LINEAR;
+	swarm->particle_color.hue.value = 50;
+	swarm->particle_color.hue.type = FLOAT_VARIANCE_NONE;
 	swarm->particle_color.saturation.value = 1;
-	swarm->particle_color.luminance.value = 0.7;
-	swarm->particle_color.luminance.variance = 0.4;
+	swarm->particle_color.luminance.value = 0.5;
+	swarm->particle_color.luminance.variance = 0.45;
 	swarm->particle_color.luminance.type = FLOAT_VARIANCE_LINEAR;
 }
 
