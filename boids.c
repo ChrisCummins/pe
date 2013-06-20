@@ -72,20 +72,20 @@ static void init_particle_swarm(struct demo *demo)
 
 	demo->swarm = swarm = particle_swarm_new(demo->ctx, demo->fb);
 
-	swarm->particle_count = 200;
+	swarm->particle_count = 50;
 
 	swarm->particle_speed = 4;
 	swarm->particle_size = 3.0f;
 
-	swarm->particle_cohesion_rate = 0.02;
-	swarm->particle_velocity_consistency = 0.02;
+	swarm->particle_cohesion_rate = 0.005;
+	swarm->particle_velocity_consistency = 0.010;
 
-	swarm->particle_distance = 25;
-	swarm->particle_repulsion_rate = 0.002;
+	swarm->particle_distance = 15;
+	swarm->particle_repulsion_rate = 0.010;
 
 	swarm->width = demo->width;
 	swarm->height = demo->height;
-	swarm->boundary_repulsion_rate = 4;
+	swarm->boundary_repulsion_rate = 3;
 
 	/* Color */
 	swarm->particle_color.hue.value = 50;
