@@ -206,13 +206,12 @@ update_particle_alignment(struct particle_swarm *swarm, int index,
 
 	/* We calculate the sum of all other particle velocities: */
 	for (i = 0; i < 2; i++) {
-		c[i] = priv->velocity_sum[i] - particle->velocity[i];
+		c[i] = (priv->velocity_sum[i] - particle->velocity[i]) /
+			(swarm->particle_count - 1);
 	}
 
 	/* We divide this value to produce an average boid velocity of the
 	 * swarm: */
-	c[0] /= swarm->particle_count - 1;
-	c[1] /= swarm->particle_count - 1;
 
 	v[0] = (c[0] - particle->velocity[0]) * swarm->particle_velocity_consistency;
 	v[1] = (c[1] - particle->velocity[1]) * swarm->particle_velocity_consistency;
