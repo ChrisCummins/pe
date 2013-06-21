@@ -235,7 +235,7 @@ update_particle_boundaries(struct particle_swarm *swarm, int index,
 		if (position[i] < priv->boundary_min[i])
 			v[i] = accel;
 		else if (position[i] > priv->boundary_max[i])
-			v[1] = -accel;
+			v[i] = -accel;
 	}
 }
 
