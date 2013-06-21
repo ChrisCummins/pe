@@ -86,10 +86,10 @@ static void create_particle(struct particle_swarm *swarm,
 	fuzzy_color_get_cogl_color(&swarm->particle_color, priv->rand, color);
 
 	/* Starting position is a random point along top or bottom */
-	position[0] = g_rand_int_range(priv->rand, 0, priv->boundary[0]);
+	position[0] = g_rand_int_range(priv->rand, 200, priv->boundary[0] - 200);
 
 	seed = g_rand_int_range(priv->rand, -1, 1);
-	position[1] = seed ? -20 : swarm->height + 20;
+	position[1] = seed ? + 200 : swarm->height - 200;
 
 	position[2] = 0;
 }
