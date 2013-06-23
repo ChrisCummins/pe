@@ -177,22 +177,23 @@ particle_apply_swarm_cohesion(struct particle_swarm *swarm, int index,
 
 /*
  * Rule 2: Boids try to keep a small distance away from other objects (including
- *         other boids).
+ *         other boids, and the swarm boundaries).
  */
 static void
 particle_apply_seperation(struct particle_swarm *swarm, int index,
 			  float tick_time, float *v)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
-	float *position;
+	float *position, accel;
 	int i;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
+	accel = swarm->boundary_repulsion_rate * tick_time;
 
 	/* Start with a zeroed velocity: */
 	v[0] = v[1] = 0;
 
-	/* : */
+	/* Particle avoidance */
 	for (i = 0; i < swarm->particle_count; i++) {
 		if (i != index) {
 			float *pos, dx, dy, distance;
@@ -210,6 +211,14 @@ particle_apply_seperation(struct particle_swarm *swarm, int index,
 				v[1] -= (pos[1] - position[1]) * swarm->particle_repulsion_rate;
 			}
 		}
+	}
+
+	/* Boundary avoidance */
+	for (i = 0; i < 2; i++) {
+		if (position[i] < priv->boundary_min[i])
+			v[i] += accel;
+		else if (position[i] > priv->boundary_max[i])
+			v[i] += -accel;
 	}
 }
 
@@ -236,27 +245,6 @@ particle_apply_swarm_alignment(struct particle_swarm *swarm, int index,
 
 	v[0] = (c[0] - particle->velocity[0]) * swarm->particle_velocity_consistency;
 	v[1] = (c[1] - particle->velocity[1]) * swarm->particle_velocity_consistency;
-}
-
-static void
-particle_apply_boundary_avoidance(struct particle_swarm *swarm, int index,
-				  float tick_time, float *v)
-{
-	struct particle_swarm_priv *priv = swarm->priv;
-	float *position, accel;
-	int i;
-
-	position = particle_engine_get_particle_position(priv->engine, index);
-
-	v[0] = v[1] = 0;
-	accel = swarm->boundary_repulsion_rate * tick_time;
-
-	for (i = 0; i < 2; i++) {
-		if (position[i] < priv->boundary_min[i])
-			v[i] = accel;
-		else if (position[i] > priv->boundary_max[i])
-			v[i] = -accel;
-	}
 }
 
 static void
@@ -292,7 +280,7 @@ static void update_particle(struct particle_swarm *swarm,
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle *particle = &priv->particles[index];
-	float *position, seperation[2], cohesion[2], alignment[2], boundary[2],
+	float *position, seperation[2], cohesion[2], alignment[2],
 		acceleration[2];
 	unsigned int i;
 
@@ -301,13 +289,12 @@ static void update_particle(struct particle_swarm *swarm,
 	particle_apply_swarm_cohesion(swarm, index, tick_time, &cohesion[0]);
 	particle_apply_seperation(swarm, index, tick_time, &seperation[0]);
 	particle_apply_swarm_alignment(swarm, index, tick_time, &alignment[0]);
-	particle_apply_boundary_avoidance(swarm, index, tick_time, &boundary[0]);
 	particle_apply_global_forces(swarm, index, tick_time, &acceleration[0]);
 
 	/* Sum individual velocity changes */
 	for (i = 0; i < 2; i++) {
 		particle->velocity[i] += seperation[i] + cohesion[i] +
-			alignment[i] + boundary[i] + acceleration[i];
+			alignment[i] + acceleration[i];
 	}
 
 	particle->speed = particle_enforce_speed_limit(particle->velocity, swarm->particle_speed);
