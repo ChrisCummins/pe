@@ -286,6 +286,7 @@ static void update_particle(struct particle_swarm *swarm,
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 
+	/* Apply the rules of particle behaviour */
 	particle_apply_swarm_cohesion(swarm, index, tick_time, &cohesion[0]);
 	particle_apply_seperation(swarm, index, tick_time, &seperation[0]);
 	particle_apply_swarm_alignment(swarm, index, tick_time, &alignment[0]);
