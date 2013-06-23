@@ -239,6 +239,17 @@ update_particle_boundaries(struct particle_swarm *swarm, int index,
 }
 
 static void
+particle_apply_global_forces(struct particle_swarm *swarm, int index,
+			     float tick_time, float *v)
+{
+	int i;
+
+	for (i = 0; i < 2; i++) {
+		v[i] = swarm->acceleration[i] * tick_time;
+	}
+}
+
+static void
 enforce_speed_limit(float *v, float max_speed)
 {
 	float mag;
@@ -258,7 +269,8 @@ static void update_particle(struct particle_swarm *swarm,
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle *particle = &priv->particles[index];
-	float *position, seperation[2], cohesion[2], alignment[2], boundary[2];
+	float *position, seperation[2], cohesion[2], alignment[2], boundary[2],
+		acceleration[2];
 	unsigned int i;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
@@ -267,10 +279,12 @@ static void update_particle(struct particle_swarm *swarm,
 	update_particle_seperation(swarm, index, tick_time, &seperation[0]);
 	update_particle_alignment(swarm, index, tick_time, &alignment[0]);
 	update_particle_boundaries(swarm, index, tick_time, &boundary[0]);
+	particle_apply_global_forces(swarm, index, tick_time, &acceleration[0]);
 
 	for (i = 0; i < 2; i++) {
 		/* Sum individual velocity changes */
-		particle->velocity[i] += seperation[i] + cohesion[i] + alignment[i] + boundary[i];
+		particle->velocity[i] += seperation[i] + cohesion[i] + alignment[i] + boundary[i]
+			+ acceleration[i];
 
 		enforce_speed_limit(particle->velocity, swarm->particle_speed);
 

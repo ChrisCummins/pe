@@ -39,6 +39,8 @@ struct particle_swarm {
 	/* The rate at which particles are repelled from each-other */
 	float particle_repulsion_rate;
 
+	float acceleration[2];
+
 	/* Particle color. */
 	struct fuzzy_color particle_color;
 
