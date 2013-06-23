@@ -76,7 +76,7 @@ static void create_particle(struct particle_swarm *swarm,
 	struct particle_swarm_priv *priv = swarm->priv;
 	float *position;
 	CoglColor *color;
-	CoglBool seed;
+	int face;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 	color = particle_engine_get_particle_color(priv->engine, index);
@@ -84,11 +84,32 @@ static void create_particle(struct particle_swarm *swarm,
 	/* Particle color. */
 	fuzzy_color_get_cogl_color(&swarm->particle_color, priv->rand, color);
 
-	/* Starting position is a random point along top or bottom */
-	position[0] = g_rand_int_range(priv->rand, 200, priv->boundary[0] - 200);
+	face = g_rand_int_range(priv->rand, 0, 4);
 
-	seed = g_rand_int_range(priv->rand, -1, 1);
-	position[1] = seed ? + 200 : swarm->height - 200;
+	switch (face) {
+	case 0: /* Top face */
+		position[0] = g_rand_double_range(priv->rand, 0, swarm->width);
+		position[1] = g_rand_double_range(priv->rand, -500, -20);
+		break;
+	case 1: /* Right face */
+		position[0] = g_rand_double_range(priv->rand,
+						  swarm->width + 20,
+						  swarm->width + 500);
+		position[1] = g_rand_double_range(priv->rand, 0,
+						  swarm->height);
+		break;
+	case 2: /* Bottom face */
+		position[0] = g_rand_double_range(priv->rand, 0, swarm->width);
+		position[1] = g_rand_double_range(priv->rand,
+						  swarm->height + 20,
+						  swarm->height + 500);
+		break;
+	case 3: /* Left face */
+		position[0] = g_rand_double_range(priv->rand, -200, -20);
+		position[1] = g_rand_double_range(priv->rand, 0,
+						  swarm->height);
+		break;
+	}
 
 	position[2] = 0;
 }
