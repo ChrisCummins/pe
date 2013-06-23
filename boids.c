@@ -25,7 +25,7 @@ struct demo {
 static void paint_cb(struct demo *demo) {
 	cogl_framebuffer_clear4f(demo->fb,
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
-				 0.3, 0.3, 0.4, 1);
+				 1, 1, 1, 1);
 
 	cogl_framebuffer_push_matrix(demo->fb);
 
@@ -72,34 +72,32 @@ static void init_particle_swarm(struct demo *demo)
 
 	demo->swarm = swarm = particle_swarm_new(demo->ctx, demo->fb);
 
-	swarm->particle_count = 50;
+	swarm->particle_count = 500;
 
 	/* Wind effects */
 	swarm->acceleration[0] = 0;
 	swarm->acceleration[1] = 0;
 
-	swarm->particle_speed = 4;
-	swarm->particle_size = 3.0f;
+	swarm->particle_speed = 2.0;
+	swarm->particle_size = 4.0;
 
 	swarm->particle_cohesion_rate = 0.005;
 	swarm->particle_velocity_consistency = 0.010;
 
-	swarm->particle_distance = 15;
-	swarm->particle_repulsion_rate = 0.010;
+	swarm->particle_distance = 10;
+	swarm->particle_repulsion_rate = 0.007;
 
 	/* Boundaries */
 	swarm->width = demo->width;
 	swarm->height = demo->height;
 	swarm->boundary_threshold = 0.15;
-	swarm->boundary_repulsion_rate = 3;
+	swarm->boundary_repulsion_rate = 2.0;
 
 	/* Color */
-	swarm->particle_color.hue.value = 50;
-	swarm->particle_color.hue.type = FLOAT_VARIANCE_NONE;
-	swarm->particle_color.saturation.value = 1;
+	swarm->particle_color.saturation.value = 0;
 	swarm->particle_color.luminance.value = 0.5;
-	swarm->particle_color.luminance.variance = 0.45;
-	swarm->particle_color.luminance.type = FLOAT_VARIANCE_LINEAR;
+	swarm->particle_color.luminance.variance = 0.05;
+	swarm->particle_color.luminance.type = FLOAT_VARIANCE_PROPORTIONAL;
 }
 
 int main(int argc, char **argv)
