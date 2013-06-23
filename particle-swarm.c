@@ -6,7 +6,6 @@
 #include <string.h>
 
 struct particle {
-	float position[2];
 	float velocity[2];
 };
 
