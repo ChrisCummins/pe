@@ -171,8 +171,8 @@ particle_apply_swarm_cohesion(struct particle_swarm *swarm, int index,
 
 	/* We move the boid by an amount proportional to the distance between
 	 * it's current position and the center of mass: */
-	v[0] = (c[0] - position[0]) * cohesion;
-	v[1] = (c[1] - position[1]) * cohesion;
+	v[0] += (c[0] - position[0]) * cohesion;
+	v[1] += (c[1] - position[1]) * cohesion;
 }
 
 /*
@@ -189,9 +189,6 @@ particle_apply_seperation(struct particle_swarm *swarm, int index,
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 	accel = swarm->boundary_repulsion_rate * tick_time;
-
-	/* Start with a zeroed velocity: */
-	v[0] = v[1] = 0;
 
 	/* Particle avoidance */
 	for (i = 0; i < swarm->particle_count; i++) {
@@ -242,9 +239,8 @@ particle_apply_swarm_alignment(struct particle_swarm *swarm, int index,
 
 	/* We divide this value to produce an average boid velocity of the
 	 * swarm: */
-
-	v[0] = (c[0] - particle->velocity[0]) * swarm->particle_velocity_consistency;
-	v[1] = (c[1] - particle->velocity[1]) * swarm->particle_velocity_consistency;
+	v[0] += (c[0] - particle->velocity[0]) * swarm->particle_velocity_consistency;
+	v[1] += (c[1] - particle->velocity[1]) * swarm->particle_velocity_consistency;
 }
 
 static void
@@ -254,7 +250,7 @@ particle_apply_global_forces(struct particle_swarm *swarm, int index,
 	int i;
 
 	for (i = 0; i < 2; i++) {
-		v[i] = swarm->acceleration[i] * tick_time;
+		v[i] += swarm->acceleration[i] * tick_time;
 	}
 }
 
@@ -280,22 +276,20 @@ static void update_particle(struct particle_swarm *swarm,
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle *particle = &priv->particles[index];
-	float *position, seperation[2], cohesion[2], alignment[2],
-		acceleration[2];
+	float *position, dv[2] = { 0 }; /* Change in velocity */
 	unsigned int i;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 
 	/* Apply the rules of particle behaviour */
-	particle_apply_swarm_cohesion(swarm, index, tick_time, &cohesion[0]);
-	particle_apply_seperation(swarm, index, tick_time, &seperation[0]);
-	particle_apply_swarm_alignment(swarm, index, tick_time, &alignment[0]);
-	particle_apply_global_forces(swarm, index, tick_time, &acceleration[0]);
+	particle_apply_swarm_cohesion(swarm, index, tick_time, &dv[0]);
+	particle_apply_seperation(swarm, index, tick_time, &dv[0]);
+	particle_apply_swarm_alignment(swarm, index, tick_time, &dv[0]);
+	particle_apply_global_forces(swarm, index, tick_time, &dv[0]);
 
-	/* Sum individual velocity changes */
+	/* Apply the velocity change */
 	for (i = 0; i < 2; i++) {
-		particle->velocity[i] += seperation[i] + cohesion[i] +
-			alignment[i] + acceleration[i];
+		particle->velocity[i] += dv[i];
 	}
 
 	particle->speed = particle_enforce_speed_limit(particle->velocity, swarm->particle_speed);
