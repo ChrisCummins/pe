@@ -90,6 +90,7 @@ static void init_particle_swarm(struct demo *demo)
 	/* Boundaries */
 	swarm->width = demo->width;
 	swarm->height = demo->height;
+	swarm->depth = 600;
 	swarm->boundary_threshold = 0.15;
 	swarm->boundary_repulsion_rate = 2.0;
 
