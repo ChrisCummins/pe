@@ -7,6 +7,7 @@
 
 struct particle {
 	float velocity[2];
+	float speed;
 };
 
 struct particle_swarm_priv {
@@ -302,14 +303,16 @@ static void update_particle(struct particle_swarm *swarm,
 	update_particle_boundaries(swarm, index, tick_time, &boundary[0]);
 	particle_apply_global_forces(swarm, index, tick_time, &acceleration[0]);
 
+	/* Sum individual velocity changes */
 	for (i = 0; i < 2; i++) {
-		/* Sum individual velocity changes */
 		particle->velocity[i] += seperation[i] + cohesion[i] + alignment[i] + boundary[i]
 			+ acceleration[i];
+	}
 
-		enforce_speed_limit(particle->velocity, swarm->particle_speed);
+	enforce_speed_limit(particle->velocity, swarm->particle_speed);
 
-		/* Update position */
+	/* Update position */
+	for (i = 0; i < 2; i++) {
 		position[i] += particle->velocity[i];
 	}
 }
