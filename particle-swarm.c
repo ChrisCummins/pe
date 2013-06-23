@@ -148,8 +148,8 @@ static void create_resources(struct particle_swarm *swarm)
  * Rule 1: Boids try to fly towards the centre of mass of neighbouring boids.
  */
 static void
-update_particle_cohesion(struct particle_swarm *swarm, int index,
-			 float tick_time, float *v)
+particle_apply_swarm_cohesion(struct particle_swarm *swarm, int index,
+			      float tick_time, float *v)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	float *position, c[2], cohesion;
@@ -180,8 +180,8 @@ update_particle_cohesion(struct particle_swarm *swarm, int index,
  *         other boids).
  */
 static void
-update_particle_seperation(struct particle_swarm *swarm, int index,
-			   float tick_time, float *v)
+particle_apply_seperation(struct particle_swarm *swarm, int index,
+			  float tick_time, float *v)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	float *position;
@@ -217,8 +217,8 @@ update_particle_seperation(struct particle_swarm *swarm, int index,
  * Rule 3: Boids try to match velocity with near boids.
  */
 static void
-update_particle_alignment(struct particle_swarm *swarm, int index,
-			  float tick_time, float *v)
+particle_apply_swarm_alignment(struct particle_swarm *swarm, int index,
+			       float tick_time, float *v)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle *particle = &priv->particles[index];
@@ -239,8 +239,8 @@ update_particle_alignment(struct particle_swarm *swarm, int index,
 }
 
 static void
-update_particle_boundaries(struct particle_swarm *swarm, int index,
-			   float tick_time, float *v)
+particle_apply_boundary_avoidance(struct particle_swarm *swarm, int index,
+				  float tick_time, float *v)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	float *position, accel;
@@ -271,7 +271,7 @@ particle_apply_global_forces(struct particle_swarm *swarm, int index,
 }
 
 static float
-enforce_speed_limit(float *v, float max_speed)
+particle_enforce_speed_limit(float *v, float max_speed)
 {
 	float mag;
 	int i;
@@ -298,19 +298,19 @@ static void update_particle(struct particle_swarm *swarm,
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 
-	update_particle_cohesion(swarm, index, tick_time, &cohesion[0]);
-	update_particle_seperation(swarm, index, tick_time, &seperation[0]);
-	update_particle_alignment(swarm, index, tick_time, &alignment[0]);
-	update_particle_boundaries(swarm, index, tick_time, &boundary[0]);
+	particle_apply_swarm_cohesion(swarm, index, tick_time, &cohesion[0]);
+	particle_apply_seperation(swarm, index, tick_time, &seperation[0]);
+	particle_apply_swarm_alignment(swarm, index, tick_time, &alignment[0]);
+	particle_apply_boundary_avoidance(swarm, index, tick_time, &boundary[0]);
 	particle_apply_global_forces(swarm, index, tick_time, &acceleration[0]);
 
 	/* Sum individual velocity changes */
 	for (i = 0; i < 2; i++) {
-		particle->velocity[i] += seperation[i] + cohesion[i] + alignment[i] + boundary[i]
-			+ acceleration[i];
+		particle->velocity[i] += seperation[i] + cohesion[i] +
+			alignment[i] + boundary[i] + acceleration[i];
 	}
 
-	particle->speed = enforce_speed_limit(particle->velocity, swarm->particle_speed);
+	particle->speed = particle_enforce_speed_limit(particle->velocity, swarm->particle_speed);
 
 	/* Update position */
 	for (i = 0; i < 2; i++) {
