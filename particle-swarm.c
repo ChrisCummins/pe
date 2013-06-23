@@ -270,7 +270,7 @@ particle_apply_global_forces(struct particle_swarm *swarm, int index,
 	}
 }
 
-static void
+static float
 enforce_speed_limit(float *v, float max_speed)
 {
 	float mag;
@@ -283,6 +283,8 @@ enforce_speed_limit(float *v, float max_speed)
 			v[i] = (v[i] / mag) * max_speed;
 		}
 	}
+
+	return mag > max_speed ? max_speed : mag;
 }
 
 static void update_particle(struct particle_swarm *swarm,
@@ -308,7 +310,7 @@ static void update_particle(struct particle_swarm *swarm,
 			+ acceleration[i];
 	}
 
-	enforce_speed_limit(particle->velocity, swarm->particle_speed);
+	particle->speed = enforce_speed_limit(particle->velocity, swarm->particle_speed);
 
 	/* Update position */
 	for (i = 0; i < 2; i++) {
