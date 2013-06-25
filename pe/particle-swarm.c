@@ -227,6 +227,7 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 
 				swarm_size = 1;
 			}
+			break;
 		}
 
 		center_of_mass[i] /= swarm_size;
