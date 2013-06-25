@@ -1,5 +1,5 @@
 # List of demonstrations
-demos=(snow fountains fireworks catherine_wheel galaxy boids)
+demos=(snow fountains fireworks catherine_wheel galaxy boids ants)
 
 # Time to run each demonstration for
 time=30

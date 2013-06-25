@@ -140,6 +140,7 @@ Thumbs.db
 #
 !.gitignore
 
+/ants
 /boids
 /galaxy
 /catherine_wheel
