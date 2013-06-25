@@ -30,6 +30,8 @@ struct particle_swarm_priv {
 	 * repelled. */
 	float boundary_max[3];
 
+	/* Total velocity and position vector sums for the swarm, used only in
+	 * SWARM_TYPE_HIVE swarms. */
 	float velocity_sum[3];
 	float position_sum[3];
 
