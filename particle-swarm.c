@@ -159,8 +159,8 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm, int index,
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle *particle = &priv->particles[index];
-	float *position, center_of_mass[3], velocity_avg[3];
-	int i, j;
+	float *position, center_of_mass[3] = {0}, velocity_avg[3] = {0};
+	int i, j, swarm_size = 0;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 
@@ -189,20 +189,45 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm, int index,
 						swarm->particle_repulsion_rate;
 				}
 			}
+
+			if (swarm->type == SWARM_TYPE_FLOCK) {
+				if (distance < swarm->particle_sight) {
+					struct particle *p = &priv->particles[i];
+
+					for (j = 0; j < 3; j++) {
+						center_of_mass[j] += pos[j];
+						velocity_avg[j] += p->velocity[j];
+					}
+
+					swarm_size++;
+				}
+			}
 		}
 	}
 
 	for (i = 0; i < 3; i++) {
-		if (swarm->type == SWARM_TYPE_HIVE) {
+		switch (swarm->type) {
+		case SWARM_TYPE_HIVE:
 			/* We calculate the center of mass and average velocity
 			 * of the swarm based on the properties of all of the
 			 * other particles: */
 			center_of_mass[i] = priv->position_sum[i] - position[i];
-			center_of_mass[i] /= swarm->particle_count - 1;
-
 			velocity_avg[i] = priv->velocity_sum[i] - particle->velocity[i];
-			velocity_avg[i] /= swarm->particle_count - 1;
+
+			swarm_size = swarm->particle_count - 1;
+			break;
+		case SWARM_TYPE_FLOCK:
+			if (swarm_size < 1) {
+				for (j = 0; j < 3; j++) {
+					center_of_mass[j] = position[j];
+				}
+
+				swarm_size = 1;
+			}
 		}
+
+		center_of_mass[i] /= swarm_size;
+		velocity_avg[i] /= swarm_size;
 
 		/*
 		 * PARTICLE COHESION
