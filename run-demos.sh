@@ -2,13 +2,20 @@
 demos=(snow fountains fireworks catherine_wheel galaxy boids ants)
 
 # Time to run each demonstration for
-time=30
+if [[ "$1" != "-w" ]] && [[ "$1" != "--wait" ]]; then
+	time=30
+fi
 
 (
 	# Run in sub-shell to suppress stderr garbage from kill
 	for d in ${demos[*]}; do
-		echo "./$d for $time seconds..."
-		(cmdpid=$BASHPID; (sleep $time; kill $cmdpid) & exec ./$d)
+		if [ -n "$time" ]; then
+			echo "./$d for $time seconds..."
+			(cmdpid=$BASHPID; (sleep $time; kill $cmdpid) & exec ./$d)
+		else
+			echo "./$d"
+			./$d
+		fi
 	done
 
 	echo "Demonstrations complete"
