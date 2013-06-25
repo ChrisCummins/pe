@@ -72,6 +72,8 @@ static void init_particle_swarm(struct demo *demo)
 
 	demo->swarm = swarm = particle_swarm_new(demo->ctx, demo->fb);
 
+	swarm->type = SWARM_TYPE_HIVE;
+
 	swarm->particle_count = 500;
 
 	/* Wind effects */
@@ -79,7 +81,7 @@ static void init_particle_swarm(struct demo *demo)
 	swarm->acceleration[1] = 0;
 	swarm->acceleration[2] = 0;
 
-	swarm->particle_speed = 2.3;
+	swarm->particle_speed = 2.0;
 	swarm->particle_size = 4.0;
 
 	swarm->particle_cohesion_rate = 0.001;
