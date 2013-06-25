@@ -194,6 +194,10 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 			}
 
 			if (swarm->type == SWARM_TYPE_FLOCK) {
+				/* If we're using flocking behaviour, then we
+				 * total up the velocity and positions of any
+				 * particles that are within the range of
+				 * visibility of the current particle. */
 				if (distance < swarm->particle_sight) {
 					struct particle *p = &priv->particles[i];
 
