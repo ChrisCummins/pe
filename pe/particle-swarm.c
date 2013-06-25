@@ -154,8 +154,8 @@ static void create_resources(struct particle_swarm *swarm)
 }
 
 static void
-particle_apply_swarming_behaviour(struct particle_swarm *swarm, int index,
-				  float tick_time, float *v)
+particle_apply_swarming_behaviour(struct particle_swarm *swarm,
+				  int index, float *v)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle *particle = &priv->particles[index];
@@ -267,7 +267,7 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm, int index,
 }
 
 static void
-particle_apply_global_forces(struct particle_swarm *swarm, int index,
+particle_apply_global_forces(struct particle_swarm *swarm,
 			     float tick_time, float *v)
 {
 	int i;
@@ -305,8 +305,8 @@ static void update_particle(struct particle_swarm *swarm,
 	position = particle_engine_get_particle_position(priv->engine, index);
 
 	/* Apply the rules of particle behaviour */
-	particle_apply_swarming_behaviour(swarm, index, tick_time, &dv[0]);
-	particle_apply_global_forces(swarm, index, tick_time, &dv[0]);
+	particle_apply_swarming_behaviour(swarm, index, &dv[0]);
+	particle_apply_global_forces(swarm, tick_time, &dv[0]);
 
 	/* Apply the velocity change */
 	for (i = 0; i < 3; i++) {
