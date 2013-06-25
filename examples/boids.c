@@ -77,7 +77,7 @@ static void init_particle_swarm(struct demo *demo)
 	swarm->particle_count = 500;
 
 	/* Wind effects */
-	swarm->acceleration[0] = 0;
+	swarm->acceleration[0] = 0.02;
 	swarm->acceleration[1] = 0;
 	swarm->acceleration[2] = 0;
 
