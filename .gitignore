@@ -35,12 +35,14 @@
 *.elf
 *.exe
 *.lib
+*.la
+*.lo
+*.lst
 *.o
 *.o.*
 *.out
 *.so
 *.so.*
-*.lst
 
 #
 # Autotools by-products
@@ -57,6 +59,7 @@
 /configure.scan
 /depcomp
 /install-sh
+/libtool
 /missing
 /stamp-h1
 Makefile
@@ -139,11 +142,3 @@ Thumbs.db
 # We don't want to ignore this file
 #
 !.gitignore
-
-/ants
-/boids
-/galaxy
-/catherine_wheel
-/fireworks
-/fountains
-/snow
