@@ -39,6 +39,9 @@ struct particle_swarm_priv {
 	float cohesion_accel;
 	float boundary_accel;
 
+	/* Global acceleration force vector, updated once per tick. */
+	float global_accel[3];
+
 	CoglContext *ctx;
 	CoglFramebuffer *fb;
 	struct particle_engine *engine;
@@ -266,17 +269,6 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 	}
 }
 
-static void
-particle_apply_global_forces(struct particle_swarm *swarm,
-			     float tick_time, float *v)
-{
-	int i;
-
-	for (i = 0; i < 3; i++) {
-		v[i] += swarm->acceleration[i] * tick_time;
-	}
-}
-
 static float
 particle_enforce_speed_limit(float *v, float max_speed)
 {
@@ -306,13 +298,16 @@ static void update_particle(struct particle_swarm *swarm,
 
 	/* Apply the rules of particle behaviour */
 	particle_apply_swarming_behaviour(swarm, index, &dv[0]);
-	particle_apply_global_forces(swarm, tick_time, &dv[0]);
 
-	/* Apply the velocity change */
 	for (i = 0; i < 3; i++) {
+		/* Apply global force */
+		dv[i] += priv->global_accel[i] * tick_time;
+
+		/* Apply the velocity change to the position */
 		particle->velocity[i] += dv[i];
 	}
 
+	/* Limit the rate of particle movement */
 	particle->speed = particle_enforce_speed_limit(particle->velocity, swarm->particle_speed);
 
 	/* Update position */
@@ -336,6 +331,10 @@ static void tick(struct particle_swarm *swarm)
 	priv->last_update_time = priv->current_time;
 	priv->current_time = g_timer_elapsed(priv->timer, NULL);
 	tick_time = priv->current_time - priv->last_update_time;
+
+	for (i = 0; i < 3; i++) {
+		priv->global_accel[i] = swarm->acceleration[i] * tick_time;
+	}
 
 	/* Map the particle engine's buffer before reading or writing particle
 	 * data.
