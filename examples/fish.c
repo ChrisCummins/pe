@@ -1,5 +1,5 @@
 /*
- *         boids.c -- A particle swarm demo.
+ *         fish.c -- A particle swarm demo.
  */
 #include "config.h"
 
@@ -25,7 +25,7 @@ struct demo {
 static void paint_cb(struct demo *demo) {
 	cogl_framebuffer_clear4f(demo->fb,
 				 COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
-				 1, 1, 1, 1);
+				 .55, .55, .75, 1);
 
 	cogl_framebuffer_push_matrix(demo->fb);
 
@@ -74,7 +74,7 @@ static void init_particle_swarm(struct demo *demo)
 
 	swarm->type = SWARM_TYPE_HIVE;
 
-	swarm->particle_count = 500;
+	swarm->particle_count = 600;
 
 	/* Wind effects */
 	swarm->acceleration[0] = 0.02;
@@ -98,9 +98,10 @@ static void init_particle_swarm(struct demo *demo)
 	swarm->boundary_repulsion_rate = 3.0;
 
 	/* Color */
-	swarm->particle_color.saturation.value = 0;
-	swarm->particle_color.luminance.value = 0.5;
-	swarm->particle_color.luminance.variance = 0.05;
+	swarm->particle_color.hue.value = 48;
+	swarm->particle_color.saturation.value = 1;
+	swarm->particle_color.luminance.value = 0.45;
+	swarm->particle_color.luminance.variance = 0.25;
 	swarm->particle_color.luminance.type = FLOAT_VARIANCE_PROPORTIONAL;
 }
 

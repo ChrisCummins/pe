@@ -17,14 +17,14 @@ EXTRA_DIST = run-demos.sh
 noinst_PROGRAMS += ants
 ants_SOURCES = ants.c
 
-noinst_PROGRAMS += boids
-boids_SOURCES = boids.c
-
 noinst_PROGRAMS += catherine_wheel
 catherine_wheel_SOURCES = catherine-wheel.c
 
 noinst_PROGRAMS += fireworks
 fireworks_SOURCES = fireworks.c
+
+noinst_PROGRAMS += fish
+fish_SOURCES = fish.c
 
 noinst_PROGRAMS += fountains
 fountains_SOURCES = fountains.c
