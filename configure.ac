@@ -21,6 +21,7 @@ LT_INIT
 AC_DEFINE(COGL_ENABLE_EXPERIMENTAL_API, [], [Use the experimental Cogl API])
 
 PKG_CHECK_MODULES([COGL], [cogl2 >= 1.99.0])
+PKG_CHECK_MODULES([GLIB], [glib-2.0])
 
 AC_OUTPUT([
 	Makefile

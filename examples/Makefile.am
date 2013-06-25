@@ -2,6 +2,7 @@ noinst_PROGRAMS =
 
 AM_CFLAGS = \
 	$(COGL_CFLAGS)			\
+	$(GLIB_CFLAGS)			\
 	-I$(top_srcdir)			\
 	-I$(top_srcdir)/pe		\
 	-Wall				\
@@ -10,7 +11,12 @@ AM_CFLAGS = \
 	-Wno-unused-parameter		\
 	$(NULL)
 
-LDADD = $(top_srcdir)/pe/.libs/libpe.la $(COGL_LIBS) -lm
+LDADD = 				\
+	$(top_srcdir)/pe/.libs/libpe.la \
+	$(COGL_LIBS) 			\
+	$(GLIB_LIBS)			\
+	-lm				\
+	$(NULL)
 
 EXTRA_DIST = run-demos.sh
 
