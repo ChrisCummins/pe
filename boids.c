@@ -77,11 +77,12 @@ static void init_particle_swarm(struct demo *demo)
 	/* Wind effects */
 	swarm->acceleration[0] = 0;
 	swarm->acceleration[1] = 0;
+	swarm->acceleration[2] = 0;
 
-	swarm->particle_speed = 2.0;
+	swarm->particle_speed = 2.3;
 	swarm->particle_size = 4.0;
 
-	swarm->particle_cohesion_rate = 0.005;
+	swarm->particle_cohesion_rate = 0.001;
 	swarm->particle_velocity_consistency = 0.010;
 
 	swarm->particle_distance = 10;
@@ -92,7 +93,7 @@ static void init_particle_swarm(struct demo *demo)
 	swarm->height = demo->height;
 	swarm->depth = 600;
 	swarm->boundary_threshold = 0.15;
-	swarm->boundary_repulsion_rate = 2.0;
+	swarm->boundary_repulsion_rate = 3.0;
 
 	/* Color */
 	swarm->particle_color.saturation.value = 0;
