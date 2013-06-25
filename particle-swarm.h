@@ -26,6 +26,7 @@ struct particle_swarm {
 	/* The rate at which particles are repelled from the boundaries */
 	float boundary_repulsion_rate;
 
+	/* The maximum speed at which particles may move */
 	float particle_speed;
 	float particle_sight;
 
