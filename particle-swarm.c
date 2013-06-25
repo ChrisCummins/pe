@@ -193,17 +193,17 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm, int index,
 	}
 
 	for (i = 0; i < 3; i++) {
-		/* We calculate the center of mass of the swarm based on the
-		 * position of all of the particles: */
-		center_of_mass[i] = priv->position_sum[i] - position[i];
-		center_of_mass[i] /= swarm->particle_count - 1;
+		if (swarm->type == SWARM_TYPE_HIVE) {
+			/* We calculate the center of mass and average velocity
+			 * of the swarm based on the properties of all of the
+			 * other particles: */
+			center_of_mass[i] = priv->position_sum[i] - position[i];
+			center_of_mass[i] /= swarm->particle_count - 1;
 
-		/* We calculate the sum of all other particle velocities: */
-		velocity_avg[i] = priv->velocity_sum[i] - particle->velocity[i];
-		velocity_avg[i] /= swarm->particle_count - 1;
-	}
+			velocity_avg[i] = priv->velocity_sum[i] - particle->velocity[i];
+			velocity_avg[i] /= swarm->particle_count - 1;
+		}
 
-	for (i = 0; i < 3; i++) {
 		/*
 		 * PARTICLE COHESION
 		 *
