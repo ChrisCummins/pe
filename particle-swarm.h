@@ -28,6 +28,28 @@ struct particle_swarm {
 
 	/* The maximum speed at which particles may move */
 	float particle_speed;
+
+	/* The behaviour of the particle swarm.
+	 *
+	 * HIVE
+	 *  This swarm behaves as a single entity, with each particle sharing an
+	 *  apparent 'hive mind' mentality to make them move and behave in
+	 *  unison.
+	 *
+	 * FLOCK
+	 *  This swarm exhibits flocking patterns, where particles are aware of
+	 *  only a limited range of the surrounding particles, meaning that they
+	 *  can flock together into small groups which behave independently and
+	 *  interact with one another.
+	 */
+	enum {
+		SWARM_TYPE_HIVE,
+		SWARM_TYPE_FLOCK
+	} type;
+
+	/* The distance (in pixels) that particles can detect other particles in
+	 * the surrounding area. Only used for swarms with SWARM_TYPE_FLOCK
+	 * behaviour. */
 	float particle_sight;
 
 	/* The rate at which particles are attracted to each-other */

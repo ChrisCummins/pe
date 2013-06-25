@@ -31,9 +31,13 @@ struct particle_swarm_priv {
 	float boundary_max[3];
 
 	/* Total velocity and position vector sums for the swarm, used only in
-	 * SWARM_TYPE_HIVE swarms. */
+	 * SWARM_TYPE_HIVE swarms. It is updated once per tick. */
 	float velocity_sum[3];
 	float position_sum[3];
+
+	/* Strength of cohesion and boundary forces, updated once per tick. */
+	float cohesion_accel;
+	float boundary_accel;
 
 	CoglContext *ctx;
 	CoglFramebuffer *fb;
@@ -155,13 +159,10 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm, int index,
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle *particle = &priv->particles[index];
-	float *position, c[3], cohesion_accel, boundary_accel;
+	float *position, center_of_mass[3], velocity_avg[3];
 	int i, j;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
-
-	cohesion_accel = swarm->particle_cohesion_rate * tick_time;
-	boundary_accel = swarm->boundary_repulsion_rate * tick_time;
 
 	for (i = 0; i < swarm->particle_count; i++) {
 		if (i != index) {
@@ -192,8 +193,17 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm, int index,
 	}
 
 	for (i = 0; i < 3; i++) {
-		float velocity_sum;
+		/* We calculate the center of mass of the swarm based on the
+		 * position of all of the particles: */
+		center_of_mass[i] = priv->position_sum[i] - position[i];
+		center_of_mass[i] /= swarm->particle_count - 1;
 
+		/* We calculate the sum of all other particle velocities: */
+		velocity_avg[i] = priv->velocity_sum[i] - particle->velocity[i];
+		velocity_avg[i] /= swarm->particle_count - 1;
+	}
+
+	for (i = 0; i < 3; i++) {
 		/*
 		 * PARTICLE COHESION
 		 *
@@ -203,16 +213,8 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm, int index,
 		 * it's distance from that center:
 		 */
 
-		/* We calculate the sum of all other particle positions: */
-		c[i] = priv->position_sum[i] - position[i];
-
-		/* We divide this sum to produce an average boid position, or
-		 * 'center of mass' of the swarm: */
-		c[i] /= swarm->particle_count - 1;
-
-		/* We move the boid by an amount proportional to the distance
-		 * between it's current position and the center of mass: */
-		v[i] += (c[i] - position[i]) * cohesion_accel;
+		v[i] += (center_of_mass[i] - position[i]) *
+			priv->cohesion_accel;
 
 		/*
 		 * SWARM COHESION
@@ -222,13 +224,7 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm, int index,
 		 * unison:
 		 */
 
-		/* We calculate the sum of all other particle velocities: */
-		velocity_sum = (priv->velocity_sum[i] - particle->velocity[i]) /
-			(swarm->particle_count - 1);
-
-		/* We divide this value to produce an average boid velocity of
-		 * the swarm: */
-		v[i] += (velocity_sum - particle->velocity[1]) *
+		v[i] += (velocity_avg[i] - particle->velocity[1]) *
 			swarm->particle_velocity_consistency;
 
 		/*
@@ -239,9 +235,9 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm, int index,
 		 * known threshold:
 		 */
 		if (position[i] < priv->boundary_min[i])
-			v[i] += boundary_accel;
+			v[i] += priv->boundary_accel;
 		else if (position[i] > priv->boundary_max[i])
-			v[i] += -boundary_accel;
+			v[i] -= priv->boundary_accel;
 	}
 }
 
@@ -322,16 +318,26 @@ static void tick(struct particle_swarm *swarm)
 	particle_engine_push_buffer(priv->engine,
 				    COGL_BUFFER_ACCESS_READ_WRITE, 0);
 
-	/* Sum the total velocity and position of all the particles: */
-	priv->velocity_sum[0] = priv->velocity_sum[1] = priv->velocity_sum[2] = 0;
-	priv->position_sum[0] = priv->position_sum[1] = priv->position_sum[2] = 0;
+	/* Update the cohesion and boundary forces */
+	priv->cohesion_accel = swarm->particle_cohesion_rate * tick_time;
+	priv->boundary_accel = swarm->boundary_repulsion_rate * tick_time;
 
-	for (i = 0; i < swarm->particle_count; i++) {
-		float *position = particle_engine_get_particle_position(priv->engine, i);
+	if (swarm->type == SWARM_TYPE_HIVE) {
+		/* Sum the total velocity and position of all the particles: */
+		priv->velocity_sum[0] =
+			priv->velocity_sum[1] =
+			priv->velocity_sum[2] =
+			priv->position_sum[0] =
+			priv->position_sum[1] =
+			priv->position_sum[2] = 0;
 
-		for (j = 0; j < 3; j++) {
-			priv->velocity_sum[j] += priv->particles[i].velocity[j];
-			priv->position_sum[j] += position[j];
+		for (i = 0; i < swarm->particle_count; i++) {
+			float *position = particle_engine_get_particle_position(priv->engine, i);
+
+			for (j = 0; j < 3; j++) {
+				priv->velocity_sum[j] += priv->particles[i].velocity[j];
+				priv->position_sum[j] += position[j];
+			}
 		}
 	}
 
