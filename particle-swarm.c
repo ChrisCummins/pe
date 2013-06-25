@@ -149,50 +149,20 @@ static void create_resources(struct particle_swarm *swarm)
 	particle_engine_pop_buffer(priv->engine);
 }
 
-/*
- * Rule 1: Boids try to fly towards the centre of mass of neighbouring boids.
- */
 static void
-particle_apply_swarm_cohesion(struct particle_swarm *swarm, int index,
-			      float tick_time, float *v)
+particle_apply_swarming_behaviour(struct particle_swarm *swarm, int index,
+				  float tick_time, float *v)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
-	float *position, c[3], cohesion;
-	int i;
-
-	position = particle_engine_get_particle_position(priv->engine, index);
-	cohesion = tick_time * swarm->particle_cohesion_rate;
-
-	for (i = 0; i < 3; i++) {
-		/* We calculate the sum of all other particle positions: */
-		c[i] = priv->position_sum[i] - position[i];
-
-		/* We divide this sum to produce an average boid position, or
-		 * 'center of mass' of the swarm: */
-		c[i] /= swarm->particle_count - 1;
-
-		/* We move the boid by an amount proportional to the distance
-		 * between it's current position and the center of mass: */
-		v[i] += (c[i] - position[i]) * cohesion;
-	}
-}
-
-/*
- * Rule 3: Boids try to keep a small distance away from other objects (including
- *         other boids, and the swarm boundaries).
- */
-static void
-particle_apply_seperation(struct particle_swarm *swarm, int index,
-			  float tick_time, float *v)
-{
-	struct particle_swarm_priv *priv = swarm->priv;
-	float *position, accel;
+	struct particle *particle = &priv->particles[index];
+	float *position, c[3], cohesion_accel, boundary_accel;
 	int i, j;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
-	accel = swarm->boundary_repulsion_rate * tick_time;
 
-	/* Particle avoidance */
+	cohesion_accel = swarm->particle_cohesion_rate * tick_time;
+	boundary_accel = swarm->boundary_repulsion_rate * tick_time;
+
 	for (i = 0; i < swarm->particle_count; i++) {
 		if (i != index) {
 			float *pos, dx, dy, dz, distance;
@@ -205,6 +175,12 @@ particle_apply_seperation(struct particle_swarm *swarm, int index,
 
 			distance = sqrt(dx * dx + dy * dy + dz * dz);
 
+			/*
+			 * COLLISION AVOIDANCE
+			 *
+			 * Boids try to keep a small distance away from other
+			 * objects:
+			 */
 			if (distance < swarm->particle_distance) {
 				for (j = 0; j < 3; j++) {
 					/* FIXME: is this correct? */
@@ -215,28 +191,36 @@ particle_apply_seperation(struct particle_swarm *swarm, int index,
 		}
 	}
 
-	/* Boundary avoidance */
-	for (i = 0; i < 3; i++) {
-		if (position[i] < priv->boundary_min[i])
-			v[i] += accel;
-		else if (position[i] > priv->boundary_max[i])
-			v[i] += -accel;
-	}
-}
-
-/*
- * Rule 3: Boids try to match velocity with near boids.
- */
-static void
-particle_apply_swarm_alignment(struct particle_swarm *swarm, int index,
-			       float tick_time, float *v)
-{
-	struct particle_swarm_priv *priv = swarm->priv;
-	struct particle *particle = &priv->particles[index];
-	int i;
-
 	for (i = 0; i < 3; i++) {
 		float velocity_sum;
+
+		/*
+		 * PARTICLE COHESION
+		 *
+		 * Boids try to fly towards the centre of mass of neighbouring
+		 * boids. We do this by first calculating a 'center of mass' for
+		 * the swarm, and moving the boid by an amount proportional to
+		 * it's distance from that center:
+		 */
+
+		/* We calculate the sum of all other particle positions: */
+		c[i] = priv->position_sum[i] - position[i];
+
+		/* We divide this sum to produce an average boid position, or
+		 * 'center of mass' of the swarm: */
+		c[i] /= swarm->particle_count - 1;
+
+		/* We move the boid by an amount proportional to the distance
+		 * between it's current position and the center of mass: */
+		v[i] += (c[i] - position[i]) * cohesion_accel;
+
+		/*
+		 * SWARM COHESION
+		 *
+		 * Boids try to match velocity with near boids, this creates a
+		 * pattern of cohesive behaviour, with the swarm moving in
+		 * unison:
+		 */
 
 		/* We calculate the sum of all other particle velocities: */
 		velocity_sum = (priv->velocity_sum[i] - particle->velocity[i]) /
@@ -246,6 +230,18 @@ particle_apply_swarm_alignment(struct particle_swarm *swarm, int index,
 		 * the swarm: */
 		v[i] += (velocity_sum - particle->velocity[1]) *
 			swarm->particle_velocity_consistency;
+
+		/*
+		 * BOUNDARY AVOIDANCE
+		 *
+		 * Boids avoid boundaries by being negatively accelerated away
+		 * from them when the distance to the boundary is less than a
+		 * known threshold:
+		 */
+		if (position[i] < priv->boundary_min[i])
+			v[i] += boundary_accel;
+		else if (position[i] > priv->boundary_max[i])
+			v[i] += -boundary_accel;
 	}
 }
 
@@ -288,9 +284,7 @@ static void update_particle(struct particle_swarm *swarm,
 	position = particle_engine_get_particle_position(priv->engine, index);
 
 	/* Apply the rules of particle behaviour */
-	particle_apply_swarm_cohesion(swarm, index, tick_time, &dv[0]);
-	particle_apply_seperation(swarm, index, tick_time, &dv[0]);
-	particle_apply_swarm_alignment(swarm, index, tick_time, &dv[0]);
+	particle_apply_swarming_behaviour(swarm, index, tick_time, &dv[0]);
 	particle_apply_global_forces(swarm, index, tick_time, &dv[0]);
 
 	/* Apply the velocity change */
