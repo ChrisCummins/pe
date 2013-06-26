@@ -206,6 +206,13 @@ static void particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 			swarm_size = swarm->particle_count - 1;
 			break;
 		case SWARM_TYPE_FLOCK:
+		{
+			CoglColor *color;
+
+			color = particle_engine_get_particle_color(priv->engine, index);
+
+			cogl_color_set_red(color, swarm_size ? 1 / swarm_size : 0);
+
 			/* We must always have a flock to compare against, even
 			 * if a particle is on it's own: */
 			if (swarm_size < 1) {
@@ -215,7 +222,8 @@ static void particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 
 				swarm_size = 1;
 			}
-			break;
+		}
+		break;
 		}
 
 		/* Convert the velocity/position totals into weighted
