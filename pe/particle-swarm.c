@@ -94,6 +94,14 @@ static void create_particle(struct particle_swarm *swarm,
 	/* Particle color. */
 	fuzzy_color_get_cogl_color(&swarm->particle_color, priv->rand, color);
 
+	/*
+	 * A particle's starting position is a random point outside of the swarm
+	 * boundary. The idea is that particles will appear off-screen and will
+	 * swarm towards the center. To do this, we pick a random face (top,
+	 * right, etc.), and spawn the particle somewhere along that face. The
+	 * initial starting position in the Z axise is a random point along the
+	 * depth.
+	 */
 	face = g_rand_int_range(priv->rand, 0, 4);
 
 	switch (face) {
@@ -156,9 +164,8 @@ static void create_resources(struct particle_swarm *swarm)
 	particle_engine_pop_buffer(priv->engine);
 }
 
-static void
-particle_apply_swarming_behaviour(struct particle_swarm *swarm,
-				  int index, float *v)
+static void particle_apply_swarming_behaviour(struct particle_swarm *swarm,
+					      int index, float *v)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle *particle = &priv->particles[index];
@@ -167,6 +174,7 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 
+	/* Iterate over every *other* particle */
 	for (i = 0; i < swarm->particle_count; i++) {
 		if (i != index) {
 			float *pos, dx, dy, dz, distance;
@@ -177,27 +185,30 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 			dy = position[1] - pos[1];
 			dz = position[2] - pos[2];
 
+			/* Get the distance between the other particle and this
+			 * particle */
 			distance = sqrt(dx * dx + dy * dy + dz * dz);
 
 			/*
 			 * COLLISION AVOIDANCE
 			 *
-			 * Boids try to keep a small distance away from other
-			 * objects:
+			 * Particles try to keep a small distance away from
+			 * other particles to prevent them bumping into each
+			 * other and reduce the density of the swarm:
 			 */
 			if (distance < swarm->particle_distance) {
+				/* FIXME: is this correct? */
 				for (j = 0; j < 3; j++) {
-					/* FIXME: is this correct? */
 					v[j] -= (pos[j] - position[j]) *
 						swarm->particle_repulsion_rate;
 				}
 			}
 
+			/* If we're using flocking behaviour, then we total up
+			 * the velocity and positions of any particles that are
+			 * within the range of visibility of the current
+			 * particle. */
 			if (swarm->type == SWARM_TYPE_FLOCK) {
-				/* If we're using flocking behaviour, then we
-				 * total up the velocity and positions of any
-				 * particles that are within the range of
-				 * visibility of the current particle. */
 				if (distance < swarm->particle_sight) {
 					struct particle *p = &priv->particles[i];
 
@@ -212,7 +223,10 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 		}
 	}
 
+	/* Now we iterate through each of the three coordinate axis and apply
+	 * the rules of swarming behaviour to each consecutively. */
 	for (i = 0; i < 3; i++) {
+
 		switch (swarm->type) {
 		case SWARM_TYPE_HIVE:
 			/* We calculate the center of mass and average velocity
@@ -224,6 +238,8 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 			swarm_size = swarm->particle_count - 1;
 			break;
 		case SWARM_TYPE_FLOCK:
+			/* We must always have a flock to compare against, even
+			 * if a particle is on it's own: */
 			if (swarm_size < 1) {
 				for (j = 0; j < 3; j++) {
 					center_of_mass[j] = position[j];
@@ -234,6 +250,8 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 			break;
 		}
 
+		/* Convert the velocity/position totals into weighted
+		 * averages: */
 		center_of_mass[i] /= swarm_size;
 		velocity_avg[i] /= swarm_size;
 
@@ -245,7 +263,6 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 		 * the swarm, and moving the boid by an amount proportional to
 		 * it's distance from that center:
 		 */
-
 		v[i] += (center_of_mass[i] - position[i]) *
 			priv->cohesion_accel;
 
@@ -256,7 +273,6 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 		 * pattern of cohesive behaviour, with the swarm moving in
 		 * unison:
 		 */
-
 		v[i] += (velocity_avg[i] - particle->velocity[1]) *
 			swarm->particle_velocity_consistency;
 
@@ -274,8 +290,13 @@ particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 	}
 }
 
-static float
-particle_enforce_speed_limit(float *v, float max_speed)
+/*
+ * TERMINAL VELOCITY
+ *
+ * Particles are rate limited so that their velocity can never exceed a certain
+ * amount:
+ */
+static float particle_enforce_speed_limit(float *v, float max_speed)
 {
 	float mag;
 	int i;
