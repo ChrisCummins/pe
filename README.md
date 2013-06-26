@@ -24,7 +24,7 @@ Additionally, there are extra influences affecting a particle's movement:
 5. **Global forces** - a global force can be applied uniformly to each of the particles, for example to model the effects of strong wind or a current in water.
 6. **Terminal velocity** - there is a maximum speed which particles are capped to.
 
-The implementation of this is contained within these rules is contained within the `particle_apply_swarming_behaviour()` function in `pe/particle-swarm.c`.
+The implementation of these rules is contained within the `particle_apply_swarming_behaviour()` function in `pe/particle-swarm.c`.
 
 ### Examples
 * `./examples/ants`
