@@ -86,52 +86,20 @@ static void create_particle(struct particle_swarm *swarm,
 	struct particle_swarm_priv *priv = swarm->priv;
 	float *position;
 	CoglColor *color;
-	int face;
+	int i;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 	color = particle_engine_get_particle_color(priv->engine, index);
 
 	/* Particle color. */
-	fuzzy_color_get_cogl_color(&swarm->particle_color, priv->rand, color);
+	cogl_color_init_from_4f(color, 0, 0, 0, 1);
 
-	/*
-	 * A particle's starting position is a random point outside of the swarm
-	 * boundary. The idea is that particles will appear off-screen and will
-	 * swarm towards the center. To do this, we pick a random face (top,
-	 * right, etc.), and spawn the particle somewhere along that face. The
-	 * initial starting position in the Z axise is a random point along the
-	 * depth.
-	 */
-	face = g_rand_int_range(priv->rand, 0, 4);
-
-	switch (face) {
-	case 0: /* Top face */
-		position[0] = g_rand_double_range(priv->rand, 0, swarm->width);
-		position[1] = g_rand_double_range(priv->rand, -500, -20);
-		break;
-	case 1: /* Right face */
-		position[0] = g_rand_double_range(priv->rand,
-						  swarm->width + 20,
-						  swarm->width + 500);
-		position[1] = g_rand_double_range(priv->rand, 0,
-						  swarm->height);
-		break;
-	case 2: /* Bottom face */
-		position[0] = g_rand_double_range(priv->rand, 0, swarm->width);
-		position[1] = g_rand_double_range(priv->rand,
-						  swarm->height + 20,
-						  swarm->height + 500);
-		break;
-	case 3: /* Left face */
-		position[0] = g_rand_double_range(priv->rand, -200, -20);
-		position[1] = g_rand_double_range(priv->rand, 0,
-						  swarm->height);
-		break;
+	/* Particles start at a random point within the swarm space */
+	for (i = 0; i < 3; i++) {
+		position[i] = g_rand_double_range(priv->rand,
+						  priv->boundary_min[i],
+						  priv->boundary_max[i]);
 	}
-
-	position[2] = g_rand_double_range(priv->rand,
-					  -swarm->depth / 2,
-					  swarm->depth / 2);
 }
 
 static void create_resources(struct particle_swarm *swarm)
