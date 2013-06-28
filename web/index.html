@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+  <head>
+    <title>Chris Cummins | Boids</title>
+    <meta name="description" content="">
+    <meta name="author" content="Chris Cummins">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="viewport" content="width=1024" />
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" href="assets/styles.css" />
+
+    <style>
+      canvas {
+        margin: 20px auto;
+        outline: 2px solid #000;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="wrap">
+
+      <div class="container">
+
+        <div id="container"></div>
+
+        <div class="row">
+          <div class="span4">
+            <p id="cohesion" class="pull-right"></p>
+            <p><b>Rule 1</b> Cohesion</p>
+            <div id="cohesion-slider" class="conf-slider"></div>
+
+            <p id="alignment" class="pull-right"></p>
+            <p><b>Rule 2</b> Alignment</p>
+            <div id="alignment-slider" class="conf-slider"></div>
+
+            <p id="separation" class="pull-right"></p>
+            <p><b>Rule 3</b> Separation</p>
+            <div id="separation-slider" class="conf-slider"></div>
+          </div>
+
+          <div class="span4">
+            <p id="no-of-boids" class="pull-right"></p>
+            <p>Number of boids</p>
+            <div id="no-of-boids-slider" class="conf-slider"></div>
+
+            <p id="speed" class="pull-right"></p>
+            <p>Speed</p>
+            <div id="speed-slider" class="conf-slider"></div>
+
+            <p id="sight" class="pull-right"></p>
+            <p>Line of Sight</p>
+            <div id="sight-slider" class="conf-slider"></div>
+          </div>
+
+          <div class="span4">
+            <p id="size" class="pull-right"></p>
+            <p>Window Size</p>
+            <div id="size-slider" class="conf-slider"></div>
+            <button id="reset" class="btn btn-large btn-block btn-danger">Reset</button>
+          </div>
+        </div>
+
+      </div>
+  </body>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+  <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+  <script src="assets/site-components.js"></script>
+  <script src="assets/three.min.js"></script>
+  <script src="boids.js"></script>
+
+</html>
