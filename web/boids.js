@@ -78,7 +78,6 @@ var Boids = Boids || {};
   function Boid() {
     var geometry = new Bird();
 
-    this.position = [];
     this.velocity = [];
     this.mesh = new THREE.Mesh(geometry,
                                new THREE.MeshLambertMaterial({
@@ -99,11 +98,16 @@ var Boids = Boids || {};
                                  }));
     this.shadow.y = -conf.size.y;
 
+    this.position = [
+      Math.random() * boundaries.x * 2 - boundaries.x,
+      Math.random() * boundaries.y * 2 - boundaries.y,
+      Math.random() * boundaries.z * 2 - boundaries.z
+    ];
+
     for (var j = 0; j < 3; j++) {
       /* This magic variable determines the maximum starting speed. */
       var INITIAL_SPEED_MULTIPLIER = 2;
 
-      this.position.push(Math.random() * boundaries[j] * 2 - boundaries[j]),
       this.velocity.push(2 * INITIAL_SPEED_MULTIPLIER * Math.random() -
                          INITIAL_SPEED_MULTIPLIER);
     }
@@ -168,7 +172,7 @@ var Boids = Boids || {};
     max: 0
   };
 
-  var boundaries = [0, 0, 0];
+  var boundaries;
 
   function createBoid() {
     boids.push(new Boid());
@@ -282,11 +286,10 @@ var Boids = Boids || {};
       ctx.scene.add(line);
     }
 
-    boundaries = [
-      conf.size.x - conf.size.x * conf.boundary.threshold,
-      conf.size.y - conf.size.y * conf.boundary.threshold,
-      conf.size.z - conf.size.z * conf.boundary.threshold
-    ];
+    boundaries =
+      new THREE.Vector3(conf.size.x - conf.size.x * conf.boundary.threshold,
+                        conf.size.y - conf.size.y * conf.boundary.threshold,
+                        conf.size.z - conf.size.z * conf.boundary.threshold);
 
     createGrid();
 
@@ -405,19 +408,29 @@ var Boids = Boids || {};
            * pattern of cohesive behaviour, with the flock moving in unison:
            */
           dv[i] += (velocityAvg[i] - b.velocity[1]) * conf.boids.alignment;
-
-          /*
-           * BOUNDARY AVOIDANCE
-           *
-           * Boids avoid boundaries by being negatively accelerated away from
-           * them when the distance to the boundary is less than a known
-           * threshold:
-           */
-          if (b.position[i] < -boundaries[i])
-            dv[i] += forces.boundary * b.speed;
-          else if (b.position[i] > boundaries[i])
-            dv[i] -= forces.boundary * b.speed;
         }
+
+        /*
+         * BOUNDARY AVOIDANCE
+         *
+         * Boids avoid boundaries by being negatively accelerated away from
+         * them when the distance to the boundary is less than a known
+         * threshold:
+         */
+        if (b.position[0] < -boundaries.x)
+          dv[0] += forces.boundary * b.speed;
+        if (b.position[0] > boundaries.x)
+          dv[0] -= forces.boundary * b.speed;
+
+        if (b.position[1] < -boundaries.x)
+          dv[1] += forces.boundary * b.speed;
+        if (b.position[1] > boundaries.x)
+          dv[1] -= forces.boundary * b.speed;
+
+        if (b.position[2] < -boundaries.x)
+          dv[2] += forces.boundary * b.speed;
+        if (b.position[2] > boundaries.x)
+          dv[2] -= forces.boundary * b.speed;
 
         /* Apply the velocity change */
         for (var i = 0; i < 3; i++)
