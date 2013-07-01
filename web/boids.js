@@ -348,8 +348,8 @@ var Boids = Boids || {};
           /*
            * FLOCK ALIGNMENT
            *
-           * Boids try to match velocity with near boids, this creates a pattern
-           * of cohesive behaviour, with the flock moving in unison:
+           * Boids try to match velocity with other boids nearby, this creates a
+           * pattern of cohesive behaviour, with the flock moving in unison:
            */
           dv[i] += (velocityAvg[i] - b.velocity[1]) * conf.boids.alignment;
 

@@ -248,11 +248,11 @@ static void particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 			priv->cohesion_accel;
 
 		/*
-		 * SWARM COHESION
+		 * SWARM ALIGNMENT
 		 *
-		 * Boids try to match velocity with near boids, this creates a
-		 * pattern of cohesive behaviour, with the swarm moving in
-		 * unison:
+		 * Boids try to match velocity with other boids nearby, this
+		 * creates a pattern of cohesive behaviour, with the swarm
+		 * moving in unison:
 		 */
 		v[i] += (velocity_avg[i] - particle->velocity[1]) *
 			swarm->particle_velocity_consistency;
