@@ -61,11 +61,11 @@ var Boids = Boids || {};
         max: 0.35
       },
       los: 160,
-      cohesion: 0.00002,
-      alignment: 0.004,
+      cohesion: 0.00005,
+      alignment: 0.010,
       separation: {
-        distance: 60,
-        rate: 0.0010
+        distance: 100,
+        rate: 0.007
       }
     },
     boundary: {
