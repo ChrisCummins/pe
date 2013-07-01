@@ -70,7 +70,7 @@ var Boids = Boids || {};
     },
     boundary: {
       threshold: 0.30,
-      rate: 0.0020
+      rate: 0.00003
     }
   };
 
@@ -413,19 +413,19 @@ var Boids = Boids || {};
          * threshold:
          */
         if (b.position.x < -boundaries.x)
-          dv.x += forces.boundary * b.speed;
+          dv.x += (-boundaries.x - b.position.x) * forces.boundary * b.speed;
         else if (b.position.x > boundaries.x)
-          dv.x -= forces.boundary * b.speed;
+          dv.x += (boundaries.x - b.position.x) * forces.boundary * b.speed;
 
-        if (b.position.y < -boundaries.x)
-          dv.y += forces.boundary * b.speed;
-        else if (b.position.y > boundaries.x)
-          dv.y -= forces.boundary * b.speed;
+        if (b.position.y < -boundaries.y)
+          dv.y += (-boundaries.y - b.position.y) * forces.boundary * b.speed;
+        else if (b.position.y > boundaries.y)
+          dv.y += (boundaries.y - b.position.y) * forces.boundary * b.speed;
 
-        if (b.position.z < -boundaries.x)
-          dv.z += forces.boundary * b.speed;
-        else if (b.position.z > boundaries.x)
-          dv.z -= forces.boundary * b.speed;
+        if (b.position.z < -boundaries.z)
+          dv.z += (-boundaries.z - b.position.z) * forces.boundary * b.speed;
+        else if (b.position.z > boundaries.z)
+          dv.z += (boundaries.z - b.position.z) * forces.boundary * b.speed;
 
         /* Apply the velocity change */
         b.velocity.add(dv);
