@@ -21,8 +21,8 @@ var Boids = Boids || {};
       count: 40,
       size: 10,
       speed: {
-        min: 2,
-        max: 5
+        min: 0.2,
+        max: 0.5
       },
       los: 160,
       cohesion: 0.00002,
@@ -66,9 +66,12 @@ var Boids = Boids || {};
     this.shadow.y = -conf.size.y;
 
     for (var j = 0; j < 3; j++) {
+      /* This magic variable determines the maximum starting speed. */
+      var INITIAL_SPEED_MULTIPLIER = 2;
+
       this.position.push(Math.random() * boundaries[j] * 2 - boundaries[j]),
-      this.velocity.push(2 * Math.random() * conf.boids.speed.min -
-                         conf.boids.speed.min);
+      this.velocity.push(2 * INITIAL_SPEED_MULTIPLIER * Math.random() -
+                         INITIAL_SPEED_MULTIPLIER);
     }
 
     this.updateMesh();
@@ -104,6 +107,11 @@ var Boids = Boids || {};
   var forces = {
     cohesion: 0,
     boundary: 0
+  };
+
+  var speedLimits = {
+    min: 0,
+    max: 0
   };
 
   var boundaries = [0, 0, 0];
@@ -244,21 +252,21 @@ var Boids = Boids || {};
           var mag = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
           var newMag = mag;
 
-          if (mag > conf.boids.speed.max) {
+          if (mag > speedLimits.max) {
 
             /* Maximum speed */
-            newMag = conf.boids.speed.max;
+            newMag = speedLimits.max;
 
             for (var i = 0; i < 3; i++)
-              v[i] = (v[i] / mag) * conf.boids.speed.max;
-          } else if (mag < conf.boids.speed.min) {
+              v[i] = (v[i] / mag) * speedLimits.max;
+          } else if (mag < speedLimits.min) {
 
             /* Minimum speed */
-            newMag = conf.boids.speed.min;
+            newMag = speedLimits.min;
             mag = Math.max(mag, 0.0001);
 
             for (var i = 0; i < 3; i++)
-              v[i] = (v[i] / mag) * conf.boids.speed.min;
+              v[i] = (v[i] / mag) * speedLimits.min;
           }
 
           b.speed = newMag;
@@ -379,6 +387,10 @@ var Boids = Boids || {};
       /* Update forces */
       forces.cohesion = tickTime * conf.boids.cohesion;
       forces.boundary = tickTime * conf.boundary.rate;
+
+      /* Update speed limits */
+      speedLimits.min = tickTime * conf.boids.speed.min;
+      speedLimits.max = tickTime * conf.boids.speed.max;
 
       for (var i = 0; i < conf.boids.count; i++)
         updateBoid(i);
@@ -546,20 +558,22 @@ var Boids = Boids || {};
     }
   });
 
-  $('#speed').text(conf.boids.speed.min + ' - ' + conf.boids.speed.max);
+  var SPEED_MULTIPLIER = 10;
+  $('#speed').text(conf.boids.speed.min * SPEED_MULTIPLIER + ' - ' +
+                   conf.boids.speed.max * SPEED_MULTIPLIER);
   $('#speed-slider').slider({
     range: true,
     min: 1,
     max: 10,
     step: 1,
     values: [
-      conf.boids.speed.min,
-      conf.boids.speed.max
+      conf.boids.speed.min * SPEED_MULTIPLIER,
+      conf.boids.speed.max * SPEED_MULTIPLIER
     ],
     slide: function(event, ui) {
       $('#speed').text(ui.values[0] + ' - ' + ui.values[1]);
-      conf.boids.speed.min = ui.values[0];
-      conf.boids.speed.max = ui.values[1];
+      conf.boids.speed.min = ui.values[0] / SPEED_MULTIPLIER;
+      conf.boids.speed.max = ui.values[1] / SPEED_MULTIPLIER;
     }
   });
 
