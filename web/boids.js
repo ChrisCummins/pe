@@ -373,13 +373,7 @@ var Boids = Boids || {};
         b.updateMesh();
       }
 
-      var tickTime;
-
-      /* Update the clocks */
-      if (timestamp === undefined)
-        timestamp = 0;
-
-      tickTime = timestamp - lastUpdateTime;
+      var tickTime = timestamp - lastUpdateTime;
       lastUpdateTime = timestamp;
 
       /* Update forces */
@@ -482,7 +476,7 @@ var Boids = Boids || {};
   /* Setup and begin */
   init();
   createResources();
-  tick();
+  tick(1);
 
   /* UI COMPONENTS */
 
