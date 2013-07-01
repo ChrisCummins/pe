@@ -78,7 +78,6 @@ var Boids = Boids || {};
   function Boid() {
     var geometry = new Bird();
 
-    this.velocity = [];
     this.mesh = new THREE.Mesh(geometry,
                                new THREE.MeshLambertMaterial({
                                  color: 0xffffff,
@@ -98,19 +97,19 @@ var Boids = Boids || {};
                                  }));
     this.shadow.y = -conf.size.y;
 
-    this.position = [
-      Math.random() * boundaries.x * 2 - boundaries.x,
-      Math.random() * boundaries.y * 2 - boundaries.y,
-      Math.random() * boundaries.z * 2 - boundaries.z
-    ];
+    this.position = new THREE.Vector3(Math.random() * boundaries.x,
+                                      Math.random() * boundaries.y,
+                                      Math.random() * boundaries.z);
+    this.position.multiplyScalar(2);
+    this.position.sub(boundaries);
 
-    for (var j = 0; j < 3; j++) {
-      /* This magic variable determines the maximum starting speed. */
-      var INITIAL_SPEED_MULTIPLIER = 2;
+    /* This magic variable determines the maximum starting speed. */
+    var INITIAL_SPEED_MULTIPLIER = 2;
 
-      this.velocity.push(2 * INITIAL_SPEED_MULTIPLIER * Math.random() -
-                         INITIAL_SPEED_MULTIPLIER);
-    }
+    this.velocity = new THREE.Vector3(Math.random() - 0.5,
+                                      Math.random() - 0.5,
+                                      Math.random() - 0.5);
+    this.velocity.multiplyScalar(2 * INITIAL_SPEED_MULTIPLIER);
 
     this.updateMesh();
     ctx.scene.add(this.mesh);
@@ -118,17 +117,16 @@ var Boids = Boids || {};
   };
 
   Boid.prototype.updateMesh = function() {
+
     /* Position */
-    this.mesh.position.x = this.position[0];
-    this.mesh.position.y = this.position[1];
-    this.mesh.position.z = this.position[2];
+    this.mesh.position.copy(this.position);
 
     /* Heading */
-    var nextPos = new THREE.Vector3(this.position[0] + this.velocity[0],
-                                    this.position[1] + this.velocity[1],
-                                    this.position[2] + this.velocity[2]);
-    var rotY = Math.atan2(-this.velocity[2], this.velocity[0]);
-    var rotZ = Math.asin(this.velocity[1] / this.speed);
+    var nextPos = new THREE.Vector3().copy(this.position);
+    nextPos.add(this.velocity);
+
+    var rotY = Math.atan2(-this.velocity.z, this.velocity.x);
+    var rotZ = Math.asin(this.velocity.y / this.speed);
 
     /* FIXME: what a total hack (!) */
     if (isNaN(rotZ))
@@ -138,7 +136,8 @@ var Boids = Boids || {};
     this.mesh.rotation.z = rotZ;
 
     /* Wing flapping */
-    this.phase = (this.phase + (Math.max(0, this.mesh.rotation.z) + 0.1)) % 62.83;
+    this.phase = (this.phase +
+                  (Math.max(0, this.mesh.rotation.z) + 0.07)) % 62.83;
 
     var wingY = Math.sin(this.phase) * 10;
 
@@ -287,9 +286,9 @@ var Boids = Boids || {};
     }
 
     boundaries =
-      new THREE.Vector3(conf.size.x - conf.size.x * conf.boundary.threshold,
-                        conf.size.y - conf.size.y * conf.boundary.threshold,
-                        conf.size.z - conf.size.z * conf.boundary.threshold);
+        new THREE.Vector3(conf.size.x - conf.size.x * conf.boundary.threshold,
+        conf.size.y - conf.size.y * conf.boundary.threshold,
+        conf.size.z - conf.size.z * conf.boundary.threshold);
 
     createGrid();
 
@@ -305,7 +304,7 @@ var Boids = Boids || {};
       function updateBoid(index) {
 
         function enforceSpeedLimits(v) {
-          var mag = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+          var mag = v.length();
           var newMag = mag;
 
           if (mag > speedLimits.max) {
@@ -313,41 +312,34 @@ var Boids = Boids || {};
             /* Maximum speed */
             newMag = speedLimits.max;
 
-            for (var i = 0; i < 3; i++)
-              v[i] = (v[i] / mag) * speedLimits.max;
+            v.multiplyScalar(speedLimits.max / mag);
           } else if (mag < speedLimits.min) {
 
             /* Minimum speed */
             newMag = speedLimits.min;
             mag = Math.max(mag, 0.0001);
 
-            for (var i = 0; i < 3; i++)
-              v[i] = (v[i] / mag) * speedLimits.min;
+            v.multiplyScalar(speedLimits.min / mag);
           }
 
           b.speed = newMag;
         }
 
         var b = boids[index];
-        var dv = [0, 0, 0]; // Change in velocity
-        var centerOfMass = [0, 0, 0];
-        var velocityAvg = [0, 0, 0];
+        var dv = new THREE.Vector3(0, 0, 0); // Change in velocity
+        var centerOfMass = new THREE.Vector3(0, 0, 0);
+        var velocityAvg = new THREE.Vector3(0, 0, 0);
         var swarmSize = 0;
 
         for (var i = 0; i < conf.boids.count; i++) {
           if (i !== index) {
             var otherBoid = boids[i];
 
-            var dp = [
-              b.position[0] - otherBoid.position[0],
-              b.position[1] - otherBoid.position[1],
-              b.position[2] - otherBoid.position[2]
-            ];
+            var dp = new THREE.Vector3().subVectors(b.position,
+                                                    otherBoid.position);
 
             /* Get the distance between the other Boid and this Boid */
-            var distance = Math.sqrt(dp[0] * dp[0] +
-                                     dp[1] * dp[1] +
-                                     dp[2] * dp[2]);
+            var distance = dp.length();
 
             /*
              * COLLISION AVOIDANCE
@@ -357,21 +349,17 @@ var Boids = Boids || {};
              * the flock:
              */
             if (distance < conf.boids.separation.distance) {
-              for (var j = 0; j < 3; j++) {
-                dv[j] -= (otherBoid.position[j] - b.position[j]) *
-                    conf.boids.separation.rate;
-              }
+              dv.sub(new THREE.Vector3()
+                     .subVectors(otherBoid.position, b.position)
+                     .multiplyScalar(conf.boids.separation.rate));
             }
 
             /* We total up the velocity and positions of any particles that are
              * within the range of visibility of the current particle:
              */
             if (distance < conf.boids.los) {
-
-              for (var j = 0; j < 3; j++) {
-                centerOfMass[j] += otherBoid.position[j];
-                velocityAvg[j] += otherBoid.velocity[j];
-              }
+              centerOfMass.add(otherBoid.position);
+              velocityAvg.add(otherBoid.velocity);
 
               swarmSize++;
             }
@@ -381,34 +369,34 @@ var Boids = Boids || {};
         /* We must always have a flock to compare against, even
          * if a Boid is on it's own: */
         if (swarmSize < 1) {
-          for (var j = 0; j < 3; j++)
-            centerOfMass[j] = b.position[j];
-
+          centerOfMass.copy(b.position);
           swarmSize = 1;
         }
 
-        for (var i = 0; i < 3; i++) {
-          centerOfMass[i] /= swarmSize;
-          velocityAvg[i] /= swarmSize;
+        centerOfMass.divideScalar(swarmSize);
+        velocityAvg.divideScalar(swarmSize);
 
-          /*
-           * PARTICLE COHESION
-           *
-           * Boids try to fly towards the centre of mass of neighbouring
-           * boids. We do this by first calculating a 'center of mass' for the
-           * flock, and moving the boid by an amount proportional to it's
-           * distance from that center:
-           */
-          dv[i] += (centerOfMass[i] - b.position[i]) * forces.cohesion;
+        /*
+         * PARTICLE COHESION
+         *
+         * Boids try to fly towards the centre of mass of neighbouring
+         * boids. We do this by first calculating a 'center of mass' for the
+         * flock, and moving the boid by an amount proportional to it's
+         * distance from that center:
+         */
+        dv.add(new THREE.Vector3()
+               .subVectors(centerOfMass, b.position)
+               .multiplyScalar(forces.cohesion));
 
-          /*
-           * FLOCK ALIGNMENT
-           *
-           * Boids try to match velocity with other boids nearby, this creates a
-           * pattern of cohesive behaviour, with the flock moving in unison:
-           */
-          dv[i] += (velocityAvg[i] - b.velocity[1]) * conf.boids.alignment;
-        }
+        /*
+         * FLOCK ALIGNMENT
+         *
+         * Boids try to match velocity with other boids nearby, this creates a
+         * pattern of cohesive behaviour, with the flock moving in unison:
+         */
+        dv.add(new THREE.Vector3()
+               .subVectors(velocityAvg, b.velocity)
+               .multiplyScalar(conf.boids.alignment));
 
         /*
          * BOUNDARY AVOIDANCE
@@ -417,32 +405,29 @@ var Boids = Boids || {};
          * them when the distance to the boundary is less than a known
          * threshold:
          */
-        if (b.position[0] < -boundaries.x)
-          dv[0] += forces.boundary * b.speed;
-        if (b.position[0] > boundaries.x)
-          dv[0] -= forces.boundary * b.speed;
+        if (b.position.x < -boundaries.x)
+          dv.x += forces.boundary * b.speed;
+        if (b.position.x > boundaries.x)
+          dv.x -= forces.boundary * b.speed;
 
-        if (b.position[1] < -boundaries.x)
-          dv[1] += forces.boundary * b.speed;
-        if (b.position[1] > boundaries.x)
-          dv[1] -= forces.boundary * b.speed;
+        if (b.position.y < -boundaries.x)
+          dv.y += forces.boundary * b.speed;
+        if (b.position.y > boundaries.x)
+          dv.y -= forces.boundary * b.speed;
 
-        if (b.position[2] < -boundaries.x)
-          dv[2] += forces.boundary * b.speed;
-        if (b.position[2] > boundaries.x)
-          dv[2] -= forces.boundary * b.speed;
+        if (b.position.z < -boundaries.x)
+          dv.z += forces.boundary * b.speed;
+        if (b.position.z > boundaries.x)
+          dv.z -= forces.boundary * b.speed;
 
         /* Apply the velocity change */
-        for (var i = 0; i < 3; i++)
-          b.velocity[i] += dv[i];
+        b.velocity.add(dv);
 
         /* Control the rate of boids movement */
         enforceSpeedLimits(b.velocity);
 
         /* Update position */
-        b.position[0] += b.velocity[0];
-        b.position[1] += b.velocity[1];
-        b.position[2] += b.velocity[2];
+        b.position.add(b.velocity);
 
         b.updateMesh();
       }
