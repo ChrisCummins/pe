@@ -76,29 +76,27 @@ var Boids = Boids || {};
 
   /* Boid behaviour */
   function Boid() {
-    var geometry = new THREE.CylinderGeometry(0, 10, 30, 3);
-    var rotation = new THREE.Vector3(Math.PI / 2, Math.PI, 0);
-    var matrix = new THREE.Matrix4().makeRotationFromEuler(rotation);
-    var material = new THREE.MeshLambertMaterial({
-      color: 0xffffff,
-      shading: THREE.FlatShading,
-      overdraw: true
-    });
-
-    geometry.applyMatrix(matrix);
+    var geometry = new Bird();
 
     this.position = [];
     this.velocity = [];
-    this.speed = 0;
-    this.mesh = new THREE.Mesh(geometry, material);
+    this.mesh = new THREE.Mesh(geometry,
+                               new THREE.MeshLambertMaterial({
+                                 color: 0xffffff,
+                                 shading: THREE.FlatShading,
+                                 side: THREE.DoubleSide,
+                                 overdraw: true
+                               }));
+    this.phase = Math.floor(Math.random() * 62.83);
+    this.speed = 1;
     this.shadow = new THREE.Mesh(geometry,
                                  new THREE.MeshLambertMaterial({
                                    color: 0x000000,
                                    shading: THREE.FlatShading,
+                                   side: THREE.DoubleSide,
                                    opacity: 0.1,
                                    overdraw: true
                                  }));
-
     this.shadow.y = -conf.size.y;
 
     for (var j = 0; j < 3; j++) {
@@ -116,23 +114,43 @@ var Boids = Boids || {};
   };
 
   Boid.prototype.updateMesh = function() {
+    /* Position */
     this.mesh.position.x = this.position[0];
     this.mesh.position.y = this.position[1];
     this.mesh.position.z = this.position[2];
 
+    /* Heading */
     var nextPos = new THREE.Vector3(this.position[0] + this.velocity[0],
                                     this.position[1] + this.velocity[1],
                                     this.position[2] + this.velocity[2]);
+    var rotY = Math.atan2(-this.velocity[2], this.velocity[0]);
+    var rotZ = Math.asin(this.velocity[1] / this.speed);
 
-    this.mesh.lookAt(nextPos);
+    /* FIXME: what a total hack (!) */
+    if (isNaN(rotZ))
+      rotZ = 0;
 
-    this.shadow.position.x = this.position[0];
+    this.mesh.rotation.y = rotY;
+    this.mesh.rotation.z = rotZ;
+
+    /* Wing flapping */
+    this.phase = (this.phase + (Math.max(0, this.mesh.rotation.z) + 0.1)) % 62.83;
+
+    var wingY = Math.sin(this.phase) * 10;
+
+    this.mesh.geometry.vertices[4].y = wingY;
+    this.mesh.geometry.vertices[5].y = wingY;
+
+    /* The Shadow */
+    this.shadow.position.x = this.mesh.position.x;
     this.shadow.position.y = -conf.size.y;
-    this.shadow.position.z = this.position[2];
+    this.shadow.position.z = this.mesh.position.z;
 
-    this.shadow.rotation.x = this.mesh.rotation.x;
-    this.shadow.rotation.z = this.mesh.rotation.z;
     this.shadow.rotation.y = this.mesh.rotation.y;
+    this.shadow.rotation.z = this.mesh.rotation.z;
+
+    this.shadow.geometry.vertices[4].y = this.mesh.geometry.vertices[4].y;
+    this.shadow.geometry.vertices[5].y = this.mesh.geometry.vertices[5].y;
   };
 
   /* The boids */
@@ -255,12 +273,11 @@ var Boids = Boids || {};
                                                    conf.size.y,
                                                    -conf.size.z));
 
-      var material = new THREE.LineBasicMaterial({
-        color: 0x000000,
-        opacity: 0.1
-      });
-
-      var line = new THREE.Line(ctx.boundary, material);
+      var line = new THREE.Line(ctx.boundary,
+                                new THREE.LineBasicMaterial({
+                                  color: 0x000000,
+                                  opacity: 0.1
+                                }));
       line.type = THREE.LinePieces;
       ctx.scene.add(line);
     }
