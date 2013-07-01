@@ -27,7 +27,7 @@ var Boids = Boids || {};
       los: 160,
       cohesion: 0.00002,
       alignment: 0.004,
-      separation:{
+      separation: {
         distance: 60,
         rate: 0.0010
       }
@@ -36,7 +36,7 @@ var Boids = Boids || {};
       threshold: 0.12,
       rate: 0.005
     }
-  }
+  };
 
   /* Boid behaviour */
   function Boid() {
@@ -94,22 +94,22 @@ var Boids = Boids || {};
     this.shadow.rotation.x = this.mesh.rotation.x;
     this.shadow.rotation.z = this.mesh.rotation.z;
     this.shadow.rotation.y = this.mesh.rotation.y;
-  }
+  };
 
   /* The boids */
   var boids = [];
 
-  var lastUpdateTime = 0
+  var lastUpdateTime = 0;
 
   var forces = {
     cohesion: 0,
     boundary: 0
   };
 
-  var boundaries = [ 0, 0, 0 ];
+  var boundaries = [0, 0, 0];
 
   function createBoid() {
-    boids.push(new Boid())
+    boids.push(new Boid());
   }
 
   function destroyBoid() {
@@ -125,43 +125,91 @@ var Boids = Boids || {};
       ctx.boundary = new THREE.Geometry();
 
       /* Bottom face */
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, -conf.size.y, -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, -conf.size.y, -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   -conf.size.y,
+                                                   -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   -conf.size.y,
+                                                   -conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, -conf.size.y, -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, -conf.size.y, conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   -conf.size.y,
+                                                   -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   -conf.size.y,
+                                                   conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, -conf.size.y, conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, -conf.size.y, conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   -conf.size.y,
+                                                   conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   -conf.size.y,
+                                                   conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, -conf.size.y, conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, -conf.size.y, -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   -conf.size.y,
+                                                   conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   -conf.size.y,
+                                                   -conf.size.z));
 
       /* Sides */
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, -conf.size.y, -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, conf.size.y, -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   -conf.size.y,
+                                                   -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   conf.size.y,
+                                                   -conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, -conf.size.y, conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, conf.size.y, conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   -conf.size.y,
+                                                   conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   conf.size.y,
+                                                   conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, -conf.size.y, conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, conf.size.y, conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   -conf.size.y,
+                                                   conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   conf.size.y,
+                                                   conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, -conf.size.y, -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, conf.size.y, -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   -conf.size.y,
+                                                   -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   conf.size.y,
+                                                   -conf.size.z));
 
       /* Top face */
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, conf.size.y, -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, conf.size.y, -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   conf.size.y,
+                                                   -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   conf.size.y,
+                                                   -conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, conf.size.y, -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, conf.size.y, conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   conf.size.y,
+                                                   -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   conf.size.y,
+                                                   conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x, conf.size.y, conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, conf.size.y, conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                   conf.size.y,
+                                                   conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   conf.size.y,
+                                                   conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, conf.size.y, conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x, conf.size.y, -conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   conf.size.y,
+                                                   conf.size.z));
+      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                   conf.size.y,
+                                                   -conf.size.z));
 
       var material = new THREE.LineBasicMaterial({
         color: 0x000000,
@@ -217,14 +265,14 @@ var Boids = Boids || {};
         }
 
         var b = boids[index];
-        var dv = [ 0, 0, 0 ]; // Change in velocity
-        var centerOfMass = [ 0, 0, 0 ];
-        var velocityAvg = [ 0, 0, 0 ];
+        var dv = [0, 0, 0]; // Change in velocity
+        var centerOfMass = [0, 0, 0];
+        var velocityAvg = [0, 0, 0];
         var swarmSize = 0;
 
         for (var i = 0; i < conf.boids.count; i++) {
           if (i !== index) {
-            var otherBoid = boids[i]
+            var otherBoid = boids[i];
 
             var dp = [
               b.position[0] - otherBoid.position[0],
@@ -232,42 +280,42 @@ var Boids = Boids || {};
               b.position[2] - otherBoid.position[2]
             ];
 
-	    /* Get the distance between the other Boid and this Boid */
+            /* Get the distance between the other Boid and this Boid */
             var distance = Math.sqrt(dp[0] * dp[0] +
                                      dp[1] * dp[1] +
                                      dp[2] * dp[2]);
 
             /*
-	     * COLLISION AVOIDANCE
-	     *
-	     * Boids try to keep a small distance away from other boids to
-	     * prevent them bumping into each other and reduce the density of
-	     * the flock:
-	     */
-	    if (distance < conf.boids.separation.distance) {
+             * COLLISION AVOIDANCE
+             *
+             * Boids try to keep a small distance away from other boids to
+             * prevent them bumping into each other and reduce the density of
+             * the flock:
+             */
+            if (distance < conf.boids.separation.distance) {
               for (var j = 0; j < 3; j++) {
                 dv[j] -= (otherBoid.position[j] - b.position[j]) *
-                  conf.boids.separation.rate;
+                    conf.boids.separation.rate;
               }
-	    }
+            }
 
             /* We total up the velocity and positions of any particles that are
-	     * within the range of visibility of the current particle:
+             * within the range of visibility of the current particle:
              */
-	    if (distance < conf.boids.los) {
+            if (distance < conf.boids.los) {
 
-	      for (var j = 0; j < 3; j++) {
+              for (var j = 0; j < 3; j++) {
                 centerOfMass[j] += otherBoid.position[j];
-		velocityAvg[j] += otherBoid.velocity[j];
+                velocityAvg[j] += otherBoid.velocity[j];
               }
 
-	      swarmSize++;
-	    }
+              swarmSize++;
+            }
           }
         }
 
         /* We must always have a flock to compare against, even
-	 * if a Boid is on it's own: */
+         * if a Boid is on it's own: */
         if (swarmSize < 1) {
           for (var j = 0; j < 3; j++)
             centerOfMass[j] = b.position[j];
@@ -280,42 +328,42 @@ var Boids = Boids || {};
           velocityAvg[i] /= swarmSize;
 
           /*
-	   * PARTICLE COHESION
-	   *
-	   * Boids try to fly towards the centre of mass of neighbouring
-	   * boids. We do this by first calculating a 'center of mass' for the
-	   * flock, and moving the boid by an amount proportional to it's
-	   * distance from that center:
-	   */
+           * PARTICLE COHESION
+           *
+           * Boids try to fly towards the centre of mass of neighbouring
+           * boids. We do this by first calculating a 'center of mass' for the
+           * flock, and moving the boid by an amount proportional to it's
+           * distance from that center:
+           */
           dv[i] += (centerOfMass[i] - b.position[i]) * forces.cohesion;
 
           /*
-	   * FLOCK ALIGNMENT
-	   *
-	   * Boids try to match velocity with near boids, this creates a pattern
-	   * of cohesive behaviour, with the flock moving in unison:
-	   */
+           * FLOCK ALIGNMENT
+           *
+           * Boids try to match velocity with near boids, this creates a pattern
+           * of cohesive behaviour, with the flock moving in unison:
+           */
           dv[i] += (velocityAvg[i] - b.velocity[1]) * conf.boids.alignment;
 
-	  /*
-	   * BOUNDARY AVOIDANCE
-	   *
-	   * Boids avoid boundaries by being negatively accelerated away from
-	   * them when the distance to the boundary is less than a known
-	   * threshold:
-	   */
-	  if (b.position[i] < -boundaries[i])
-	    dv[i] += forces.boundary * b.speed;
-	  else if (b.position[i] > boundaries[i])
-	    dv[i] -= forces.boundary * b.speed;
+          /*
+           * BOUNDARY AVOIDANCE
+           *
+           * Boids avoid boundaries by being negatively accelerated away from
+           * them when the distance to the boundary is less than a known
+           * threshold:
+           */
+          if (b.position[i] < -boundaries[i])
+            dv[i] += forces.boundary * b.speed;
+          else if (b.position[i] > boundaries[i])
+            dv[i] -= forces.boundary * b.speed;
         }
 
         /* Apply the velocity change */
         for (var i = 0; i < 3; i++)
           b.velocity[i] += dv[i];
 
-	/* Control the rate of boids movement */
-        enforceSpeedLimits(b.velocity)
+        /* Control the rate of boids movement */
+        enforceSpeedLimits(b.velocity);
 
         /* Update position */
         b.position[0] += b.velocity[0];
@@ -397,10 +445,11 @@ var Boids = Boids || {};
   /* Initialisation function */
   function init() {
 
-    function initCamera(){
+    function initCamera() {
 
       ctx.camera = new THREE.PerspectiveCamera(60,
-                                               window.innerWidth / window.innerHeight,
+                                               window.innerWidth /
+                                               window.innerHeight,
                                                1, 10000);
 
       ctx.camera.position.y = conf.size.y * 0.4;
@@ -521,19 +570,19 @@ var Boids = Boids || {};
   });
 
   var SIGHT_MULTIPLIER = 0.1;
-  $('#sight').text((conf.boids.los - conf.boids.separation.distance)
-                   * SIGHT_MULTIPLIER);
+  $('#sight').text((conf.boids.los - conf.boids.separation.distance) *
+                   SIGHT_MULTIPLIER);
   $('#sight-slider').slider({
     range: 'min',
     min: 2,
     max: 50,
     step: 2,
-    value: (conf.boids.los - conf.boids.separation.distance)
-      * SIGHT_MULTIPLIER,
+    value: (conf.boids.los - conf.boids.separation.distance) *
+        SIGHT_MULTIPLIER,
     slide: function(event, ui) {
       $('#sight').text(ui.value);
       conf.boids.los = ui.value / SIGHT_MULTIPLIER +
-        conf.boids.separation.distance;
+          conf.boids.separation.distance;
     }
   });
 
