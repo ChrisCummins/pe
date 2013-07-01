@@ -414,17 +414,17 @@ var Boids = Boids || {};
          */
         if (b.position.x < -boundaries.x)
           dv.x += forces.boundary * b.speed;
-        if (b.position.x > boundaries.x)
+        else if (b.position.x > boundaries.x)
           dv.x -= forces.boundary * b.speed;
 
         if (b.position.y < -boundaries.x)
           dv.y += forces.boundary * b.speed;
-        if (b.position.y > boundaries.x)
+        else if (b.position.y > boundaries.x)
           dv.y -= forces.boundary * b.speed;
 
         if (b.position.z < -boundaries.x)
           dv.z += forces.boundary * b.speed;
-        if (b.position.z > boundaries.x)
+        else if (b.position.z > boundaries.x)
           dv.z -= forces.boundary * b.speed;
 
         /* Apply the velocity change */
