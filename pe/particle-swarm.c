@@ -42,6 +42,11 @@ struct particle_swarm_priv {
 	/* Global acceleration force vector, updated once per tick. */
 	float global_accel[3];
 
+	struct {
+		float min;
+		float max;
+	} speed_limits;
+
 	CoglContext *ctx;
 	CoglFramebuffer *fb;
 	struct particle_engine *engine;
@@ -310,7 +315,8 @@ static void update_particle(struct particle_swarm *swarm,
 	}
 
 	/* Limit the rate of particle movement */
-	particle->speed = particle_enforce_speed_limit(particle->velocity, swarm->particle_speed);
+	particle->speed = particle_enforce_speed_limit(particle->velocity,
+						       priv->speed_limits.max);
 
 	/* Update position */
 	for (i = 0; i < 3; i++) {
@@ -347,6 +353,10 @@ static void tick(struct particle_swarm *swarm)
 	/* Update the cohesion and boundary forces */
 	priv->cohesion_accel = swarm->particle_cohesion_rate * tick_time;
 	priv->boundary_accel = swarm->boundary_repulsion_rate * tick_time;
+
+	/* Update the speed limits */
+	priv->speed_limits.min = swarm->speed_limits.min * tick_time;
+	priv->speed_limits.max = swarm->speed_limits.max * tick_time;
 
 	if (swarm->type == SWARM_TYPE_HIVE) {
 		/* Sum the total velocity and position of all the particles: */

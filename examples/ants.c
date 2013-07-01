@@ -82,7 +82,7 @@ static void init_particle_swarm(struct demo *demo)
 	swarm->acceleration[1] = 0;
 	swarm->acceleration[2] = 0;
 
-	swarm->particle_speed = 0.5;
+	swarm->speed_limits.max = 25;
 	swarm->particle_size = 3.0;
 
 	swarm->particle_cohesion_rate = 0.030;
