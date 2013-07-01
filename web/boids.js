@@ -136,8 +136,8 @@ var Boids = Boids || {};
     this.mesh.rotation.z = rotZ;
 
     /* Wing flapping */
-    this.phase = (this.phase +
-                  (Math.max(0, this.mesh.rotation.z) + 0.07)) % 62.83;
+    this.phase += Math.max(0, this.mesh.rotation.z * 0.8) + 0.06;
+    this.phase %= 62.83;
 
     var wingY = Math.sin(this.phase) * 10;
 
