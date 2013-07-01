@@ -145,15 +145,22 @@ var Boids = Boids || {};
     this.mesh.geometry.vertices[5].y = wingY;
 
     /* The Shadow */
-    this.shadow.position.x = this.mesh.position.x;
-    this.shadow.position.y = -conf.size.y;
-    this.shadow.position.z = this.mesh.position.z;
+    if (this.mesh.position.y > -conf.size.y) {
+      this.shadow.material.opacity = 0.1;
 
-    this.shadow.rotation.y = this.mesh.rotation.y;
-    this.shadow.rotation.z = this.mesh.rotation.z;
+      this.shadow.position.x = this.mesh.position.x;
+      this.shadow.position.y = -conf.size.y;
+      this.shadow.position.z = this.mesh.position.z;
 
-    this.shadow.geometry.vertices[4].y = this.mesh.geometry.vertices[4].y;
-    this.shadow.geometry.vertices[5].y = this.mesh.geometry.vertices[5].y;
+      this.shadow.rotation.y = this.mesh.rotation.y;
+      this.shadow.rotation.z = this.mesh.rotation.z;
+
+      this.shadow.geometry.vertices[4].y = this.mesh.geometry.vertices[4].y;
+      this.shadow.geometry.vertices[5].y = this.mesh.geometry.vertices[5].y;
+    } else {
+      this.shadow.material.opacity = 0;
+    }
+
   };
 
   /* The boids */
