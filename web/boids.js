@@ -57,8 +57,8 @@ var Boids = Boids || {};
       count: 40,
       size: 10,
       speed: {
-        min: 0.2,
-        max: 0.5
+        min: 0.15,
+        max: 0.35
       },
       los: 160,
       cohesion: 0.00002,
@@ -599,9 +599,9 @@ var Boids = Boids || {};
                    conf.boids.speed.max * SPEED_MULTIPLIER);
   $('#speed-slider').slider({
     range: true,
-    min: 1,
-    max: 10,
-    step: 1,
+    min: 0.5,
+    max: 5,
+    step: 0.5,
     values: [
       conf.boids.speed.min * SPEED_MULTIPLIER,
       conf.boids.speed.max * SPEED_MULTIPLIER
