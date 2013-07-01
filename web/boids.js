@@ -1,3 +1,39 @@
+/* Bird.js - from the three.js birds demo */
+var Bird = function() {
+
+  function v(x, y, z) {
+    scope.vertices.push(new THREE.Vector3(x, y, z));
+  }
+
+  function f3(a, b, c) {
+    scope.faces.push(new THREE.Face3(a, b, c));
+  }
+
+  var scope = this;
+
+  THREE.Geometry.call(this);
+
+  v(10, 0, 0);
+  v(-10, -4, 2);
+  v(-10, 0, 0);
+  v(-10, -4, -2);
+
+  v(0, 4, -12);
+  v(0, 4, 12);
+  v(4, 0, 0);
+  v(-6, 0, 0);
+
+  f3(0, 2, 1);
+  f3(4, 7, 6);
+  f3(5, 6, 7);
+
+  this.computeCentroids();
+  this.computeFaceNormals();
+};
+
+Bird.prototype = Object.create(THREE.Geometry.prototype);
+
+/* Boids */
 var Boids = Boids || {};
 
 (function() {
