@@ -99,17 +99,14 @@ var Boids = Boids || {};
 
     this.position = new THREE.Vector3(Math.random() * boundaries.x,
                                       Math.random() * boundaries.y,
-                                      Math.random() * boundaries.z);
-    this.position.multiplyScalar(2);
-    this.position.sub(boundaries);
-
-    /* This magic variable determines the maximum starting speed. */
-    var INITIAL_SPEED_MULTIPLIER = 2;
+                                      Math.random() * boundaries.z)
+      .multiplyScalar(2).sub(boundaries);
 
     this.velocity = new THREE.Vector3(Math.random() - 0.5,
                                       Math.random() - 0.5,
-                                      Math.random() - 0.5);
-    this.velocity.multiplyScalar(2 * INITIAL_SPEED_MULTIPLIER);
+                                      Math.random() - 0.5)
+      .multiplyScalar(4); /* This multiplication by a magic constant
+                           * determines the maximum starting speed. */
 
     this.updateMesh();
     ctx.scene.add(this.mesh);
@@ -122,18 +119,14 @@ var Boids = Boids || {};
     this.mesh.position.copy(this.position);
 
     /* Heading */
-    var nextPos = new THREE.Vector3().copy(this.position);
-    nextPos.add(this.velocity);
+    var nextPos = new THREE.Vector3().copy(this.position).add(this.velocity);
 
-    var rotY = Math.atan2(-this.velocity.z, this.velocity.x);
-    var rotZ = Math.asin(this.velocity.y / this.speed);
+    this.mesh.rotation.y = Math.atan2(-this.velocity.z, this.velocity.x);
+    this.mesh.rotation.z = Math.asin(this.velocity.y / this.speed);
 
     /* FIXME: what a total hack (!) */
-    if (isNaN(rotZ))
-      rotZ = 0;
-
-    this.mesh.rotation.y = rotY;
-    this.mesh.rotation.z = rotZ;
+    if (isNaN(this.mesh.rotation.z))
+      this.mesh.rotation.z = 0;
 
     /* Wing flapping */
     this.phase += Math.max(0, this.mesh.rotation.z * 0.8) + 0.06;
@@ -148,12 +141,10 @@ var Boids = Boids || {};
     if (this.mesh.position.y > -conf.size.y) {
       this.shadow.material.opacity = 0.1;
 
-      this.shadow.position.x = this.mesh.position.x;
+      this.shadow.position.copy(this.mesh.position);
       this.shadow.position.y = -conf.size.y;
-      this.shadow.position.z = this.mesh.position.z;
 
-      this.shadow.rotation.y = this.mesh.rotation.y;
-      this.shadow.rotation.z = this.mesh.rotation.z;
+      this.shadow.rotation.copy(this.mesh.rotation);
 
       this.shadow.geometry.vertices[4].y = this.mesh.geometry.vertices[4].y;
       this.shadow.geometry.vertices[5].y = this.mesh.geometry.vertices[5].y;
@@ -311,25 +302,24 @@ var Boids = Boids || {};
       function updateBoid(index) {
 
         function enforceSpeedLimits(v) {
-          var mag = v.length();
-          var newMag = mag;
+          var speed = v.length();
 
-          if (mag > speedLimits.max) {
+          b.speed = speed;
+
+          if (speed > speedLimits.max) {
 
             /* Maximum speed */
-            newMag = speedLimits.max;
+            b.speed = speedLimits.max;
 
-            v.multiplyScalar(speedLimits.max / mag);
-          } else if (mag < speedLimits.min) {
+            v.multiplyScalar(speedLimits.max / speed);
+          } else if (speed < speedLimits.min) {
 
             /* Minimum speed */
-            newMag = speedLimits.min;
-            mag = Math.max(mag, 0.0001);
+            b.speed = speedLimits.min;
+            speed = Math.max(speed, 0.0001);
 
-            v.multiplyScalar(speedLimits.min / mag);
+            v.multiplyScalar(speedLimits.min / speed);
           }
-
-          b.speed = newMag;
         }
 
         var b = boids[index];
