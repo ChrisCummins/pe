@@ -69,8 +69,8 @@ var Boids = Boids || {};
       }
     },
     boundary: {
-      threshold: 0.12,
-      rate: 0.005
+      threshold: 0.30,
+      rate: 0.0020
     }
   };
 
