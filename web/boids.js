@@ -45,7 +45,8 @@ var Boids = Boids || {};
     camera: null,
     scene: null,
     renderer: new THREE.CanvasRenderer(),
-    rendererSize: 0.65,
+    rendererWidth: 1.0,
+    rendererHeight: 0.65,
     boundary: null,
     lights: []
   };
@@ -380,8 +381,8 @@ var Boids = Boids || {};
   }
 
   function setRendererSize() {
-    ctx.renderer.setSize(container.offsetWidth,
-                         window.innerHeight * ctx.rendererSize);
+    ctx.renderer.setSize(container.offsetWidth * ctx.rendererWidth,
+                         window.innerHeight * ctx.rendererHeight);
   }
 
   /* Initialisation function */
@@ -637,16 +638,30 @@ var Boids = Boids || {};
     }
   });
 
-  $('#size').text(Math.round(ctx.rendererSize * 100) + '%');
-  $('#size-slider').slider({
+  $('#width').text(Math.round(ctx.rendererWidth * 100) + '%');
+  $('#width-slider').slider({
     range: 'min',
     min: 0.50,
     max: 1.0,
     step: 0.01,
-    value: ctx.rendererSize,
+    value: ctx.rendererWidth,
     slide: function(event, ui) {
-      $('#size').text(Math.round(ui.value * 100) + '%');
-      ctx.rendererSize = ui.value;
+      $('#width').text(Math.round(ui.value * 100) + '%');
+      ctx.rendererWidth = ui.value;
+      setRendererSize();
+    }
+  });
+
+  $('#height').text(Math.round(ctx.rendererHeight * 100) + '%');
+  $('#height-slider').slider({
+    range: 'min',
+    min: 0.50,
+    max: 1.0,
+    step: 0.01,
+    value: ctx.rendererHeight,
+    slide: function(event, ui) {
+      $('#height').text(Math.round(ui.value * 100) + '%');
+      ctx.rendererHeight = ui.value;
       setRendererSize();
     }
   });
