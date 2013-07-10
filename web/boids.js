@@ -3,6 +3,120 @@ var Boids = Boids || {};
 (function() {
   'use strict';
 
+  /* Boid behaviour */
+  function Boid() {
+
+    /* Bird.js - from the three.js birds demo */
+    var Bird = function() {
+
+      function v(x, y, z) {
+        scope.vertices.push(new THREE.Vector3(x, y, z));
+      }
+
+      function f3(a, b, c) {
+        scope.faces.push(new THREE.Face3(a, b, c));
+      }
+
+      var scope = this;
+
+      THREE.Geometry.call(this);
+
+      v(10, 0, 0);
+      v(-10, -4, 2);
+      v(-10, 0, 0);
+      v(-10, -4, -2);
+
+      v(0, 4, -12);
+      v(0, 4, 12);
+      v(4, 0, 0);
+      v(-6, 0, 0);
+
+      f3(0, 2, 1);
+      f3(4, 7, 6);
+      f3(5, 6, 7);
+
+      this.computeCentroids();
+      this.computeFaceNormals();
+    };
+
+    Bird.prototype = Object.create(THREE.Geometry.prototype);
+
+    var geometry = new Bird();
+
+    this.mesh = new THREE.Mesh(geometry,
+                               new THREE.MeshLambertMaterial({
+                                 color: 0xffffff,
+                                 shading: THREE.FlatShading,
+                                 side: THREE.DoubleSide,
+                                 overdraw: true
+                               }));
+    this.phase = Math.floor(Math.random() * 62.83);
+    this.speed = 1;
+    this.shadow = new THREE.Mesh(geometry,
+                                 new THREE.MeshLambertMaterial({
+                                   color: 0x000000,
+                                   shading: THREE.FlatShading,
+                                   side: THREE.DoubleSide,
+                                   opacity: 0.1,
+                                   overdraw: true
+                                 }));
+    this.shadow.y = -conf.size.y;
+
+    this.position = new THREE.Vector3(Math.random() * boundaries.x,
+                                      Math.random() * boundaries.y,
+                                      Math.random() * boundaries.z)
+      .multiplyScalar(2).sub(boundaries);
+
+    this.velocity = new THREE.Vector3(Math.random() - 0.5,
+                                      Math.random() - 0.5,
+                                      Math.random() - 0.5)
+      .multiplyScalar(4); /* This multiplication by a magic constant
+                           * determines the maximum starting speed. */
+
+    this.updateMesh();
+    context.scene.add(this.mesh);
+    context.scene.add(this.shadow);
+  };
+
+  Boid.prototype.updateMesh = function() {
+    /* Position */
+    this.mesh.position.copy(this.position);
+
+    /* Heading */
+    var nextPos = new THREE.Vector3().copy(this.position).add(this.velocity);
+
+    this.mesh.rotation.y = Math.atan2(-this.velocity.z, this.velocity.x);
+    this.mesh.rotation.z = Math.asin(this.velocity.y / this.speed);
+
+    /* FIXME: what a total hack (!) */
+    if (isNaN(this.mesh.rotation.z))
+      this.mesh.rotation.z = 0;
+
+    /* Wing flapping */
+    this.phase += Math.max(0, this.mesh.rotation.z * 0.8) + 0.06;
+    this.phase %= 62.83;
+
+    var wingY = Math.sin(this.phase) * 10;
+
+    this.mesh.geometry.vertices[4].y = wingY;
+    this.mesh.geometry.vertices[5].y = wingY;
+
+    /* The Shadow */
+    if (this.mesh.position.y > -conf.size.y) {
+      this.shadow.material.opacity = 0.1;
+
+      this.shadow.position.copy(this.mesh.position);
+      this.shadow.position.y = -conf.size.y;
+
+      this.shadow.rotation.copy(this.mesh.rotation);
+
+      this.shadow.geometry.vertices[4].y = this.mesh.geometry.vertices[4].y;
+      this.shadow.geometry.vertices[5].y = this.mesh.geometry.vertices[5].y;
+    } else {
+      this.shadow.material.opacity = 0;
+    }
+  };
+
   /* The context */
   var context = {
     container: document.getElementById('container'),
@@ -60,121 +174,6 @@ var Boids = Boids || {};
     /* The accumulated error between the frequency of ticks and render
      * updates */
     accumulator: 0,
-  };
-
-  /* Bird.js - from the three.js birds demo */
-  var Bird = function() {
-
-    function v(x, y, z) {
-      scope.vertices.push(new THREE.Vector3(x, y, z));
-    }
-
-    function f3(a, b, c) {
-      scope.faces.push(new THREE.Face3(a, b, c));
-    }
-
-    var scope = this;
-
-    THREE.Geometry.call(this);
-
-    v(10, 0, 0);
-    v(-10, -4, 2);
-    v(-10, 0, 0);
-    v(-10, -4, -2);
-
-    v(0, 4, -12);
-    v(0, 4, 12);
-    v(4, 0, 0);
-    v(-6, 0, 0);
-
-    f3(0, 2, 1);
-    f3(4, 7, 6);
-    f3(5, 6, 7);
-
-    this.computeCentroids();
-    this.computeFaceNormals();
-  };
-
-  Bird.prototype = Object.create(THREE.Geometry.prototype);
-
-  /* Boid behaviour */
-  function Boid() {
-    var geometry = new Bird();
-
-    this.mesh = new THREE.Mesh(geometry,
-                               new THREE.MeshLambertMaterial({
-                                 color: 0xffffff,
-                                 shading: THREE.FlatShading,
-                                 side: THREE.DoubleSide,
-                                 overdraw: true
-                               }));
-    this.phase = Math.floor(Math.random() * 62.83);
-    this.speed = 1;
-    this.shadow = new THREE.Mesh(geometry,
-                                 new THREE.MeshLambertMaterial({
-                                   color: 0x000000,
-                                   shading: THREE.FlatShading,
-                                   side: THREE.DoubleSide,
-                                   opacity: 0.1,
-                                   overdraw: true
-                                 }));
-    this.shadow.y = -conf.size.y;
-
-    this.position = new THREE.Vector3(Math.random() * boundaries.x,
-                                      Math.random() * boundaries.y,
-                                      Math.random() * boundaries.z)
-      .multiplyScalar(2).sub(boundaries);
-
-    this.velocity = new THREE.Vector3(Math.random() - 0.5,
-                                      Math.random() - 0.5,
-                                      Math.random() - 0.5)
-      .multiplyScalar(4); /* This multiplication by a magic constant
-                           * determines the maximum starting speed. */
-
-    this.updateMesh();
-    context.scene.add(this.mesh);
-    context.scene.add(this.shadow);
-  };
-
-  Boid.prototype.updateMesh = function() {
-
-    /* Position */
-    this.mesh.position.copy(this.position);
-
-    /* Heading */
-    var nextPos = new THREE.Vector3().copy(this.position).add(this.velocity);
-
-    this.mesh.rotation.y = Math.atan2(-this.velocity.z, this.velocity.x);
-    this.mesh.rotation.z = Math.asin(this.velocity.y / this.speed);
-
-    /* FIXME: what a total hack (!) */
-    if (isNaN(this.mesh.rotation.z))
-      this.mesh.rotation.z = 0;
-
-    /* Wing flapping */
-    this.phase += Math.max(0, this.mesh.rotation.z * 0.8) + 0.06;
-    this.phase %= 62.83;
-
-    var wingY = Math.sin(this.phase) * 10;
-
-    this.mesh.geometry.vertices[4].y = wingY;
-    this.mesh.geometry.vertices[5].y = wingY;
-
-    /* The Shadow */
-    if (this.mesh.position.y > -conf.size.y) {
-      this.shadow.material.opacity = 0.1;
-
-      this.shadow.position.copy(this.mesh.position);
-      this.shadow.position.y = -conf.size.y;
-
-      this.shadow.rotation.copy(this.mesh.rotation);
-
-      this.shadow.geometry.vertices[4].y = this.mesh.geometry.vertices[4].y;
-      this.shadow.geometry.vertices[5].y = this.mesh.geometry.vertices[5].y;
-    } else {
-      this.shadow.material.opacity = 0;
-    }
-
   };
 
   /* The boids */
