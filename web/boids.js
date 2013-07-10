@@ -5,25 +5,54 @@ var Boids = Boids || {};
 
   /* The configuration */
   var config = {
-    size: new THREE.Vector3(600, 400, 600),
-    boids: {
+
+    SIMULATION: {
+      /* The minimum target frame rate */
+      minFps: 30,
+
+      /* A higher physics frame rate will increase the granularity of the
+       * simulation at the expense of greater computational costs. */
+      physicsFps: 50
+    },
+
+    BOUNDARY: {
+      /* The size of the bounding area: */
+      size: new THREE.Vector3(600, 400, 600),
+      /* The threshold at which boids steer to
+       * avoid the boundaries: */
+      threshold: 0.30,
+      /* The rate at which boids are repelled
+       * from the boundaries: */
+      rate: 0.00003
+    },
+
+    BOIDS: {
+      /* The number of boids: */
       count: 40,
-      size: 10,
+      /* Rules determining the boids behaviour: */
+      behaviour: {
+        /* The rate at which boids are
+         * attracted: */
+        cohesion: 0.00005,
+        /* The amount that boids align
+         * their flights: */
+        alignment: 0.010,
+        separation: {
+          /* The distance at which boids
+           * steer to avoid each other: */
+          distance: 100,
+          /* The rate at which boids are
+           * repelled from one another: */
+          rate: 0.0020
+        }
+      },
+      /* The speed limits for boids: */
       speed: {
         min: 0.15,
         max: 0.35
       },
+      /* The distance that boids can see: */
       los: 160,
-      cohesion: 0.00005,
-      alignment: 0.010,
-      separation: {
-        distance: 100,
-        rate: 0.007
-      }
-    },
-    boundary: {
-      threshold: 0.30,
-      rate: 0.00003
     }
   };
 
@@ -84,7 +113,7 @@ var Boids = Boids || {};
                                    opacity: 0.1,
                                    overdraw: true
                                  }));
-    this.shadow.y = -config.size.y;
+    this.shadow.y = -config.BOUNDARY.size.y;
 
     this.position = new THREE.Vector3(Math.random() * boundaries.x,
                                       Math.random() * boundaries.y,
@@ -126,11 +155,11 @@ var Boids = Boids || {};
     this.mesh.geometry.vertices[5].y = wingY;
 
     /* The Shadow */
-    if (this.mesh.position.y > -config.size.y) {
+    if (this.mesh.position.y > -config.BOUNDARY.size.y) {
       this.shadow.material.opacity = 0.1;
 
       this.shadow.position.copy(this.mesh.position);
-      this.shadow.position.y = -config.size.y;
+      this.shadow.position.y = -config.BOUNDARY.size.y;
 
       this.shadow.rotation.copy(this.mesh.rotation);
 
@@ -153,22 +182,15 @@ var Boids = Boids || {};
     lights: []
   };
 
-  /* The minimum target frame rate */
-  var MIN_FRAMES_PER_SECOND = 30;
-
-  /* A higher physics frame rate will increase the granularity of the simulation
-   * at the expense of greater computational costs. */
-  var PHYSICS_FRAME_RATE = 50;
-
   /* Timekeeping (in units of milliseconds) */
   var time = {
     /* The delta time, aka. the size of the chunk of time to process for each
      * update of the simulation. */
-    dt: 1000 / PHYSICS_FRAME_RATE,
+    dt: 1000 / config.SIMULATION.physicsFps,
     /* The maximum amount of time to process for a given iteration of the render
      * loop. The time is capped at this value, meaning that the simulation will
      * begin to slow down if the tick time exceeds this value.  */
-    maxTickTime: 1000 / MIN_FRAMES_PER_SECOND,
+    maxTickTime: 1000 / config.SIMULATION.minFps,
     /* The current time */
     current: new Date().getTime(),
     /* The accumulated error between the frequency of ticks and render
@@ -236,7 +258,7 @@ var Boids = Boids || {};
         var velocityAvg = new THREE.Vector3(0, 0, 0);
         var swarmSize = 0;
 
-        for (var i = 0; i < config.boids.count; i++) {
+        for (var i = 0; i < config.BOIDS.count; i++) {
           if (i !== index) {
             var otherBoid = boids[i];
 
@@ -253,16 +275,16 @@ var Boids = Boids || {};
              * prevent them bumping into each other and reduce the density of
              * the flock:
              */
-            if (distance < config.boids.separation.distance) {
+            if (distance < config.BOIDS.behaviour.separation.distance) {
               dv.sub(new THREE.Vector3()
                      .subVectors(otherBoid.position, b.position)
-                     .multiplyScalar(config.boids.separation.rate));
+                     .multiplyScalar(config.BOIDS.behaviour.separation.rate));
             }
 
             /* We total up the velocity and positions of any particles that are
              * within the range of visibility of the current particle:
              */
-            if (distance < config.boids.los) {
+            if (distance < config.BOIDS.los) {
               centerOfMass.add(otherBoid.position);
               velocityAvg.add(otherBoid.velocity);
 
@@ -301,7 +323,7 @@ var Boids = Boids || {};
          */
         dv.add(new THREE.Vector3()
                .subVectors(velocityAvg, b.velocity)
-               .multiplyScalar(config.boids.alignment));
+               .multiplyScalar(config.BOIDS.behaviour.alignment));
 
         /*
          * BOUNDARY AVOIDANCE
@@ -338,21 +360,21 @@ var Boids = Boids || {};
       }
 
       /* Update forces */
-      forces.cohesion = dt * config.boids.cohesion;
-      forces.boundary = dt * config.boundary.rate;
+      forces.cohesion = dt * config.BOIDS.behaviour.cohesion;
+      forces.boundary = dt * config.BOUNDARY.rate;
 
       /* Update speed limits */
-      speedLimits.min = dt * config.boids.speed.min;
-      speedLimits.max = dt * config.boids.speed.max;
+      speedLimits.min = dt * config.BOIDS.speed.min;
+      speedLimits.max = dt * config.BOIDS.speed.max;
 
-      for (var i = 0; i < config.boids.count; i++)
+      for (var i = 0; i < config.BOIDS.count; i++)
         updateBoid(i);
     }
 
     function render() {
       var timer = Date.now() * 0.00005;
-      var x = Math.cos(timer) * config.size.x * 1.75;
-      var z = Math.sin(timer) * config.size.z * 1.75;
+      var x = Math.cos(timer) * config.BOUNDARY.size.x * 1.75;
+      var z = Math.sin(timer) * config.BOUNDARY.size.z * 1.75;
 
       context.camera.position.x = x
       context.camera.position.z = z;
@@ -438,7 +460,7 @@ var Boids = Boids || {};
       var zFar = 10000;
 
       context.camera = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
-      context.camera.position.y = config.size.y * 0.4;
+      context.camera.position.y = config.BOUNDARY.size.y * 0.4;
       context.cameraTarget = new THREE.Vector3(context.scene.position.x,
                                                context.scene.position.y,
                                                context.scene.position.z);
@@ -447,92 +469,49 @@ var Boids = Boids || {};
     function initGrid() {
       context.boundary = new THREE.Geometry();
 
+      var vertices = context.boundary.vertices;
+      var w = config.BOUNDARY.size.x;
+      var h = config.BOUNDARY.size.y;
+      var d = config.BOUNDARY.size.z;
+
       /* Bottom face */
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       -config.size.y,
-                                                       -config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       -config.size.y,
-                                                       -config.size.z));
+      vertices.push(new THREE.Vector3(-w, -h, -d));
+      vertices.push(new THREE.Vector3(w, -h, -d));
 
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       -config.size.y,
-                                                       -config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       -config.size.y,
-                                                       config.size.z));
+      vertices.push(new THREE.Vector3(w, -h, -d));
+      vertices.push(new THREE.Vector3(w, -h, d));
 
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       -config.size.y,
-                                                       config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       -config.size.y,
-                                                       config.size.z));
+      vertices.push(new THREE.Vector3(w, -h, d));
+      vertices.push(new THREE.Vector3(-w, -h, d));
 
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       -config.size.y,
-                                                       config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       -config.size.y,
-                                                       -config.size.z));
+      vertices.push(new THREE.Vector3(-w, -h, d));
+      vertices.push(new THREE.Vector3(-w, -h, -d));
 
       /* Sides */
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       -config.size.y,
-                                                       -config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       config.size.y,
-                                                       -config.size.z));
+      vertices.push(new THREE.Vector3(-w, -h, -d));
+      vertices.push(new THREE.Vector3(-w, h, -d));
 
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       -config.size.y,
-                                                       config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       config.size.y,
-                                                       config.size.z));
+      vertices.push(new THREE.Vector3(-w, -h, d));
+      vertices.push(new THREE.Vector3(-w, h, d));
 
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       -config.size.y,
-                                                       config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       config.size.y,
-                                                       config.size.z));
+      vertices.push(new THREE.Vector3(w, -h, d));
+      vertices.push(new THREE.Vector3(w, h, d));
 
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       -config.size.y,
-                                                       -config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       config.size.y,
-                                                       -config.size.z));
+      vertices.push(new THREE.Vector3(w, -h, -d));
+      vertices.push(new THREE.Vector3(w, h, -d));
 
       /* Top face */
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       config.size.y,
-                                                       -config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       config.size.y,
-                                                       -config.size.z));
+      vertices.push(new THREE.Vector3(-w, h, -d));
+      vertices.push(new THREE.Vector3(w, h, -d));
 
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       config.size.y,
-                                                       -config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       config.size.y,
-                                                       config.size.z));
+      vertices.push(new THREE.Vector3(w, h, -d));
+      vertices.push(new THREE.Vector3(w, h, d));
 
-      context.boundary.vertices.push(new THREE.Vector3(config.size.x,
-                                                       config.size.y,
-                                                       config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       config.size.y,
-                                                       config.size.z));
+      vertices.push(new THREE.Vector3(w, h, d));
+      vertices.push(new THREE.Vector3(-w, h, d));
 
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       config.size.y,
-                                                       config.size.z));
-      context.boundary.vertices.push(new THREE.Vector3(-config.size.x,
-                                                       config.size.y,
-                                                       -config.size.z));
+      vertices.push(new THREE.Vector3(-w, h, d));
+      vertices.push(new THREE.Vector3(-w, h, -d));
 
       var line = new THREE.Line(context.boundary,
                                 new THREE.LineBasicMaterial({
@@ -564,11 +543,11 @@ var Boids = Boids || {};
     window.addEventListener('resize', onWindowResize, false);
 
     boundaries =
-      new THREE.Vector3(config.size.x - config.size.x * config.boundary.threshold,
-                        config.size.y - config.size.y * config.boundary.threshold,
-                        config.size.z - config.size.z * config.boundary.threshold);
+      new THREE.Vector3(config.BOUNDARY.size.x - config.BOUNDARY.size.x * config.BOUNDARY.threshold,
+                        config.BOUNDARY.size.y - config.BOUNDARY.size.y * config.BOUNDARY.threshold,
+                        config.BOUNDARY.size.z - config.BOUNDARY.size.z * config.BOUNDARY.threshold);
 
-    for (var i = 0; i < config.boids.count; i++)
+    for (var i = 0; i < config.BOIDS.count; i++)
       createBoid();
 
     tick(1);
@@ -580,104 +559,104 @@ var Boids = Boids || {};
   /* UI COMPONENTS */
 
   var COHESION_MULTIPLIER = 100000;
-  $('#cohesion').text(config.boids.cohesion * COHESION_MULTIPLIER);
+  $('#cohesion').text(config.BOIDS.behaviour.cohesion * COHESION_MULTIPLIER);
   $('#cohesion-slider').slider({
     range: 'min',
     min: 0,
     max: 25,
     step: 1,
-    value: config.boids.cohesion * COHESION_MULTIPLIER,
+    value: config.BOIDS.behaviour.cohesion * COHESION_MULTIPLIER,
     slide: function(event, ui) {
       $('#cohesion').text(ui.value);
-      config.boids.cohesion = ui.value / COHESION_MULTIPLIER;
+      config.BOIDS.behaviour.cohesion = ui.value / COHESION_MULTIPLIER;
     }
   });
 
   var ALIGNMENT_MULTIPLIER = 1000;
-  $('#alignment').text(config.boids.alignment * ALIGNMENT_MULTIPLIER);
+  $('#alignment').text(config.BOIDS.behaviour.alignment * ALIGNMENT_MULTIPLIER);
   $('#alignment-slider').slider({
     range: 'min',
     min: 0,
     max: 25,
     step: 1,
-    value: config.boids.alignment * ALIGNMENT_MULTIPLIER,
+    value: config.BOIDS.behaviour.alignment * ALIGNMENT_MULTIPLIER,
     slide: function(event, ui) {
       $('#alignment').text(ui.value);
-      config.boids.alignment = ui.value / ALIGNMENT_MULTIPLIER;
+      config.BOIDS.behaviour.alignment = ui.value / ALIGNMENT_MULTIPLIER;
     }
   });
 
   var SEPARATION_MULTIPLIER = 0.1;
-  $('#separation').text(config.boids.separation.distance * SEPARATION_MULTIPLIER);
+  $('#separation').text(config.BOIDS.behaviour.separation.distance * SEPARATION_MULTIPLIER);
   $('#separation-slider').slider({
     range: 'min',
     min: 0,
     max: 25,
     step: 1,
-    value: config.boids.separation.distance * SEPARATION_MULTIPLIER,
+    value: config.BOIDS.behaviour.separation.distance * SEPARATION_MULTIPLIER,
     slide: function(event, ui) {
       $('#separation').text(ui.value);
-      config.boids.separation.distance = ui.value / SEPARATION_MULTIPLIER;
+      config.BOIDS.behaviour.separation.distance = ui.value / SEPARATION_MULTIPLIER;
     }
   });
 
-  $('#no-of-boids').text(config.boids.count);
+  $('#no-of-boids').text(config.BOIDS.count);
   $('#no-of-boids-slider').slider({
     range: 'min',
     min: 1,
     max: 300,
     step: 1,
-    value: config.boids.count,
+    value: config.BOIDS.count,
     slide: function(event, ui) {
       var n = ui.value;
 
       $('#no-of-boids').text(n);
 
-      while (n != config.boids.count) {
-        if (n > config.boids.count) {
+      while (n != config.BOIDS.count) {
+        if (n > config.BOIDS.count) {
           createBoid();
-          config.boids.count++;
+          config.BOIDS.count++;
         } else {
           destroyBoid();
-          config.boids.count--;
+          config.BOIDS.count--;
         }
       }
     }
   });
 
   var SPEED_MULTIPLIER = 10;
-  $('#speed').text(config.boids.speed.min * SPEED_MULTIPLIER + ' - ' +
-                   config.boids.speed.max * SPEED_MULTIPLIER);
+  $('#speed').text(config.BOIDS.speed.min * SPEED_MULTIPLIER + ' - ' +
+                   config.BOIDS.speed.max * SPEED_MULTIPLIER);
   $('#speed-slider').slider({
     range: true,
     min: 0.5,
     max: 5,
     step: 0.5,
     values: [
-      config.boids.speed.min * SPEED_MULTIPLIER,
-      config.boids.speed.max * SPEED_MULTIPLIER
+      config.BOIDS.speed.min * SPEED_MULTIPLIER,
+      config.BOIDS.speed.max * SPEED_MULTIPLIER
     ],
     slide: function(event, ui) {
       $('#speed').text(ui.values[0] + ' - ' + ui.values[1]);
-      config.boids.speed.min = ui.values[0] / SPEED_MULTIPLIER;
-      config.boids.speed.max = ui.values[1] / SPEED_MULTIPLIER;
+      config.BOIDS.speed.min = ui.values[0] / SPEED_MULTIPLIER;
+      config.BOIDS.speed.max = ui.values[1] / SPEED_MULTIPLIER;
     }
   });
 
   var SIGHT_MULTIPLIER = 0.1;
-  $('#sight').text((config.boids.los - config.boids.separation.distance) *
+  $('#sight').text((config.BOIDS.los - config.BOIDS.behaviour.separation.distance) *
                    SIGHT_MULTIPLIER);
   $('#sight-slider').slider({
     range: 'min',
     min: 2,
     max: 50,
     step: 2,
-    value: (config.boids.los - config.boids.separation.distance) *
+    value: (config.BOIDS.los - config.BOIDS.behaviour.separation.distance) *
       SIGHT_MULTIPLIER,
     slide: function(event, ui) {
       $('#sight').text(ui.value);
-      config.boids.los = ui.value / SIGHT_MULTIPLIER +
-        config.boids.separation.distance;
+      config.BOIDS.los = ui.value / SIGHT_MULTIPLIER +
+        config.BOIDS.behaviour.separation.distance;
     }
   });
 
@@ -712,10 +691,10 @@ var Boids = Boids || {};
   $('#reset').click(function() {
     initLighting();
 
-    for (var i = 0; i < config.boids.count; i++)
+    for (var i = 0; i < config.BOIDS.count; i++)
       destroyBoid();
 
-    for (var i = 0; i < config.boids.count; i++)
+    for (var i = 0; i < config.BOIDS.count; i++)
       createBoid();
   });
 
