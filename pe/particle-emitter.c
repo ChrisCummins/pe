@@ -3,6 +3,7 @@
 #include "particle-engine.h"
 
 #include <cogl/cogl.h>
+#include <math.h>
 #include <string.h>
 
 struct particle {

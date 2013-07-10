@@ -1,5 +1,7 @@
 #include "fuzzy.h"
 
+#include <math.h>
+
 float fuzzy_float_get_real_value(struct fuzzy_float *variance,
 				 GRand *rand)
 {
