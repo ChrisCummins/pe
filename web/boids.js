@@ -620,7 +620,7 @@ var Boids = Boids || {};
   $('#no-of-boids-slider').slider({
     range: 'min',
     min: 1,
-    max: 200,
+    max: 300,
     step: 1,
     value: conf.boids.count,
     slide: function(event, ui) {
