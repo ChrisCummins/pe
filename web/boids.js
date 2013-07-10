@@ -56,6 +56,45 @@ var Boids = Boids || {};
     }
   };
 
+  /* The context */
+  var context = {
+
+    container: document.getElementById('container'),
+
+    boids: [],
+
+    SCENE: {
+      /* The scene and associated entities and geometries: */
+      s: null,
+      camera: null,
+      cameraTarget: null,
+      boundary: null,
+      lights: [],
+    },
+
+    RENDERER: {
+      /* The renderer and associated properties: */
+      r: new THREE.CanvasRenderer(),
+      width: 1.0,
+      height: 0.65,
+    },
+
+    TIME: {
+      /* The delta time, aka. the size of the chunk of time to process for each
+       * update of the simulation. */
+      dt: 1000 / config.SIMULATION.physicsFps,
+      /* The maximum amount of time to process for a given iteration of the render
+       * loop. The time is capped at this value, meaning that the simulation will
+       * begin to slow down if the tick time exceeds this value.  */
+      maxTickTime: 1000 / config.SIMULATION.minFps,
+      /* The current time */
+      current: new Date().getTime(),
+      /* The accumulated error between the frequency of ticks and render
+       * updates */
+      accumulator: 0,
+    }
+  };
+
   /* Boid behaviour */
   function Boid() {
 
@@ -127,8 +166,8 @@ var Boids = Boids || {};
                            * determines the maximum starting speed. */
 
     this.updateMesh();
-    context.scene.add(this.mesh);
-    context.scene.add(this.shadow);
+    context.SCENE.s.add(this.mesh);
+    context.SCENE.s.add(this.shadow);
   };
 
   Boid.prototype.updateMesh = function() {
@@ -170,37 +209,6 @@ var Boids = Boids || {};
     }
   };
 
-  /* The context */
-  var context = {
-    container: document.getElementById('container'),
-    camera: null,
-    scene: null,
-    renderer: new THREE.CanvasRenderer(),
-    rendererWidth: 1.0,
-    rendererHeight: 0.65,
-    boundary: null,
-    lights: []
-  };
-
-  /* Timekeeping (in units of milliseconds) */
-  var time = {
-    /* The delta time, aka. the size of the chunk of time to process for each
-     * update of the simulation. */
-    dt: 1000 / config.SIMULATION.physicsFps,
-    /* The maximum amount of time to process for a given iteration of the render
-     * loop. The time is capped at this value, meaning that the simulation will
-     * begin to slow down if the tick time exceeds this value.  */
-    maxTickTime: 1000 / config.SIMULATION.minFps,
-    /* The current time */
-    current: new Date().getTime(),
-    /* The accumulated error between the frequency of ticks and render
-     * updates */
-    accumulator: 0,
-  };
-
-  /* The boids */
-  var boids = [];
-
   var forces = {
     cohesion: 0,
     boundary: 0
@@ -214,14 +222,14 @@ var Boids = Boids || {};
   var boundaries;
 
   function createBoid() {
-    boids.push(new Boid());
+    context.boids.push(new Boid());
   }
 
   function destroyBoid() {
-    var b = boids.pop();
+    var b = context.boids.pop();
 
-    context.scene.remove(b.mesh);
-    context.scene.remove(b.shadow);
+    context.SCENE.s.remove(b.mesh);
+    context.SCENE.s.remove(b.shadow);
   }
 
   /* Update function */
@@ -252,7 +260,7 @@ var Boids = Boids || {};
           }
         }
 
-        var b = boids[index];
+        var b = context.boids[index];
         var dv = new THREE.Vector3(0, 0, 0); // Change in velocity
         var centerOfMass = new THREE.Vector3(0, 0, 0);
         var velocityAvg = new THREE.Vector3(0, 0, 0);
@@ -260,7 +268,7 @@ var Boids = Boids || {};
 
         for (var i = 0; i < config.BOIDS.count; i++) {
           if (i !== index) {
-            var otherBoid = boids[i];
+            var otherBoid = context.boids[i];
 
             var dp = new THREE.Vector3().subVectors(b.position,
                                                     otherBoid.position);
@@ -372,33 +380,35 @@ var Boids = Boids || {};
     }
 
     function render() {
+      var camera = context.SCENE.camera;
       var timer = Date.now() * 0.00005;
       var x = Math.cos(timer) * config.BOUNDARY.size.x * 1.75;
       var z = Math.sin(timer) * config.BOUNDARY.size.z * 1.75;
 
-      context.camera.position.x = x
-      context.camera.position.z = z;
+      camera.position.x = x
+      camera.position.z = z;
 
-      context.camera.lookAt(context.cameraTarget);
-      context.renderer.render(context.scene, context.camera);
+      camera.lookAt(context.SCENE.cameraTarget);
+      context.RENDERER.r.render(context.SCENE.s, camera);
     }
 
     /* Update the clocks */
+    var t = context.TIME;
     var newTime = new Date().getTime();
-    var tickTime = newTime - time.current;
+    var tickTime = newTime - t.current;
 
     /* Enforce a maximum frame time to prevent the "spiral of death" when
      * operating under heavy load */
-    if (tickTime > time.maxTickTime)
-      tickTime = time.maxTickTime;
+    if (tickTime > t.maxTickTime)
+      tickTime = t.maxTickTime;
 
-    time.current = newTime;
-    time.accumulator += tickTime;
+    t.current = newTime;
+    t.accumulator += tickTime;
 
     /* Update the simulation state as required */
-    while (time.accumulator >= time.dt) {
-      update(time.dt);
-      time.accumulator -= time.dt;
+    while (t.accumulator >= t.dt) {
+      update(t.dt);
+      t.accumulator -= t.dt;
     }
 
     /* Render the new state */
@@ -410,8 +420,8 @@ var Boids = Boids || {};
 
   function initLighting() {
 
-    var lights = context.lights;
-    var scene = context.scene;
+    var lights = context.SCENE.lights;
+    var scene = context.SCENE.s;
 
     if (lights.length > 0) {
       /* Clear lights */
@@ -443,10 +453,10 @@ var Boids = Boids || {};
   }
 
   function setRendererSize() {
-    var w = container.offsetWidth * context.rendererWidth;
-    var h = window.innerHeight * context.rendererHeight;
+    var w = container.offsetWidth * context.RENDERER.width;
+    var h = window.innerHeight * context.RENDERER.height;
 
-    context.renderer.setSize(w, h);
+    context.RENDERER.r.setSize(w, h);
   }
 
   /* Initialisation function */
@@ -459,20 +469,19 @@ var Boids = Boids || {};
       var zNear = 1;
       var zFar = 10000;
 
-      context.camera = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
-      context.camera.position.y = config.BOUNDARY.size.y * 0.4;
-      context.cameraTarget = new THREE.Vector3(context.scene.position.x,
-                                               context.scene.position.y,
-                                               context.scene.position.z);
+      context.SCENE.camera = new THREE.PerspectiveCamera(fov, aspect,
+                                                         zNear, zFar);
+
+      context.SCENE.camera.position.y = config.BOUNDARY.size.y * 0.4;
+      context.SCENE.cameraTarget = new THREE.Vector3(context.SCENE.s.position.x,
+                                                     context.SCENE.s.position.y,
+                                                     context.SCENE.s.position.z);
     }
 
     function initGrid() {
-      context.boundary = new THREE.Geometry();
+      context.SCENE.boundary = new THREE.Geometry();
 
-      var vertices = context.boundary.vertices;
-      var w = config.BOUNDARY.size.x;
-      var h = config.BOUNDARY.size.y;
-      var d = config.BOUNDARY.size.z;
+      var vertices = context.SCENE.boundary.vertices;
 
       /* Bottom face */
       vertices.push(new THREE.Vector3(-w, -h, -d));
@@ -513,39 +522,43 @@ var Boids = Boids || {};
       vertices.push(new THREE.Vector3(-w, h, d));
       vertices.push(new THREE.Vector3(-w, h, -d));
 
-      var line = new THREE.Line(context.boundary,
+      var line = new THREE.Line(context.SCENE.boundary,
                                 new THREE.LineBasicMaterial({
                                   color: 0x000000,
                                   opacity: 0.1
                                 }));
       line.type = THREE.LinePieces;
-      context.scene.add(line);
+      context.SCENE.s.add(line);
     }
 
     function onWindowResize() {
-      context.camera.left = window.innerWidth / - 2;
-      context.camera.right = window.innerWidth / 2;
-      context.camera.top = window.innerHeight / 2;
-      context.camera.bottom = window.innerHeight / - 2;
+      context.SCENE.camera.left = window.innerWidth / - 2;
+      context.SCENE.camera.right = window.innerWidth / 2;
+      context.SCENE.camera.top = window.innerHeight / 2;
+      context.SCENE.camera.bottom = window.innerHeight / - 2;
 
       setRendererSize();
-      context.camera.updateProjectionMatrix();
+      context.SCENE.camera.updateProjectionMatrix();
     }
 
-    context.scene = new THREE.Scene();
+    var w = config.BOUNDARY.size.x;
+    var h = config.BOUNDARY.size.y;
+    var d = config.BOUNDARY.size.z;
+
+    context.SCENE.s = new THREE.Scene();
 
     initCamera();
     initLighting();
     initGrid();
 
     setRendererSize();
-    context.container.appendChild(context.renderer.domElement);
+    context.container.appendChild(context.RENDERER.r.domElement);
     window.addEventListener('resize', onWindowResize, false);
 
     boundaries =
-      new THREE.Vector3(config.BOUNDARY.size.x - config.BOUNDARY.size.x * config.BOUNDARY.threshold,
-                        config.BOUNDARY.size.y - config.BOUNDARY.size.y * config.BOUNDARY.threshold,
-                        config.BOUNDARY.size.z - config.BOUNDARY.size.z * config.BOUNDARY.threshold);
+      new THREE.Vector3(w - w * config.BOUNDARY.threshold,
+                        h - h * config.BOUNDARY.threshold,
+                        d - d * config.BOUNDARY.threshold);
 
     for (var i = 0; i < config.BOIDS.count; i++)
       createBoid();
@@ -660,30 +673,30 @@ var Boids = Boids || {};
     }
   });
 
-  $('#width').text(Math.round(context.rendererWidth * 100) + '%');
+  $('#width').text(Math.round(context.RENDERER.width * 100) + '%');
   $('#width-slider').slider({
     range: 'min',
     min: 0.50,
     max: 1.0,
     step: 0.01,
-    value: context.rendererWidth,
+    value: context.RENDERER.width,
     slide: function(event, ui) {
       $('#width').text(Math.round(ui.value * 100) + '%');
-      context.rendererWidth = ui.value;
+      context.RENDERER.width = ui.value;
       setRendererSize();
     }
   });
 
-  $('#height').text(Math.round(context.rendererHeight * 100) + '%');
+  $('#height').text(Math.round(context.RENDERER.height * 100) + '%');
   $('#height-slider').slider({
     range: 'min',
     min: 0.50,
     max: 1.0,
     step: 0.01,
-    value: context.rendererHeight,
+    value: context.RENDERER.height,
     slide: function(event, ui) {
       $('#height').text(Math.round(ui.value * 100) + '%');
-      context.rendererHeight = ui.value;
+      context.RENDERER.height = ui.value;
       setRendererSize();
     }
   });
