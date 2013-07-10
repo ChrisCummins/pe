@@ -3,8 +3,8 @@ var Boids = Boids || {};
 (function() {
   'use strict';
 
-  /* The drawing context */
-  var ctx = {
+  /* The context */
+  var context = {
     container: document.getElementById('container'),
     camera: null,
     scene: null,
@@ -132,8 +132,8 @@ var Boids = Boids || {};
                            * determines the maximum starting speed. */
 
     this.updateMesh();
-    ctx.scene.add(this.mesh);
-    ctx.scene.add(this.shadow);
+    context.scene.add(this.mesh);
+    context.scene.add(this.shadow);
   };
 
   Boid.prototype.updateMesh = function() {
@@ -199,8 +199,8 @@ var Boids = Boids || {};
   function destroyBoid() {
     var b = boids.pop();
 
-    ctx.scene.remove(b.mesh);
-    ctx.scene.remove(b.shadow);
+    context.scene.remove(b.mesh);
+    context.scene.remove(b.shadow);
   }
 
   /* Update function */
@@ -353,12 +353,12 @@ var Boids = Boids || {};
     function render() {
       var timer = Date.now() * 0.00005;
 
-      ctx.camera.position.x = Math.cos(timer) * conf.size.x * 1.75;
-      ctx.camera.position.z = Math.sin(timer) * conf.size.z * 1.75;
+      context.camera.position.x = Math.cos(timer) * conf.size.x * 1.75;
+      context.camera.position.z = Math.sin(timer) * conf.size.z * 1.75;
 
-      ctx.camera.lookAt(ctx.cameraTarget);
+      context.camera.lookAt(context.cameraTarget);
 
-      ctx.renderer.render(ctx.scene, ctx.camera);
+      context.renderer.render(context.scene, context.camera);
     }
 
     /* Update the clocks */
@@ -388,179 +388,179 @@ var Boids = Boids || {};
 
   function initLighting() {
 
-    if (ctx.lights.length > 0) {
+    if (context.lights.length > 0) {
       /* Clear lights */
-      for (var i = ctx.lights.length - 1; i >= 0; i--)
-        ctx.scene.remove(ctx.lights.pop());
+      for (var i = context.lights.length - 1; i >= 0; i--)
+        context.scene.remove(context.lights.pop());
     }
 
     var ambientLight = new THREE.AmbientLight(0x111133);
-    ctx.scene.add(ambientLight);
-    ctx.lights.push(ambientLight);
+    context.scene.add(ambientLight);
+    context.lights.push(ambientLight);
 
     var light = new THREE.DirectionalLight(0x7a2338);
     light.position.set(Math.random() - 0.5,
                        Math.random() - 0.5,
                        Math.random() - 0.5);
     light.position.normalize();
-    ctx.scene.add(light);
+    context.scene.add(light);
 
-    ctx.lights.push(light);
+    context.lights.push(light);
 
     var light = new THREE.DirectionalLight(0x21d592);
     light.position.set(Math.random() - 0.5,
                        Math.random() - 0.5,
                        Math.random() - 0.5);
     light.position.normalize();
-    ctx.scene.add(light);
+    context.scene.add(light);
 
-    ctx.lights.push(light);
+    context.lights.push(light);
   }
 
   function setRendererSize() {
-    ctx.renderer.setSize(container.offsetWidth * ctx.rendererWidth,
-                         window.innerHeight * ctx.rendererHeight);
+    context.renderer.setSize(container.offsetWidth * context.rendererWidth,
+                             window.innerHeight * context.rendererHeight);
   }
 
   /* Initialisation function */
   function init() {
 
     function initCamera() {
-      ctx.camera = new THREE.PerspectiveCamera(60,
-                                               window.innerWidth /
-                                               window.innerHeight,
-                                               1, 10000);
+      context.camera = new THREE.PerspectiveCamera(60,
+                                                   window.innerWidth /
+                                                   window.innerHeight,
+                                                   1, 10000);
 
-      ctx.camera.position.y = conf.size.y * 0.4;
+      context.camera.position.y = conf.size.y * 0.4;
 
-      ctx.cameraTarget = new THREE.Vector3(ctx.scene.position.x,
-                                           ctx.scene.position.y,
-                                           ctx.scene.position.z);
+      context.cameraTarget = new THREE.Vector3(context.scene.position.x,
+                                               context.scene.position.y,
+                                               context.scene.position.z);
     }
 
     function initGrid() {
-      ctx.boundary = new THREE.Geometry();
+      context.boundary = new THREE.Geometry();
 
       /* Bottom face */
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   -conf.size.y,
-                                                   -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   -conf.size.y,
-                                                   -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       -conf.size.y,
+                                                       -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       -conf.size.y,
+                                                       -conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   -conf.size.y,
-                                                   -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   -conf.size.y,
-                                                   conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       -conf.size.y,
+                                                       -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       -conf.size.y,
+                                                       conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   -conf.size.y,
-                                                   conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   -conf.size.y,
-                                                   conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       -conf.size.y,
+                                                       conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       -conf.size.y,
+                                                       conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   -conf.size.y,
-                                                   conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   -conf.size.y,
-                                                   -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       -conf.size.y,
+                                                       conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       -conf.size.y,
+                                                       -conf.size.z));
 
       /* Sides */
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   -conf.size.y,
-                                                   -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   conf.size.y,
-                                                   -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       -conf.size.y,
+                                                       -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       conf.size.y,
+                                                       -conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   -conf.size.y,
-                                                   conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   conf.size.y,
-                                                   conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       -conf.size.y,
+                                                       conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       conf.size.y,
+                                                       conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   -conf.size.y,
-                                                   conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   conf.size.y,
-                                                   conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       -conf.size.y,
+                                                       conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       conf.size.y,
+                                                       conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   -conf.size.y,
-                                                   -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   conf.size.y,
-                                                   -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       -conf.size.y,
+                                                       -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       conf.size.y,
+                                                       -conf.size.z));
 
       /* Top face */
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   conf.size.y,
-                                                   -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   conf.size.y,
-                                                   -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       conf.size.y,
+                                                       -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       conf.size.y,
+                                                       -conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   conf.size.y,
-                                                   -conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   conf.size.y,
-                                                   conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       conf.size.y,
+                                                       -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       conf.size.y,
+                                                       conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(conf.size.x,
-                                                   conf.size.y,
-                                                   conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   conf.size.y,
-                                                   conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(conf.size.x,
+                                                       conf.size.y,
+                                                       conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       conf.size.y,
+                                                       conf.size.z));
 
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   conf.size.y,
-                                                   conf.size.z));
-      ctx.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
-                                                   conf.size.y,
-                                                   -conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       conf.size.y,
+                                                       conf.size.z));
+      context.boundary.vertices.push(new THREE.Vector3(-conf.size.x,
+                                                       conf.size.y,
+                                                       -conf.size.z));
 
-      var line = new THREE.Line(ctx.boundary,
+      var line = new THREE.Line(context.boundary,
                                 new THREE.LineBasicMaterial({
                                   color: 0x000000,
                                   opacity: 0.1
                                 }));
       line.type = THREE.LinePieces;
-      ctx.scene.add(line);
+      context.scene.add(line);
     }
 
     function onWindowResize() {
-      ctx.camera.left = window.innerWidth / - 2;
-      ctx.camera.right = window.innerWidth / 2;
-      ctx.camera.top = window.innerHeight / 2;
-      ctx.camera.bottom = window.innerHeight / - 2;
+      context.camera.left = window.innerWidth / - 2;
+      context.camera.right = window.innerWidth / 2;
+      context.camera.top = window.innerHeight / 2;
+      context.camera.bottom = window.innerHeight / - 2;
 
       setRendererSize();
-      ctx.camera.updateProjectionMatrix();
+      context.camera.updateProjectionMatrix();
     }
 
-    ctx.scene = new THREE.Scene();
+    context.scene = new THREE.Scene();
 
     initCamera();
     initLighting();
     initGrid();
 
     setRendererSize();
-    ctx.container.appendChild(ctx.renderer.domElement);
+    context.container.appendChild(context.renderer.domElement);
     window.addEventListener('resize', onWindowResize, false);
 
     boundaries =
-        new THREE.Vector3(conf.size.x - conf.size.x * conf.boundary.threshold,
-        conf.size.y - conf.size.y * conf.boundary.threshold,
-        conf.size.z - conf.size.z * conf.boundary.threshold);
+      new THREE.Vector3(conf.size.x - conf.size.x * conf.boundary.threshold,
+                        conf.size.y - conf.size.y * conf.boundary.threshold,
+                        conf.size.z - conf.size.z * conf.boundary.threshold);
 
     for (var i = 0; i < conf.boids.count; i++)
       createBoid();
@@ -667,38 +667,38 @@ var Boids = Boids || {};
     max: 50,
     step: 2,
     value: (conf.boids.los - conf.boids.separation.distance) *
-        SIGHT_MULTIPLIER,
+      SIGHT_MULTIPLIER,
     slide: function(event, ui) {
       $('#sight').text(ui.value);
       conf.boids.los = ui.value / SIGHT_MULTIPLIER +
-          conf.boids.separation.distance;
+        conf.boids.separation.distance;
     }
   });
 
-  $('#width').text(Math.round(ctx.rendererWidth * 100) + '%');
+  $('#width').text(Math.round(context.rendererWidth * 100) + '%');
   $('#width-slider').slider({
     range: 'min',
     min: 0.50,
     max: 1.0,
     step: 0.01,
-    value: ctx.rendererWidth,
+    value: context.rendererWidth,
     slide: function(event, ui) {
       $('#width').text(Math.round(ui.value * 100) + '%');
-      ctx.rendererWidth = ui.value;
+      context.rendererWidth = ui.value;
       setRendererSize();
     }
   });
 
-  $('#height').text(Math.round(ctx.rendererHeight * 100) + '%');
+  $('#height').text(Math.round(context.rendererHeight * 100) + '%');
   $('#height-slider').slider({
     range: 'min',
     min: 0.50,
     max: 1.0,
     step: 0.01,
-    value: ctx.rendererHeight,
+    value: context.rendererHeight,
     slide: function(event, ui) {
       $('#height').text(Math.round(ui.value * 100) + '%');
-      ctx.rendererHeight = ui.value;
+      context.rendererHeight = ui.value;
       setRendererSize();
     }
   });
