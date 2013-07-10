@@ -3,6 +3,30 @@ var Boids = Boids || {};
 (function() {
   'use strict';
 
+  /* The configuration */
+  var conf = {
+    size: new THREE.Vector3(600, 400, 600),
+    boids: {
+      count: 40,
+      size: 10,
+      speed: {
+        min: 0.15,
+        max: 0.35
+      },
+      los: 160,
+      cohesion: 0.00005,
+      alignment: 0.010,
+      separation: {
+        distance: 100,
+        rate: 0.007
+      }
+    },
+    boundary: {
+      threshold: 0.30,
+      rate: 0.00003
+    }
+  };
+
   /* Boid behaviour */
   function Boid() {
 
@@ -127,30 +151,6 @@ var Boids = Boids || {};
     rendererHeight: 0.65,
     boundary: null,
     lights: []
-  };
-
-  /* The configuration */
-  var conf = {
-    size: new THREE.Vector3(600, 400, 600),
-    boids: {
-      count: 40,
-      size: 10,
-      speed: {
-        min: 0.15,
-        max: 0.35
-      },
-      los: 160,
-      cohesion: 0.00005,
-      alignment: 0.010,
-      separation: {
-        distance: 100,
-        rate: 0.007
-      }
-    },
-    boundary: {
-      threshold: 0.30,
-      rate: 0.00003
-    }
   };
 
   /* The minimum target frame rate */
@@ -351,12 +351,13 @@ var Boids = Boids || {};
 
     function render() {
       var timer = Date.now() * 0.00005;
+      var x = Math.cos(timer) * conf.size.x * 1.75;
+      var z = Math.sin(timer) * conf.size.z * 1.75;
 
-      context.camera.position.x = Math.cos(timer) * conf.size.x * 1.75;
-      context.camera.position.z = Math.sin(timer) * conf.size.z * 1.75;
+      context.camera.position.x = x
+      context.camera.position.z = z;
 
       context.camera.lookAt(context.cameraTarget);
-
       context.renderer.render(context.scene, context.camera);
     }
 
@@ -387,51 +388,57 @@ var Boids = Boids || {};
 
   function initLighting() {
 
-    if (context.lights.length > 0) {
+    var lights = context.lights;
+    var scene = context.scene;
+
+    if (lights.length > 0) {
       /* Clear lights */
-      for (var i = context.lights.length - 1; i >= 0; i--)
-        context.scene.remove(context.lights.pop());
+      for (var i = lights.length - 1; i >= 0; i--)
+        scene.remove(lights.pop());
     }
 
     var ambientLight = new THREE.AmbientLight(0x111133);
-    context.scene.add(ambientLight);
-    context.lights.push(ambientLight);
+    scene.add(ambientLight);
+    lights.push(ambientLight);
 
     var light = new THREE.DirectionalLight(0x7a2338);
     light.position.set(Math.random() - 0.5,
                        Math.random() - 0.5,
                        Math.random() - 0.5);
     light.position.normalize();
-    context.scene.add(light);
+    scene.add(light);
 
-    context.lights.push(light);
+    lights.push(light);
 
     var light = new THREE.DirectionalLight(0x21d592);
     light.position.set(Math.random() - 0.5,
                        Math.random() - 0.5,
                        Math.random() - 0.5);
     light.position.normalize();
-    context.scene.add(light);
+    scene.add(light);
 
-    context.lights.push(light);
+    lights.push(light);
   }
 
   function setRendererSize() {
-    context.renderer.setSize(container.offsetWidth * context.rendererWidth,
-                             window.innerHeight * context.rendererHeight);
+    var w = container.offsetWidth * context.rendererWidth;
+    var h = window.innerHeight * context.rendererHeight;
+
+    context.renderer.setSize(w, h);
   }
 
   /* Initialisation function */
   function init() {
 
     function initCamera() {
-      context.camera = new THREE.PerspectiveCamera(60,
-                                                   window.innerWidth /
-                                                   window.innerHeight,
-                                                   1, 10000);
+      /* Camera configuration */
+      var fov = 60;
+      var aspect = window.innerWidth / window.innerHeight;
+      var zNear = 1;
+      var zFar = 10000;
 
+      context.camera = new THREE.PerspectiveCamera(fov, aspect, zNear, zFar);
       context.camera.position.y = conf.size.y * 0.4;
-
       context.cameraTarget = new THREE.Vector3(context.scene.position.x,
                                                context.scene.position.y,
                                                context.scene.position.z);
