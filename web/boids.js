@@ -75,6 +75,29 @@ var Boids = Boids || {};
     }
   };
 
+  /* The minimum target frame rate */
+  var MIN_FRAMES_PER_SECOND = 30;
+
+  /* A higher physics frame rate will increase the granularity of the simulation
+   * at the expense of greater computational costs. */
+  var PHYSICS_FRAME_RATE = 50;
+
+  /* Timekeeping (in units of milliseconds) */
+  var time = {
+    /* The delta time, aka. the size of the chunk of time to process for each
+     * update of the simulation. */
+    dt: 1000 / PHYSICS_FRAME_RATE,
+    /* The maximum amount of time to process for a given iteration of the render
+     * loop. The time is capped at this value, meaning that the simulation will
+     * begin to slow down if the tick time exceeds this value.  */
+    maxTickTime: 1000 / MIN_FRAMES_PER_SECOND,
+    /* The current time */
+    current: new Date().getTime(),
+    /* The accumulated error between the frequency of ticks and render
+     * updates */
+    accumulator: 0,
+  };
+
   /* Boid behaviour */
   function Boid() {
     var geometry = new Bird();
@@ -158,8 +181,6 @@ var Boids = Boids || {};
   /* The boids */
   var boids = [];
 
-  var lastUpdateTime = 0;
-
   var forces = {
     cohesion: 0,
     boundary: 0
@@ -186,7 +207,7 @@ var Boids = Boids || {};
   /* Update function */
   function tick(timestamp) {
 
-    function update(timestamp) {
+    function update(dt) {
 
       function updateBoid(index) {
 
@@ -318,16 +339,13 @@ var Boids = Boids || {};
         b.updateMesh();
       }
 
-      var tickTime = timestamp - lastUpdateTime;
-      lastUpdateTime = timestamp;
-
       /* Update forces */
-      forces.cohesion = tickTime * conf.boids.cohesion;
-      forces.boundary = tickTime * conf.boundary.rate;
+      forces.cohesion = dt * conf.boids.cohesion;
+      forces.boundary = dt * conf.boundary.rate;
 
       /* Update speed limits */
-      speedLimits.min = tickTime * conf.boids.speed.min;
-      speedLimits.max = tickTime * conf.boids.speed.max;
+      speedLimits.min = dt * conf.boids.speed.min;
+      speedLimits.max = dt * conf.boids.speed.max;
 
       for (var i = 0; i < conf.boids.count; i++)
         updateBoid(i);
@@ -344,8 +362,28 @@ var Boids = Boids || {};
       ctx.renderer.render(ctx.scene, ctx.camera);
     }
 
-    update(timestamp);
+    /* Update the clocks */
+    var newTime = new Date().getTime();
+    var tickTime = newTime - time.current;
+
+    /* Enforce a maximum frame time to prevent the "spiral of death" when
+     * operating under heavy load */
+    if (tickTime > time.maxTickTime)
+      tickTime = time.maxTickTime;
+
+    time.current = newTime;
+    time.accumulator += tickTime;
+
+    /* Update the simulation state as required */
+    while (time.accumulator >= time.dt) {
+      update(time.dt);
+      time.accumulator -= time.dt;
+    }
+
+    /* Render the new state */
     render();
+
+    /* Request a new tick */
     requestAnimationFrame(tick);
   }
 
