@@ -605,7 +605,7 @@ var Boids = Boids || {};
   $('#separation-slider').slider({
     range: 'min',
     min: 0,
-    max: 25,
+    max: 15,
     step: 1,
     value: (config.BOIDS.behaviour.separation.distance - SEPARATION_OFFSET) *
       SEPARATION_MULTIPLIER,
