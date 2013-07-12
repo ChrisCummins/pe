@@ -666,7 +666,7 @@ var Boids = Boids || {};
     range: 'min',
     min: 2,
     max: 50,
-    step: 2,
+    step: 1,
     value: (config.BOIDS.los - config.BOIDS.behaviour.separation.distance) *
       SIGHT_MULTIPLIER,
     slide: function(event, ui) {
