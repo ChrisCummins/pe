@@ -452,8 +452,10 @@ var Boids = Boids || {};
   function setRendererSize() {
     var w = container.offsetWidth * context.RENDERER.width;
     var h = window.innerHeight * context.RENDERER.height;
+    var aspect = window.innerWidth / window.innerHeight;
 
     context.RENDERER.r.setSize(w, h);
+    context.SCENE.camera.aspect = aspect;
   }
 
   /* Initialisation function */
