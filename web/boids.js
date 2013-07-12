@@ -599,16 +599,20 @@ var Boids = Boids || {};
   });
 
   var SEPARATION_MULTIPLIER = 0.1;
-  $('#separation').text(config.BOIDS.behaviour.separation.distance * SEPARATION_MULTIPLIER);
+  var SEPARATION_OFFSET = 40;
+  $('#separation').text((config.BOIDS.behaviour.separation.distance - SEPARATION_OFFSET) *
+                        SEPARATION_MULTIPLIER);
   $('#separation-slider').slider({
     range: 'min',
     min: 0,
     max: 25,
     step: 1,
-    value: config.BOIDS.behaviour.separation.distance * SEPARATION_MULTIPLIER,
+    value: (config.BOIDS.behaviour.separation.distance - SEPARATION_OFFSET) *
+      SEPARATION_MULTIPLIER,
     slide: function(event, ui) {
       $('#separation').text(ui.value);
-      config.BOIDS.behaviour.separation.distance = ui.value / SEPARATION_MULTIPLIER;
+      config.BOIDS.behaviour.separation.distance = ui.value / SEPARATION_MULTIPLIER +
+        SEPARATION_OFFSET;
     }
   });
 
