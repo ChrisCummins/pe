@@ -56,6 +56,8 @@ var Boids = Boids || {};
     }
   };
 
+  var _dt = 1000 / config.SIMULATION.physicsFps;
+
   /* The context */
   var context = {
 
@@ -82,7 +84,7 @@ var Boids = Boids || {};
     TIME: {
       /* The delta time, aka. the size of the chunk of time to process for each
        * update of the simulation. */
-      dt: 1000 / config.SIMULATION.physicsFps,
+      dt: _dt,
       /* The maximum amount of time to process for a given iteration of the render
        * loop. The time is capped at this value, meaning that the simulation will
        * begin to slow down if the tick time exceeds this value.  */
