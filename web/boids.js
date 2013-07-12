@@ -94,6 +94,13 @@ var Boids = Boids || {};
       /* The accumulated error between the frequency of ticks and render
        * updates */
       accumulator: 0,
+    },
+
+    CONSTANTS: {
+      cohesionForce: config.BOIDS.behaviour.cohesion * _dt,
+      boundaryForce: config.BOUNDARY.rate * _dt,
+      minSpeed: config.BOIDS.speed.min * _dt,
+      maxSpeed: config.BOIDS.speed.max * _dt
     }
   };
 
@@ -211,16 +218,6 @@ var Boids = Boids || {};
     }
   };
 
-  var forces = {
-    cohesion: 0,
-    boundary: 0
-  };
-
-  var speedLimits = {
-    min: 0,
-    max: 0
-  };
-
   var boundaries;
 
   function createBoid() {
@@ -246,19 +243,19 @@ var Boids = Boids || {};
 
           b.speed = speed;
 
-          if (speed > speedLimits.max) {
+          if (speed > context.CONSTANTS.maxSpeed) {
 
             /* Maximum speed */
-            b.speed = speedLimits.max;
+            b.speed = context.CONSTANTS.maxSpeed;
 
-            v.multiplyScalar(speedLimits.max / speed);
-          } else if (speed < speedLimits.min) {
+            v.multiplyScalar(context.CONSTANTS.maxSpeed / speed);
+          } else if (speed < context.CONSTANTS.minSpeed) {
 
             /* Minimum speed */
-            b.speed = speedLimits.min;
+            b.speed = context.CONSTANTS.minSpeed;
             speed = Math.max(speed, 0.0001);
 
-            v.multiplyScalar(speedLimits.min / speed);
+            v.multiplyScalar(context.CONSTANTS.minSpeed / speed);
           }
         }
 
@@ -323,7 +320,7 @@ var Boids = Boids || {};
          */
         dv.add(new THREE.Vector3()
                .subVectors(centerOfMass, b.position)
-               .multiplyScalar(forces.cohesion));
+               .multiplyScalar(context.CONSTANTS.cohesionForce));
 
         /*
          * FLOCK ALIGNMENT
@@ -343,19 +340,25 @@ var Boids = Boids || {};
          * threshold:
          */
         if (b.position.x < -boundaries.x)
-          dv.x += (-boundaries.x - b.position.x) * forces.boundary * b.speed;
+          dv.x += (-boundaries.x - b.position.x) *
+            context.CONSTANTS.boundaryForce * b.speed;
         else if (b.position.x > boundaries.x)
-          dv.x += (boundaries.x - b.position.x) * forces.boundary * b.speed;
+          dv.x += (boundaries.x - b.position.x) *
+            context.CONSTANTS.boundaryForce * b.speed;
 
         if (b.position.y < -boundaries.y)
-          dv.y += (-boundaries.y - b.position.y) * forces.boundary * b.speed;
+          dv.y += (-boundaries.y - b.position.y) *
+            context.CONSTANTS.boundaryForce * b.speed;
         else if (b.position.y > boundaries.y)
-          dv.y += (boundaries.y - b.position.y) * forces.boundary * b.speed;
+          dv.y += (boundaries.y - b.position.y) *
+            context.CONSTANTS.boundaryForce * b.speed;
 
         if (b.position.z < -boundaries.z)
-          dv.z += (-boundaries.z - b.position.z) * forces.boundary * b.speed;
+          dv.z += (-boundaries.z - b.position.z) *
+            context.CONSTANTS.boundaryForce * b.speed;
         else if (b.position.z > boundaries.z)
-          dv.z += (boundaries.z - b.position.z) * forces.boundary * b.speed;
+          dv.z += (boundaries.z - b.position.z) *
+            context.CONSTANTS.boundaryForce * b.speed;
 
         /* Apply the velocity change */
         b.velocity.add(dv);
@@ -368,14 +371,6 @@ var Boids = Boids || {};
 
         b.updateMesh();
       }
-
-      /* Update forces */
-      forces.cohesion = dt * config.BOIDS.behaviour.cohesion;
-      forces.boundary = dt * config.BOUNDARY.rate;
-
-      /* Update speed limits */
-      speedLimits.min = dt * config.BOIDS.speed.min;
-      speedLimits.max = dt * config.BOIDS.speed.max;
 
       for (var i = 0; i < config.BOIDS.count; i++)
         updateBoid(i);
