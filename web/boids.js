@@ -676,34 +676,6 @@ var Boids = Boids || {};
     }
   });
 
-  $('#width').text(Math.round(context.RENDERER.width * 100) + '%');
-  $('#width-slider').slider({
-    range: 'min',
-    min: 0.50,
-    max: 1.0,
-    step: 0.01,
-    value: context.RENDERER.width,
-    slide: function(event, ui) {
-      $('#width').text(Math.round(ui.value * 100) + '%');
-      context.RENDERER.width = ui.value;
-      setRendererSize();
-    }
-  });
-
-  $('#height').text(Math.round(context.RENDERER.height * 100) + '%');
-  $('#height-slider').slider({
-    range: 'min',
-    min: 0.50,
-    max: 1.0,
-    step: 0.01,
-    value: context.RENDERER.height,
-    slide: function(event, ui) {
-      $('#height').text(Math.round(ui.value * 100) + '%');
-      context.RENDERER.height = ui.value;
-      setRendererSize();
-    }
-  });
-
   $('#reset').click(function() {
     initLighting();
 
