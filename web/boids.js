@@ -182,10 +182,6 @@ var Boids = Boids || {};
   Boid.prototype.updateMesh = function() {
     /* Position */
     this.mesh.position.copy(this.position);
-
-    /* Heading */
-    var nextPos = new THREE.Vector3().copy(this.position).add(this.velocity);
-
     this.mesh.rotation.y = Math.atan2(-this.velocity.z, this.velocity.x);
     this.mesh.rotation.z = Math.asin(this.velocity.y / this.speed);
 
