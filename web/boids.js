@@ -70,8 +70,10 @@ var Boids = Boids || {};
       s: null,
       camera: null,
       cameraTarget: null,
+      cameraHeight: 0,
       boundary: null,
       lights: [],
+      firstPerson: false
     },
 
     RENDERER: {
@@ -374,14 +376,29 @@ var Boids = Boids || {};
 
     function render() {
       var camera = context.SCENE.camera;
-      var timer = Date.now() * 0.00005;
-      var x = Math.cos(timer) * config.BOUNDARY.size.x * 1.75;
-      var z = Math.sin(timer) * config.BOUNDARY.size.z * 1.75;
 
-      camera.position.x = x
-      camera.position.z = z;
+      if (context.SCENE.firstPerson) {
+        /* First person camera mode. We use the first boid as our "cameraman",
+         * since he is always guaranteed to be around (if there was only 1 boid,
+         * he'd be the only one left). We point the camera in the direction of
+         * flight by using the boid's velocity to calculate its next position
+         * and pointing that camera at it.
+         */
+        var b = context.boids[0];
+        var nextPos = new THREE.Vector3().copy(b.position).add(b.velocity);
 
-      camera.lookAt(context.SCENE.cameraTarget);
+        camera.position = new THREE.Vector3().copy(b.position);
+        camera.lookAt(nextPos);
+      } else{
+        /* Normal (3rd person) camera mode. Gently pan the camera around */
+        var timer = Date.now() * 0.00005;
+        var x = Math.cos(timer) * config.BOUNDARY.size.x * 1.75;
+        var z = Math.sin(timer) * config.BOUNDARY.size.z * 1.75;
+
+        camera.position = new THREE.Vector3(x, context.SCENE.cameraHeight, z);
+        camera.lookAt(context.SCENE.cameraTarget);
+      }
+
       context.RENDERER.r.render(context.SCENE.s, camera);
     }
 
@@ -466,11 +483,10 @@ var Boids = Boids || {};
 
       context.SCENE.camera = new THREE.PerspectiveCamera(fov, aspect,
                                                          zNear, zFar);
-
-      context.SCENE.camera.position.y = config.BOUNDARY.size.y * 0.4;
       context.SCENE.cameraTarget = new THREE.Vector3(context.SCENE.s.position.x,
                                                      context.SCENE.s.position.y,
                                                      context.SCENE.s.position.z);
+      context.SCENE.cameraHeight = config.BOUNDARY.size.y * 0.4;
     }
 
     function initGrid() {
@@ -670,6 +686,10 @@ var Boids = Boids || {};
       config.BOIDS.los = ui.value / SIGHT_MULTIPLIER +
         config.BOIDS.behaviour.separation.distance;
     }
+  });
+
+  $('#first-person').on('switch-change', function (e, data) {
+    context.SCENE.firstPerson = data.value;
   });
 
   $('#reset').click(function() {
