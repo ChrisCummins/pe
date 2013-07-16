@@ -471,11 +471,22 @@ var Boids = Boids || {};
     context.SCENE.camera.aspect = aspect;
   }
 
-  /* Initialisation function */
-  function init() {
+  function initCamera() {
+    if (context.SCENE.firstPerson) {
+      /* 1st-person camera configuration */
+      var fov = 120;
+      var aspect = window.innerWidth / window.innerHeight;
+      var zNear = 1;
+      var zFar = 10000;
 
-    function initCamera() {
-      /* Camera configuration */
+      context.SCENE.camera = new THREE.PerspectiveCamera(fov, aspect,
+                                                         zNear, zFar);
+      context.SCENE.cameraTarget = new THREE.Vector3(context.SCENE.s.position.x,
+                                                     context.SCENE.s.position.y,
+                                                     context.SCENE.s.position.z);
+      context.SCENE.cameraHeight = config.BOUNDARY.size.y * 0.4;
+    } else {
+      /* 3rd-person camera configuration */
       var fov = 60;
       var aspect = window.innerWidth / window.innerHeight;
       var zNear = 1;
@@ -488,6 +499,10 @@ var Boids = Boids || {};
                                                      context.SCENE.s.position.z);
       context.SCENE.cameraHeight = config.BOUNDARY.size.y * 0.4;
     }
+  }
+
+  /* Initialisation function */
+  function init() {
 
     function initGrid() {
       context.SCENE.boundary = new THREE.Geometry();
@@ -690,6 +705,7 @@ var Boids = Boids || {};
 
   $('#first-person').on('switch-change', function (e, data) {
     context.SCENE.firstPerson = data.value;
+    initCamera();
   });
 
   $('#reset').click(function() {
