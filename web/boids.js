@@ -33,10 +33,10 @@ var Boids = Boids || {};
       behaviour: {
         /* The rate at which boids are
          * attracted: */
-        cohesion: 0.0005,
+        cohesion: 0.0010,
         /* The amount that boids align
          * their flights: */
-        alignment: 0.010,
+        alignment: 0.005,
         separation: {
           /* The distance at which boids
            * steer to avoid each other: */
@@ -48,11 +48,11 @@ var Boids = Boids || {};
       },
       /* The speed limits for boids: */
       speed: {
-        min: 1.5,
-        max: 3.5
+        min: 2,
+        max: 4
       },
       /* The distance that boids can see: */
-      los: 160,
+      los: 220,
     }
   };
 
