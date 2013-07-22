@@ -23,7 +23,7 @@ var Boids = Boids || {};
       threshold: 0.30,
       /* The rate at which boids are repelled
        * from the boundaries: */
-      rate: 0.00003
+      rate: 0.0003
     },
 
     BOIDS: {
@@ -33,7 +33,7 @@ var Boids = Boids || {};
       behaviour: {
         /* The rate at which boids are
          * attracted: */
-        cohesion: 0.00005,
+        cohesion: 0.0005,
         /* The amount that boids align
          * their flights: */
         alignment: 0.010,
@@ -48,8 +48,8 @@ var Boids = Boids || {};
       },
       /* The speed limits for boids: */
       speed: {
-        min: 0.15,
-        max: 0.35
+        min: 1.5,
+        max: 3.5
       },
       /* The distance that boids can see: */
       los: 160,
@@ -97,13 +97,6 @@ var Boids = Boids || {};
        * updates */
       accumulator: 0,
     },
-
-    CONSTANTS: {
-      cohesionForce: config.BOIDS.behaviour.cohesion * _dt,
-      boundaryForce: config.BOUNDARY.rate * _dt,
-      minSpeed: config.BOIDS.speed.min * _dt,
-      maxSpeed: config.BOIDS.speed.max * _dt
-    }
   };
 
   /* Boid behaviour */
@@ -252,19 +245,19 @@ var Boids = Boids || {};
 
           b.speed = speed;
 
-          if (speed > context.CONSTANTS.maxSpeed) {
+          if (speed > config.BOIDS.speed.max) {
 
             /* Maximum speed */
-            b.speed = context.CONSTANTS.maxSpeed;
+            b.speed = config.BOIDS.speed.max;
 
-            v.multiplyScalar(context.CONSTANTS.maxSpeed / speed);
-          } else if (speed < context.CONSTANTS.minSpeed) {
+            v.multiplyScalar(config.BOIDS.speed.max / speed);
+          } else if (speed < config.BOIDS.speed.min) {
 
             /* Minimum speed */
-            b.speed = context.CONSTANTS.minSpeed;
+            b.speed = config.BOIDS.speed.min;
             speed = Math.max(speed, 0.0001);
 
-            v.multiplyScalar(context.CONSTANTS.minSpeed / speed);
+            v.multiplyScalar(config.BOIDS.speed.min / speed);
           }
         }
 
@@ -329,7 +322,7 @@ var Boids = Boids || {};
          */
         dv.add(new THREE.Vector3()
                .subVectors(centerOfMass, b.position)
-               .multiplyScalar(context.CONSTANTS.cohesionForce));
+               .multiplyScalar(config.BOIDS.behaviour.cohesion));
 
         /*
          * FLOCK ALIGNMENT
@@ -350,24 +343,24 @@ var Boids = Boids || {};
          */
         if (b.position.x < -boundaries.x)
           dv.x += (-boundaries.x - b.position.x) *
-            context.CONSTANTS.boundaryForce * b.speed;
+            config.BOUNDARY.rate * b.speed;
         else if (b.position.x > boundaries.x)
           dv.x += (boundaries.x - b.position.x) *
-            context.CONSTANTS.boundaryForce * b.speed;
+            config.BOUNDARY.rate * b.speed;
 
         if (b.position.y < -boundaries.y)
           dv.y += (-boundaries.y - b.position.y) *
-            context.CONSTANTS.boundaryForce * b.speed;
+            config.BOUNDARY.rate * b.speed;
         else if (b.position.y > boundaries.y)
           dv.y += (boundaries.y - b.position.y) *
-            context.CONSTANTS.boundaryForce * b.speed;
+            config.BOUNDARY.rate * b.speed;
 
         if (b.position.z < -boundaries.z)
           dv.z += (-boundaries.z - b.position.z) *
-            context.CONSTANTS.boundaryForce * b.speed;
+            config.BOUNDARY.rate * b.speed;
         else if (b.position.z > boundaries.z)
           dv.z += (boundaries.z - b.position.z) *
-            context.CONSTANTS.boundaryForce * b.speed;
+            config.BOUNDARY.rate * b.speed;
 
         /* Apply the velocity change */
         b.velocity.add(dv);
@@ -608,7 +601,7 @@ var Boids = Boids || {};
 
   /* UI COMPONENTS */
 
-  var COHESION_MULTIPLIER = 100000;
+  var COHESION_MULTIPLIER = 10000;
   $('#cohesion').text(config.BOIDS.behaviour.cohesion * COHESION_MULTIPLIER);
   $('#cohesion-slider').slider({
     range: 'min',
@@ -678,7 +671,7 @@ var Boids = Boids || {};
     }
   });
 
-  var SPEED_MULTIPLIER = 10;
+  var SPEED_MULTIPLIER = 1;
   $('#speed').text(config.BOIDS.speed.min * SPEED_MULTIPLIER + ' - ' +
                    config.BOIDS.speed.max * SPEED_MULTIPLIER);
   $('#speed-slider').slider({
