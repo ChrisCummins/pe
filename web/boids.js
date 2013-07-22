@@ -110,7 +110,7 @@ var Boids = Boids || {};
   function Boid() {
 
     /* Bird.js - from the three.js birds demo */
-    var Bird = function() {
+    var Bird = function(size) {
 
       function v(x, y, z) {
         scope.vertices.push(new THREE.Vector3(x, y, z));
@@ -120,20 +120,29 @@ var Boids = Boids || {};
         scope.faces.push(new THREE.Face3(a, b, c));
       }
 
+      function r(a) {
+        return a * size;
+      }
+
       var scope = this;
 
       THREE.Geometry.call(this);
 
-      v(10, 0, 0);
-      v(-10, -4, 2);
-      v(-10, 0, 0);
-      v(-10, -4, -2);
+      /* Body vertices */
+      v(r(10), r(0), r(0));
+      v(r(-10), r(-4), r(2));
+      v(r(-10), r(0), r(0));
+      v(r(-10), r(-4), r(-2));
 
-      v(0, 4, -12);
-      v(0, 4, 12);
-      v(4, 0, 0);
-      v(-6, 0, 0);
+      /* Wing vertices */
+      v(r(0), r(4), r(-12));
+      v(r(0), r(4), r(12));
 
+      /* Wing vertices */
+      v(r(4), r(0), r(0));
+      v(r(-6), r(0), r(0));
+
+      /* Faces */
       f3(0, 2, 1);
       f3(4, 7, 6);
       f3(5, 6, 7);
@@ -144,7 +153,9 @@ var Boids = Boids || {};
 
     Bird.prototype = Object.create(THREE.Geometry.prototype);
 
-    var geometry = new Bird();
+    this.size = Math.random() + 0.5;
+
+    var geometry = new Bird(this.size);
 
     this.mesh = new THREE.Mesh(geometry,
                                new THREE.MeshLambertMaterial({
@@ -195,7 +206,7 @@ var Boids = Boids || {};
     this.phase += Math.max(0, this.mesh.rotation.z * 0.8) + 0.06;
     this.phase %= 62.83;
 
-    var wingY = Math.sin(this.phase) * 10;
+    var wingY = Math.sin(this.phase) * 10 * this.size;
 
     this.mesh.geometry.vertices[4].y = wingY;
     this.mesh.geometry.vertices[5].y = wingY;
