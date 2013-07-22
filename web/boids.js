@@ -298,7 +298,7 @@ var Boids = Boids || {};
             /* We total up the velocity and positions of any particles that are
              * within the range of visibility of the current particle:
              */
-            if (distance < config.BOIDS.los) {
+            if (distance < config.BOIDS.los && b.size < otherBoid.size) {
               centerOfMass.add(otherBoid.position);
               velocityAvg.add(otherBoid.velocity);
 
