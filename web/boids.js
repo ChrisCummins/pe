@@ -514,48 +514,53 @@ var Boids = Boids || {};
   function init() {
 
     function initGrid() {
+
+      function v(x, y, z) {
+        vertices.push(new THREE.Vector3(x, y, z));
+      }
+
       context.SCENE.boundary = new THREE.Geometry();
 
       var vertices = context.SCENE.boundary.vertices;
 
       /* Bottom face */
-      vertices.push(new THREE.Vector3(-w, -h, -d));
-      vertices.push(new THREE.Vector3(w, -h, -d));
+      v(-w, -h, -d);
+      v(w, -h, -d);
 
-      vertices.push(new THREE.Vector3(w, -h, -d));
-      vertices.push(new THREE.Vector3(w, -h, d));
+      v(w, -h, -d);
+      v(w, -h, d);
 
-      vertices.push(new THREE.Vector3(w, -h, d));
-      vertices.push(new THREE.Vector3(-w, -h, d));
+      v(w, -h, d);
+      v(-w, -h, d);
 
-      vertices.push(new THREE.Vector3(-w, -h, d));
-      vertices.push(new THREE.Vector3(-w, -h, -d));
+      v(-w, -h, d);
+      v(-w, -h, -d);
 
       /* Sides */
-      vertices.push(new THREE.Vector3(-w, -h, -d));
-      vertices.push(new THREE.Vector3(-w, h, -d));
+      v(-w, -h, -d);
+      v(-w, h, -d);
 
-      vertices.push(new THREE.Vector3(-w, -h, d));
-      vertices.push(new THREE.Vector3(-w, h, d));
+      v(-w, -h, d);
+      v(-w, h, d);
 
-      vertices.push(new THREE.Vector3(w, -h, d));
-      vertices.push(new THREE.Vector3(w, h, d));
+      v(w, -h, d);
+      v(w, h, d);
 
-      vertices.push(new THREE.Vector3(w, -h, -d));
-      vertices.push(new THREE.Vector3(w, h, -d));
+      v(w, -h, -d);
+      v(w, h, -d);
 
       /* Top face */
-      vertices.push(new THREE.Vector3(-w, h, -d));
-      vertices.push(new THREE.Vector3(w, h, -d));
+      v(-w, h, -d);
+      v(w, h, -d);
 
-      vertices.push(new THREE.Vector3(w, h, -d));
-      vertices.push(new THREE.Vector3(w, h, d));
+      v(w, h, -d);
+      v(w, h, d);
 
-      vertices.push(new THREE.Vector3(w, h, d));
-      vertices.push(new THREE.Vector3(-w, h, d));
+      v(w, h, d);
+      v(-w, h, d);
 
-      vertices.push(new THREE.Vector3(-w, h, d));
-      vertices.push(new THREE.Vector3(-w, h, -d));
+      v(-w, h, d);
+      v(-w, h, -d);
 
       var line = new THREE.Line(context.SCENE.boundary,
                                 new THREE.LineBasicMaterial({
