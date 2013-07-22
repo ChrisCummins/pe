@@ -327,7 +327,7 @@ var Boids = Boids || {};
          */
         dv.add(new THREE.Vector3()
                .subVectors(centerOfMass, b.position)
-               .multiplyScalar(config.BOIDS.behaviour.cohesion));
+               .multiplyScalar(config.BOIDS.behaviour.cohesion / b.size));
 
         /*
          * FLOCK ALIGNMENT
@@ -337,7 +337,7 @@ var Boids = Boids || {};
          */
         dv.add(new THREE.Vector3()
                .subVectors(velocityAvg, b.velocity)
-               .multiplyScalar(config.BOIDS.behaviour.alignment));
+               .multiplyScalar(config.BOIDS.behaviour.alignment * b.size));
 
         /*
          * BOUNDARY AVOIDANCE
