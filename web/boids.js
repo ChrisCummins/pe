@@ -245,19 +245,24 @@ var Boids = Boids || {};
 
           b.speed = speed;
 
-          if (speed > config.BOIDS.speed.max) {
+          var limits = {
+            min: config.BOIDS.speed.min / b.size,
+            max: config.BOIDS.speed.max / b.size,
+          };
+
+          if (speed > limits.max) {
 
             /* Maximum speed */
-            b.speed = config.BOIDS.speed.max;
+            b.speed = limits.max;
 
-            v.multiplyScalar(config.BOIDS.speed.max / speed);
-          } else if (speed < config.BOIDS.speed.min) {
+            v.multiplyScalar(limits.max / speed);
+          } else if (speed < limits.min) {
 
             /* Minimum speed */
-            b.speed = config.BOIDS.speed.min;
+            b.speed = limits.min;
             speed = Math.max(speed, 0.0001);
 
-            v.multiplyScalar(config.BOIDS.speed.min / speed);
+            v.multiplyScalar(limits.min / speed);
           }
         }
 
