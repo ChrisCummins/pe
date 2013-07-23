@@ -11,6 +11,7 @@
     <meta charset="utf-8" />
 
     <link rel="stylesheet" href="assets/styles.css" />
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/3.1.0/css/font-awesome.css" />
 
     <style>
       body {
@@ -23,8 +24,30 @@
         background: #333;
       }
       canvas {
-        margin: 0 auto 20px;
+        margin: 0;
         outline: 2px solid #000;
+      }
+      #show-settings {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background-color: #666;
+        width: 46px;
+        height: 41px;
+      }
+      #show-settings:hover,
+      #show-settings:focus {
+        background-color: #333;
+      }
+      #settings {
+        position: absolute;
+        top: 0;
+        box-sizing:border-box;
+        -moz-box-sizing:border-box;
+        width: 100%;
+        padding: 15px;
+        background-color: #111;
+        display: none;
       }
     </style>
   </head>
@@ -32,13 +55,14 @@
   <body>
     <div id="wrap">
 
-      <center>
-        <div id="container"></div>
-      </center>
+      <div id="container"></div>
 
-      <div class="container">
+      <button id="show-settings" class="btn btn-block">
+        <center><i class="icon-cog icon-large"></i></center>
+      </button>
 
-        <div class="row">
+      <div id="settings">
+        <div class="row-fluid">
           <div class="span4">
             <p id="cohesion" class="pull-right"></p>
             <p><b>Rule 1</b> Cohesion</p>

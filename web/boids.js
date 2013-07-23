@@ -79,8 +79,6 @@ var Boids = Boids || {};
     RENDERER: {
       /* The renderer and associated properties: */
       r: new THREE.CanvasRenderer(),
-      width: 1.0,
-      height: 0.65,
     },
 
     TIME: {
@@ -472,8 +470,10 @@ var Boids = Boids || {};
   }
 
   function setRendererSize() {
-    var w = container.offsetWidth * context.RENDERER.width;
-    var h = window.innerHeight * context.RENDERER.height;
+    /* NOTE: The -5 adjustment is a hack to prevent scrollbars appearing under
+     * Chrome. */
+    var w = window.innerWidth - 5;
+    var h = window.innerHeight - 5;
     var aspect = window.innerWidth / window.innerHeight;
 
     context.RENDERER.r.setSize(w, h);
@@ -730,6 +730,13 @@ var Boids = Boids || {};
 
     for (var i = 0; i < config.BOIDS.count; i++)
       createBoid();
+  });
+
+  $('#show-settings').click(function() {
+    if ($('#settings').is(":visible"))
+      $('#settings').hide();
+    else
+      $('#settings').show();
   });
 
 }).call(Boids);
