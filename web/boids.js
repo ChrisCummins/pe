@@ -53,6 +53,12 @@ var Boids = Boids || {};
       },
       /* The distance that boids can see: */
       los: 220
+    },
+
+    MOUSE: {
+      los: 750,
+      repel: 0.0070,
+      attract: 0.0030
     }
   };
 
@@ -71,6 +77,7 @@ var Boids = Boids || {};
       camera: null,
       cameraTarget: null,
       cameraHeight: 0,
+      projector: null,
       lights: [],
       firstPerson: false
     },
@@ -99,8 +106,9 @@ var Boids = Boids || {};
     MOUSE: {
       active: false,
       /* Whether the mouse is a foe or a friend: */
-      foe: true,
-      position: null
+      foe: false,
+      position: null,
+      timeout: null
     }
   };
 
@@ -250,6 +258,7 @@ var Boids = Boids || {};
         var centerOfMass = new THREE.Vector3(0, 0, 0);
         var velocityAvg = new THREE.Vector3(0, 0, 0);
         var swarmSize = 0;
+        var mouse = context.MOUSE;
 
         for (var i = 0; i < config.BOIDS.count; i++) {
           if (i !== index) {
@@ -282,6 +291,24 @@ var Boids = Boids || {};
               velocityAvg.add(otherBoid.velocity);
 
               swarmSize++;
+            }
+          }
+        }
+
+        /* Mouse behaviour */
+        if (mouse.active) {
+          var dp = new THREE.Vector3().subVectors(b.position, mouse.position);
+          var distance = dp.length();
+
+          if (distance < config.MOUSE.los) {
+            if (mouse.foe) {
+              dv.sub(new THREE.Vector3()
+                     .subVectors(mouse.position, b.position)
+                     .multiplyScalar(config.MOUSE.repel));
+            } else {
+              dv.add(new THREE.Vector3()
+                     .subVectors(mouse.position, b.position)
+                     .multiplyScalar(config.MOUSE.attract));
             }
           }
         }
@@ -509,6 +536,7 @@ var Boids = Boids || {};
     var d = config.BOUNDARY.size.z;
 
     context.SCENE.s = new THREE.Scene();
+    context.SCENE.projector = new THREE.Projector();
 
     initCamera();
     initLighting();
@@ -517,17 +545,40 @@ var Boids = Boids || {};
     context.container.appendChild(context.RENDERER.r.domElement);
     window.addEventListener('resize', onWindowResize, false);
 
+    function disableMouse() {
+      context.MOUSE.active = false;
+      context.MOUSE.timeout = null;
+    }
+
     /* Update mouse position and enable */
     $(context.container).mousemove(function() {
+      var camera = context.SCENE.camera;
+      var projector = context.SCENE.projector;
+
+      var vector = new THREE.Vector3(
+          (event.clientX / window.innerWidth) * 2 - 1,
+          - (event.clientY / window.innerHeight) * 2 + 1,
+          0.5);
+
+      projector.unprojectVector(vector, camera);
+
+      var dir = vector.sub(camera.position).normalize();
+      var ray = new THREE.Raycaster(camera.position, dir);
+      var distance = - camera.position.z / dir.z;
+
       context.MOUSE.active = true;
-      context.MOUSE.position = new THREE.Vector3(event.clientX,
-                                                 event.clientY,
-                                                 0);
+      context.MOUSE.position = camera.position.clone()
+          .add(dir.multiplyScalar(distance));
+      if (context.MOUSE.timeout !== null)
+        clearTimeout(context.MOUSE.timeout);
+      setTimeout(function() {
+        disableMouse();
+      }, 3000);
     });
 
     /* Disable mouse when not active */
     $(context.container).mouseleave(function() {
-      context.MOUSE.active = false;
+      disableMouse();
     });
 
     boundaries =
@@ -657,6 +708,10 @@ var Boids = Boids || {};
   $('#first-person').on('switch-change', function(e, data) {
     context.SCENE.firstPerson = data.value;
     initCamera();
+  });
+
+  $('#mouse-behaviour').on('switch-change', function(e, data) {
+    context.MOUSE.foe = !data.value;
   });
 
   $('#reset').click(function() {
