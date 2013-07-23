@@ -94,6 +94,13 @@ var Boids = Boids || {};
       /* The accumulated error between the frequency of ticks and render
        * updates */
       accumulator: 0
+    },
+
+    MOUSE: {
+      active: false,
+      /* Whether the mouse is a foe or a friend: */
+      foe: true,
+      position: null
     }
   };
 
@@ -509,6 +516,19 @@ var Boids = Boids || {};
     setRendererSize();
     context.container.appendChild(context.RENDERER.r.domElement);
     window.addEventListener('resize', onWindowResize, false);
+
+    /* Update mouse position and enable */
+    $(context.container).mousemove(function() {
+      context.MOUSE.active = true;
+      context.MOUSE.position = new THREE.Vector3(event.clientX,
+                                                 event.clientY,
+                                                 0);
+    });
+
+    /* Disable mouse when not active */
+    $(context.container).mouseleave(function() {
+      context.MOUSE.active = false;
+    });
 
     boundaries =
         new THREE.Vector3(w - w * config.BOUNDARY.threshold,
