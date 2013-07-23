@@ -28,7 +28,7 @@ var Boids = Boids || {};
 
     BOIDS: {
       /* The number of boids: */
-      count: 120,
+      count: 80,
       /* Rules determining the boids behaviour: */
       behaviour: {
         /* The rate at which boids are
@@ -79,7 +79,8 @@ var Boids = Boids || {};
       cameraHeight: 0,
       projector: null,
       lights: [],
-      firstPerson: false
+      firstPerson: false,
+      stats: null
     },
 
     RENDERER: {
@@ -436,6 +437,8 @@ var Boids = Boids || {};
       t.accumulator -= t.dt;
     }
 
+    context.SCENE.stats.update();
+
     /* Render the new state */
     render();
 
@@ -544,6 +547,13 @@ var Boids = Boids || {};
     setRendererSize();
     context.container.appendChild(context.RENDERER.r.domElement);
     window.addEventListener('resize', onWindowResize, false);
+
+    context.SCENE.stats = new Stats();
+    context.SCENE.stats.domElement.style.position = 'absolute';
+    context.SCENE.stats.domElement.style.bottom = '0';
+    context.SCENE.stats.domElement.style.left = '0';
+    context.SCENE.stats.domElement.style.visibility = 'hidden';
+    context.container.appendChild(context.SCENE.stats.domElement);
 
     function disableMouse() {
       context.MOUSE.active = false;
@@ -712,6 +722,11 @@ var Boids = Boids || {};
 
   $('#mouse-behaviour').on('switch-change', function(e, data) {
     context.MOUSE.foe = !data.value;
+  });
+
+  $('#stats-visible').on('switch-change', function(e, data) {
+    context.SCENE.stats.domElement.style.visibility = data.value ?
+        'visible' : 'hidden';
   });
 
   $('#reset').click(function() {
