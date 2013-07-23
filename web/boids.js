@@ -71,7 +71,6 @@ var Boids = Boids || {};
       camera: null,
       cameraTarget: null,
       cameraHeight: 0,
-      boundary: null,
       lights: [],
       firstPerson: false
     },
@@ -157,15 +156,6 @@ var Boids = Boids || {};
                                }));
     this.phase = Math.floor(Math.random() * 62.83);
     this.speed = 1;
-    this.shadow = new THREE.Mesh(geometry,
-                                 new THREE.MeshLambertMaterial({
-                                   color: 0x000000,
-                                   shading: THREE.FlatShading,
-                                   side: THREE.DoubleSide,
-                                   opacity: 0.1,
-                                   overdraw: true
-                                 }));
-    this.shadow.y = -config.BOUNDARY.size.y;
 
     this.position = new THREE.Vector3(Math.random() * boundaries.x,
                                       Math.random() * boundaries.y,
@@ -180,7 +170,6 @@ var Boids = Boids || {};
 
     this.updateMesh();
     context.SCENE.s.add(this.mesh);
-    context.SCENE.s.add(this.shadow);
   };
 
   Boid.prototype.updateMesh = function() {
@@ -201,21 +190,6 @@ var Boids = Boids || {};
 
     this.mesh.geometry.vertices[4].y = wingY;
     this.mesh.geometry.vertices[5].y = wingY;
-
-    /* The Shadow */
-    if (this.mesh.position.y > -config.BOUNDARY.size.y) {
-      this.shadow.material.opacity = 0.1;
-
-      this.shadow.position.copy(this.mesh.position);
-      this.shadow.position.y = -config.BOUNDARY.size.y;
-
-      this.shadow.rotation.copy(this.mesh.rotation);
-
-      this.shadow.geometry.vertices[4].y = this.mesh.geometry.vertices[4].y;
-      this.shadow.geometry.vertices[5].y = this.mesh.geometry.vertices[5].y;
-    } else {
-      this.shadow.material.opacity = 0;
-    }
   };
 
   var boundaries;
@@ -228,7 +202,6 @@ var Boids = Boids || {};
     var b = context.boids.pop();
 
     context.SCENE.s.remove(b.mesh);
-    context.SCENE.s.remove(b.shadow);
   }
 
   /* Update function */
@@ -513,64 +486,6 @@ var Boids = Boids || {};
   /* Initialisation function */
   function init() {
 
-    function initGrid() {
-
-      function v(x, y, z) {
-        vertices.push(new THREE.Vector3(x, y, z));
-      }
-
-      context.SCENE.boundary = new THREE.Geometry();
-
-      var vertices = context.SCENE.boundary.vertices;
-
-      /* Bottom face */
-      v(-w, -h, -d);
-      v(w, -h, -d);
-
-      v(w, -h, -d);
-      v(w, -h, d);
-
-      v(w, -h, d);
-      v(-w, -h, d);
-
-      v(-w, -h, d);
-      v(-w, -h, -d);
-
-      /* Sides */
-      v(-w, -h, -d);
-      v(-w, h, -d);
-
-      v(-w, -h, d);
-      v(-w, h, d);
-
-      v(w, -h, d);
-      v(w, h, d);
-
-      v(w, -h, -d);
-      v(w, h, -d);
-
-      /* Top face */
-      v(-w, h, -d);
-      v(w, h, -d);
-
-      v(w, h, -d);
-      v(w, h, d);
-
-      v(w, h, d);
-      v(-w, h, d);
-
-      v(-w, h, d);
-      v(-w, h, -d);
-
-      var line = new THREE.Line(context.SCENE.boundary,
-                                new THREE.LineBasicMaterial({
-                                  color: 0x000000,
-                                  opacity: 0.1
-                                }));
-      line.type = THREE.LinePieces;
-      context.SCENE.s.add(line);
-    }
-
     function onWindowResize() {
       context.SCENE.camera.left = window.innerWidth / - 2;
       context.SCENE.camera.right = window.innerWidth / 2;
@@ -589,7 +504,6 @@ var Boids = Boids || {};
 
     initCamera();
     initLighting();
-    initGrid();
 
     setRendererSize();
     context.container.appendChild(context.RENDERER.r.domElement);
