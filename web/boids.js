@@ -36,7 +36,7 @@ var Boids = Boids || {};
         cohesion: 0.0010,
         /* The amount that boids align
          * their flights: */
-        alignment: 0.005,
+        alignment: 0.002,
         separation: {
           /* The distance at which boids
            * steer to avoid each other: */
