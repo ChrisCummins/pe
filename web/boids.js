@@ -372,8 +372,8 @@ var Boids = Boids || {};
       } else{
         /* Normal (3rd person) camera mode. Gently pan the camera around */
         var timer = Date.now() * 0.00005;
-        var x = Math.cos(timer) * config.BOUNDARY.size.x * 1.75;
-        var z = Math.sin(timer) * config.BOUNDARY.size.z * 1.75;
+        var x = Math.cos(timer) * config.BOUNDARY.size.x * 1.25;
+        var z = Math.sin(timer) * config.BOUNDARY.size.z * 1.25;
 
         camera.position = new THREE.Vector3(x, context.SCENE.cameraHeight, z);
         camera.lookAt(context.SCENE.cameraTarget);
