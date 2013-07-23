@@ -454,7 +454,7 @@ var Boids = Boids || {};
         scene.remove(lights.pop());
     }
 
-    var ambientLight = new THREE.AmbientLight(0x111133);
+    var ambientLight = new THREE.AmbientLight(0x55556f);
     scene.add(ambientLight);
     lights.push(ambientLight);
 
