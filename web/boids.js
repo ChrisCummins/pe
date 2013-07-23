@@ -648,9 +648,9 @@ var Boids = Boids || {};
 
   $('#show-settings').click(function() {
     if ($('#settings').is(":visible"))
-      $('#settings').hide();
+      $('#settings').slideUp();
     else
-      $('#settings').show();
+      $('#settings').slideDown();
   });
 
 }).call(Boids);
