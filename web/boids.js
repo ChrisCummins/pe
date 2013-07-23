@@ -28,7 +28,7 @@ var Boids = Boids || {};
 
     BOIDS: {
       /* The number of boids: */
-      count: 40,
+      count: 120,
       /* Rules determining the boids behaviour: */
       behaviour: {
         /* The rate at which boids are
@@ -48,8 +48,8 @@ var Boids = Boids || {};
       },
       /* The speed limits for boids: */
       speed: {
-        min: 1.5,
-        max: 3
+        min: 1,
+        max: 2
       },
       /* The distance that boids can see: */
       los: 220
