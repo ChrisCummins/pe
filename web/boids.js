@@ -52,7 +52,7 @@ var Boids = Boids || {};
         max: 3
       },
       /* The distance that boids can see: */
-      los: 220,
+      los: 220
     }
   };
 
@@ -77,23 +77,24 @@ var Boids = Boids || {};
 
     RENDERER: {
       /* The renderer and associated properties: */
-      r: new THREE.CanvasRenderer(),
+      r: new THREE.CanvasRenderer()
     },
 
     TIME: {
       /* The delta time, aka. the size of the chunk of time to process for each
        * update of the simulation. */
       dt: _dt,
-      /* The maximum amount of time to process for a given iteration of the render
-       * loop. The time is capped at this value, meaning that the simulation will
-       * begin to slow down if the tick time exceeds this value.  */
+      /* The maximum amount of time to process for a given iteration of the
+       * render loop. The time is capped at this value, meaning that the
+       * simulation will begin to slow down if the tick time exceeds this
+       * value.  */
       maxTickTime: 1000 / config.SIMULATION.minFps,
       /* The current time */
       current: new Date().getTime(),
       /* The accumulated error between the frequency of ticks and render
        * updates */
-      accumulator: 0,
-    },
+      accumulator: 0
+    }
   };
 
   /* Boid behaviour */
@@ -218,7 +219,7 @@ var Boids = Boids || {};
 
           var limits = {
             min: config.BOIDS.speed.min / b.size,
-            max: config.BOIDS.speed.max / b.size,
+            max: config.BOIDS.speed.max / b.size
           };
 
           if (speed > limits.max) {
@@ -319,24 +320,24 @@ var Boids = Boids || {};
          */
         if (b.position.x < -boundaries.x)
           dv.x += (-boundaries.x - b.position.x) *
-            config.BOUNDARY.rate * b.speed;
+              config.BOUNDARY.rate * b.speed;
         else if (b.position.x > boundaries.x)
           dv.x += (boundaries.x - b.position.x) *
-            config.BOUNDARY.rate * b.speed;
+              config.BOUNDARY.rate * b.speed;
 
         if (b.position.y < -boundaries.y)
           dv.y += (-boundaries.y - b.position.y) *
-            config.BOUNDARY.rate * b.speed;
+              config.BOUNDARY.rate * b.speed;
         else if (b.position.y > boundaries.y)
           dv.y += (boundaries.y - b.position.y) *
-            config.BOUNDARY.rate * b.speed;
+              config.BOUNDARY.rate * b.speed;
 
         if (b.position.z < -boundaries.z)
           dv.z += (-boundaries.z - b.position.z) *
-            config.BOUNDARY.rate * b.speed;
+              config.BOUNDARY.rate * b.speed;
         else if (b.position.z > boundaries.z)
           dv.z += (boundaries.z - b.position.z) *
-            config.BOUNDARY.rate * b.speed;
+              config.BOUNDARY.rate * b.speed;
 
         /* Apply the velocity change */
         b.velocity.add(dv);
@@ -369,7 +370,7 @@ var Boids = Boids || {};
 
         camera.position = new THREE.Vector3().copy(b.position);
         camera.lookAt(nextPos);
-      } else{
+      } else {
         /* Normal (3rd person) camera mode. Gently pan the camera around */
         var timer = Date.now() * 0.00005;
         var x = Math.cos(timer) * config.BOUNDARY.size.x * 1.25;
@@ -510,9 +511,9 @@ var Boids = Boids || {};
     window.addEventListener('resize', onWindowResize, false);
 
     boundaries =
-      new THREE.Vector3(w - w * config.BOUNDARY.threshold,
-                        h - h * config.BOUNDARY.threshold,
-                        d - d * config.BOUNDARY.threshold);
+        new THREE.Vector3(w - w * config.BOUNDARY.threshold,
+                          h - h * config.BOUNDARY.threshold,
+                          d - d * config.BOUNDARY.threshold);
 
     for (var i = 0; i < config.BOIDS.count; i++)
       createBoid();
@@ -555,7 +556,8 @@ var Boids = Boids || {};
 
   var SEPARATION_MULTIPLIER = 0.1;
   var SEPARATION_OFFSET = 40;
-  $('#separation').text((config.BOIDS.behaviour.separation.distance - SEPARATION_OFFSET) *
+  $('#separation').text((config.BOIDS.behaviour.separation.distance -
+                         SEPARATION_OFFSET) *
                         SEPARATION_MULTIPLIER);
   $('#separation-slider').slider({
     range: 'min',
@@ -563,11 +565,11 @@ var Boids = Boids || {};
     max: 15,
     step: 1,
     value: (config.BOIDS.behaviour.separation.distance - SEPARATION_OFFSET) *
-      SEPARATION_MULTIPLIER,
+        SEPARATION_MULTIPLIER,
     slide: function(event, ui) {
       $('#separation').text(ui.value);
-      config.BOIDS.behaviour.separation.distance = ui.value / SEPARATION_MULTIPLIER +
-        SEPARATION_OFFSET;
+      config.BOIDS.behaviour.separation.distance = ui.value /
+          SEPARATION_MULTIPLIER + SEPARATION_OFFSET;
     }
   });
 
@@ -615,7 +617,8 @@ var Boids = Boids || {};
   });
 
   var SIGHT_MULTIPLIER = 0.1;
-  $('#sight').text((config.BOIDS.los - config.BOIDS.behaviour.separation.distance) *
+  $('#sight').text((config.BOIDS.los -
+                    config.BOIDS.behaviour.separation.distance) *
                    SIGHT_MULTIPLIER);
   $('#sight-slider').slider({
     range: 'min',
@@ -623,15 +626,15 @@ var Boids = Boids || {};
     max: 50,
     step: 1,
     value: (config.BOIDS.los - config.BOIDS.behaviour.separation.distance) *
-      SIGHT_MULTIPLIER,
+        SIGHT_MULTIPLIER,
     slide: function(event, ui) {
       $('#sight').text(ui.value);
       config.BOIDS.los = ui.value / SIGHT_MULTIPLIER +
-        config.BOIDS.behaviour.separation.distance;
+          config.BOIDS.behaviour.separation.distance;
     }
   });
 
-  $('#first-person').on('switch-change', function (e, data) {
+  $('#first-person').on('switch-change', function(e, data) {
     context.SCENE.firstPerson = data.value;
     initCamera();
   });
@@ -647,7 +650,7 @@ var Boids = Boids || {};
   });
 
   $('#show-settings').click(function() {
-    if ($('#settings').is(":visible"))
+    if ($('#settings').is(':visible'))
       $('#settings').slideUp();
     else
       $('#settings').slideDown();
