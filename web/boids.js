@@ -52,7 +52,10 @@ var Boids = Boids || {};
         max: 5
       },
       /* The distance that boids can see: */
-      los: 220
+      los: 220,
+      /* The damping rate of changes in rotation (larger means smoother and
+       * slower changes in direction): */
+      rotationEasing: 20
     },
 
     MOUSE: {
@@ -192,8 +195,24 @@ var Boids = Boids || {};
   Boid.prototype.updateMesh = function() {
     /* Position */
     this.mesh.position.copy(this.position);
-    this.mesh.rotation.y = Math.atan2(-this.velocity.z, this.velocity.x);
-    this.mesh.rotation.z = Math.asin(this.velocity.y / this.speed);
+
+    /* Heading */
+    var rotation = {
+      old: {
+        y: this.mesh.rotation.y,
+        z: this.mesh.rotation.z
+      },
+      new: {
+        y: Math.atan2(-this.velocity.z, this.velocity.x),
+        z: Math.asin(this.velocity.y / this.speed)
+      }
+    };
+
+    /* Ease between rotations to prevent "snap" changes of direction */
+    this.mesh.rotation.y += (rotation.new.y - rotation.old.y) /
+        config.BOIDS.rotationEasing;
+    this.mesh.rotation.z += (rotation.new.z - rotation.old.z) /
+        config.BOIDS.rotationEasing;
 
     /* FIXME: what a total hack (!) */
     if (isNaN(this.mesh.rotation.z))
