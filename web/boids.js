@@ -48,8 +48,8 @@ var Boids = Boids || {};
       },
       /* The speed limits for boids: */
       speed: {
-        min: 1,
-        max: 2
+        min: 2,
+        max: 5
       },
       /* The distance that boids can see: */
       los: 220
