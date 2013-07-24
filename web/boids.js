@@ -200,7 +200,7 @@ var Boids = Boids || {};
       this.mesh.rotation.z = 0;
 
     /* Wing flapping */
-    this.phase += Math.max(0, this.mesh.rotation.z * 0.8 / this.size) + 0.03;
+    this.phase += Math.max(0, this.mesh.rotation.z * 0.4 / this.size) + 0.03;
     this.phase %= 62.83;
 
     var wingY = Math.sin(this.phase) * 10 * this.size;
