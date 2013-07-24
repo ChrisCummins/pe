@@ -56,7 +56,7 @@ var Boids = Boids || {};
     },
 
     MOUSE: {
-      los: 750,
+      los: 500,
       repel: 0.0070,
       attract: 0.0030
     }
