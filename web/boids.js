@@ -52,7 +52,7 @@ var Boids = Boids || {};
         max: 5
       },
       /* The distance that boids can see: */
-      los: 300,
+      los: 320,
       /* The rate at which boids can manoeuvre (higher value means more agile
        * boids): */
       turnRate: 0.1
