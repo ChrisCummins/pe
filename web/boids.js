@@ -465,11 +465,11 @@ var Boids = Boids || {};
         scene.remove(lights.pop());
     }
 
-    var ambientLight = new THREE.AmbientLight(0x55556f);
+    var ambientLight = new THREE.AmbientLight(0x5481a4);
     scene.add(ambientLight);
     lights.push(ambientLight);
 
-    var light = new THREE.DirectionalLight(0x7a2338);
+    var light = new THREE.DirectionalLight(0xffc67a);
     light.position.set(Math.random() - 0.5,
                        Math.random() - 0.5,
                        Math.random() - 0.5);
@@ -478,7 +478,7 @@ var Boids = Boids || {};
 
     lights.push(light);
 
-    var light = new THREE.DirectionalLight(0x21d592);
+    var light = new THREE.DirectionalLight(0xffa07a);
     light.position.set(Math.random() - 0.5,
                        Math.random() - 0.5,
                        Math.random() - 0.5);
