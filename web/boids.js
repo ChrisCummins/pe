@@ -229,7 +229,7 @@ var Boids = Boids || {};
   /* Update function */
   function tick(timestamp) {
 
-    function update(dt) {
+    function update() {
 
       function updateBoid(index) {
 
@@ -442,10 +442,8 @@ var Boids = Boids || {};
     t.accumulator += tickTime;
 
     /* Update the simulation state as required */
-    while (t.accumulator >= t.dt) {
-      update(t.dt);
-      t.accumulator -= t.dt;
-    }
+    for ( ; t.accumulator >= t.dt; t.accumulator -= t.dt)
+      update();
 
     context.SCENE.stats.update();
 
