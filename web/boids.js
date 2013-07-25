@@ -755,4 +755,7 @@ var Boids = Boids || {};
       $('#settings').slideDown();
   });
 
+  $(document).bind('keydown', 'esc', function() {
+    $('#show-settings').click()
+  });
 }).call(Boids);
