@@ -55,7 +55,7 @@ var Boids = Boids || {};
       los: 300,
       /* The rate at which boids can manoeuvre (higher value means more agile
        * boids): */
-      turnRate: 0.1,
+      turnRate: 0.1
     },
 
     MOUSE: {
@@ -381,8 +381,8 @@ var Boids = Boids || {};
 
         /* Apply the velocity change */
         var velocityChange = new THREE.Vector3().subVectors(
-          b.velocity.clone().add(dv),
-          b.velocity);
+            b.velocity.clone().add(dv),
+            b.velocity);
 
         b.velocity.add(velocityChange.multiplyScalar(b.speed *
                                                      config.BOIDS.turnRate));
