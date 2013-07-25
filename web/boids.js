@@ -33,14 +33,14 @@ var Boids = Boids || {};
       behaviour: {
         /* The rate at which boids are
          * attracted: */
-        cohesion: 0.0010,
+        cohesion: 0.0012,
         /* The amount that boids align
          * their flights: */
-        alignment: 0.002,
+        alignment: 0.006,
         separation: {
           /* The distance at which boids
            * steer to avoid each other: */
-          distance: 100,
+          distance: 120,
           /* The rate at which boids are
            * repelled from one another: */
           rate: 0.0020
@@ -618,7 +618,8 @@ var Boids = Boids || {};
   /* UI COMPONENTS */
 
   var COHESION_MULTIPLIER = 10000;
-  $('#cohesion').text(config.BOIDS.behaviour.cohesion * COHESION_MULTIPLIER);
+  $('#cohesion').text(Math.round(config.BOIDS.behaviour.cohesion *
+                                 COHESION_MULTIPLIER));
   $('#cohesion-slider').slider({
     range: 'min',
     min: 0,
@@ -646,7 +647,7 @@ var Boids = Boids || {};
   });
 
   var SEPARATION_MULTIPLIER = 0.1;
-  var SEPARATION_OFFSET = 40;
+  var SEPARATION_OFFSET = 100;
   $('#separation').text((config.BOIDS.behaviour.separation.distance -
                          SEPARATION_OFFSET) *
                         SEPARATION_MULTIPLIER);
