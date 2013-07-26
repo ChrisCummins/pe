@@ -621,7 +621,7 @@ var Boids = Boids || {};
   $('#cohesion-slider').slider({
     range: 'min',
     min: 0,
-    max: 25,
+    max: 50,
     step: 1,
     value: config.BOIDS.behaviour.cohesion * COHESION_MULTIPLIER,
     slide: function(event, ui) {
@@ -635,7 +635,7 @@ var Boids = Boids || {};
   $('#alignment-slider').slider({
     range: 'min',
     min: 0,
-    max: 25,
+    max: 50,
     step: 1,
     value: config.BOIDS.behaviour.alignment * ALIGNMENT_MULTIPLIER,
     slide: function(event, ui) {
