@@ -1,5 +1,5 @@
 # List of demonstrations
-demos=(snow fountains fireworks catherine_wheel galaxy boids ants)
+demos=(snow fountains fireworks catherine_wheel galaxy boids ants fish)
 
 # Time to run each demonstration for
 if [[ "$1" != "-w" ]] && [[ "$1" != "--wait" ]]; then
