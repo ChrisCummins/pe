@@ -86,7 +86,7 @@ static void init_particle_system(struct demo *demo)
 	demo->system->particle_size = 1.0f;
 
 	/* Center of gravity */
-	demo->system->u = 7;
+	demo->system->u = 14;
 
 	/* Particle radius */
 	demo->system->radius.value = 0;
