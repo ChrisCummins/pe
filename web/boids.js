@@ -692,7 +692,7 @@ var Boids = Boids || {};
                    config.BOIDS.speed.max * SPEED_MULTIPLIER);
   $('#speed-slider').slider({
     range: true,
-    min: 0.5,
+    min: 1,
     max: 5,
     step: 0.5,
     values: [
