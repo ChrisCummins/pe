@@ -6,6 +6,9 @@
 #include <math.h>
 #include <string.h>
 
+#define MAX_FRAME_TIME 0.015
+#define DT 0.005
+
 struct particle {
 	float velocity[3];
 	float speed;
@@ -14,7 +17,7 @@ struct particle {
 struct particle_swarm_priv {
 	GTimer *timer;
 	gdouble current_time;
-	gdouble last_update_time;
+	gdouble accumulator;
 
 	GRand *rand;
 
@@ -329,35 +332,25 @@ static void tick(struct particle_swarm *swarm)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
 	struct particle_engine *engine = priv->engine;
-	float tick_time;
 	int i, j;
 
-	/* Create resources as necessary */
-	if (!engine)
-		create_resources(swarm);
-
-	/* Update the clocks */
-	priv->last_update_time = priv->current_time;
-	priv->current_time = g_timer_elapsed(priv->timer, NULL);
-	tick_time = priv->current_time - priv->last_update_time;
-
 	for (i = 0; i < 3; i++) {
-		priv->global_accel[i] = swarm->acceleration[i] * tick_time;
+		priv->global_accel[i] = swarm->acceleration[i] * DT;
 	}
 
 	/* Map the particle engine's buffer before reading or writing particle
 	 * data.
 	 */
-	particle_engine_push_buffer(priv->engine,
+	particle_engine_push_buffer(engine,
 				    COGL_BUFFER_ACCESS_READ_WRITE, 0);
 
 	/* Update the cohesion and boundary forces */
-	priv->cohesion_accel = swarm->particle_cohesion_rate * tick_time;
-	priv->boundary_accel = swarm->boundary_repulsion_rate * tick_time;
+	priv->cohesion_accel = swarm->particle_cohesion_rate * DT;
+	priv->boundary_accel = swarm->boundary_repulsion_rate * DT;
 
 	/* Update the speed limits */
-	priv->speed_limits.min = swarm->speed_limits.min * tick_time;
-	priv->speed_limits.max = swarm->speed_limits.max * tick_time;
+	priv->speed_limits.min = swarm->speed_limits.min * DT;
+	priv->speed_limits.max = swarm->speed_limits.max * DT;
 
 	if (swarm->type == SWARM_TYPE_HIVE) {
 		/* Sum the total velocity and position of all the particles: */
@@ -369,7 +362,7 @@ static void tick(struct particle_swarm *swarm)
 			priv->position_sum[2] = 0;
 
 		for (i = 0; i < swarm->particle_count; i++) {
-			float *position = particle_engine_get_particle_position(priv->engine, i);
+			float *position = particle_engine_get_particle_position(engine, i);
 
 			for (j = 0; j < 3; j++) {
 				priv->velocity_sum[j] += priv->particles[i].velocity[j];
@@ -380,14 +373,41 @@ static void tick(struct particle_swarm *swarm)
 
 	/* Iterate over every particle and update them. */
 	for (i = 0; i < swarm->particle_count; i++)
-		update_particle(swarm, i, tick_time);
+		update_particle(swarm, i, DT);
 
 	/* Unmap the modified particle buffer. */
-	particle_engine_pop_buffer(priv->engine);
+	particle_engine_pop_buffer(engine);
 }
 
 void particle_swarm_paint(struct particle_swarm *swarm)
 {
-	tick(swarm);
-	particle_engine_paint(swarm->priv->engine);
+	struct particle_swarm_priv *priv = swarm->priv;
+	struct particle_engine *engine;
+	float frame_time, time;
+
+	/* Create resources as necessary */
+	if (priv->engine == NULL) {
+		create_resources(swarm);
+		tick(swarm);
+	}
+
+	engine = priv->engine;
+
+	/* Update the clocks */
+	time = g_timer_elapsed(priv->timer, NULL);
+	frame_time = time - priv->current_time;
+	priv->current_time = time;
+
+	/* Enforce a maximum frame time to prevent the "spiral of death" when
+	 * operating under heavy load */
+	if (frame_time > MAX_FRAME_TIME)
+		frame_time = MAX_FRAME_TIME;
+
+	priv->accumulator += frame_time;
+
+	/* Update the simulation state as required */
+	for ( ; priv->accumulator >= DT; priv->accumulator -= DT)
+		tick(swarm);
+
+	particle_engine_paint(engine);
 }
