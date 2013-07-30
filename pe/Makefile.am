@@ -5,6 +5,7 @@ AM_CFLAGS = \
 	-Wall				\
 	-Wextra				\
 	-Wstrict-prototypes		\
+	-O0 -g				\
 	$(NULL)
 
 LDADD = $(COGL_LIBS) $(GLIB_LIBS) -lm
