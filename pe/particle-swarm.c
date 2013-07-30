@@ -106,7 +106,7 @@ static void create_particle(struct particle_swarm *swarm,
 	particle->size = g_rand_double(priv->rand) + 0.5;
 
 	/* Particle color. */
-	cogl_color_init_from_4f(color, 0, 0, 0, 1);
+	fuzzy_color_get_cogl_color(&swarm->particle_color, priv->rand, color);
 
 	/* Particles start at a random point within the swarm space */
 	for (i = 0; i < 3; i++) {
@@ -224,12 +224,6 @@ static void particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 			break;
 		case SWARM_TYPE_FLOCK:
 		{
-			CoglColor *color;
-
-			color = particle_engine_get_particle_color(priv->engine, index);
-
-			cogl_color_set_red(color, swarm_size ? 1 / swarm_size : 0);
-
 			/* We must always have a flock to compare against, even
 			 * if a particle is on it's own: */
 			if (swarm_size < 1) {
