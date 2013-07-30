@@ -22,7 +22,7 @@ Additionally, there are extra influences affecting a particle's movement:
 
 4. **Boundaries** - particles are contained within a bounding area, and will steer to avoid going out of these bounds.
 5. **Global forces** - a global force can be applied uniformly to each of the particles, for example to model the effects of strong wind or a current in water.
-6. **Terminal velocity** - there is a maximum speed which particles are capped to.
+6. **Speed limits** - the speed of a particle is determined by it's size, and has minimum and maximum speeds enforced.
 
 The implementation of these rules is contained within the `particle_apply_swarming_behaviour()` function in `pe/particle-swarm.c`.
 
