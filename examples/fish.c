@@ -72,24 +72,26 @@ static void init_particle_swarm(struct demo *demo)
 
 	demo->swarm = swarm = particle_swarm_new(demo->ctx, demo->fb);
 
-	swarm->type = SWARM_TYPE_HIVE;
+	swarm->type = SWARM_TYPE_FLOCK;
+	swarm->particle_sight = 250;
 
-	swarm->particle_count = 600;
+	swarm->particle_count = 400;
 
 	/* Wind effects */
 	swarm->acceleration[0] = 0.02;
 	swarm->acceleration[1] = 0;
 	swarm->acceleration[2] = 0;
 
-	swarm->agility = 0.1;
+	swarm->agility = 0.4;
 
-	swarm->speed_limits.max = 150.0;
+	swarm->speed_limits.max = 75.0;
+	swarm->speed_limits.min = 50.0;
 	swarm->particle_size = 4.0;
 
-	swarm->particle_cohesion_rate = 0.001;
-	swarm->particle_velocity_consistency = 0.010;
+	swarm->particle_cohesion_rate = 0.025;
+	swarm->particle_velocity_consistency = 0.003;
 
-	swarm->particle_distance = 10;
+	swarm->particle_distance = 20;
 	swarm->particle_repulsion_rate = 0.007;
 
 	/* Boundaries */
