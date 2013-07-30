@@ -66,6 +66,10 @@ struct particle_swarm {
 	/* The rate at which particles are repelled from each-other */
 	float particle_repulsion_rate;
 
+	/* The rate at which particles can manoeuvre (higher value means more
+	 * agile particles): */
+	float agility;
+
 	float acceleration[3];
 
 	/* Particle color. */

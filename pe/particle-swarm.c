@@ -321,7 +321,7 @@ static void update_particle(struct particle_swarm *swarm,
 		dv[i] += priv->global_accel[i] * tick_time;
 
 		/* Apply the velocity change to the position */
-		particle->velocity[i] += dv[i];
+		particle->velocity[i] += dv[i] * particle->speed * swarm->agility;
 	}
 
 	/* Limit the rate of particle movement */

@@ -77,10 +77,7 @@ static void init_particle_swarm(struct demo *demo)
 	swarm->type = SWARM_TYPE_FLOCK;
 	swarm->particle_sight = 40;
 
-	/* Wind effects */
-	swarm->acceleration[0] = 0;
-	swarm->acceleration[1] = 0;
-	swarm->acceleration[2] = 0;
+	swarm->agility = 0.1;
 
 	swarm->speed_limits.max = 25;
 	swarm->particle_size = 3.0;
