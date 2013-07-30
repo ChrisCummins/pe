@@ -12,6 +12,7 @@
 struct particle {
 	float velocity[3];
 	float speed;
+	float size;
 };
 
 struct particle_swarm_priv {
@@ -102,6 +103,7 @@ static void create_particle(struct particle_swarm *swarm,
 	color = particle_engine_get_particle_color(priv->engine, index);
 
 	particle->speed = 1;
+	particle->size = g_rand_double(priv->rand) + 0.5;
 
 	/* Particle color. */
 	cogl_color_init_from_4f(color, 0, 0, 0, 1);
