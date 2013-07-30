@@ -289,20 +289,33 @@ static void particle_apply_swarming_behaviour(struct particle_swarm *swarm,
  * Particles are rate limited so that their velocity can never exceed a certain
  * amount:
  */
-static float particle_enforce_speed_limit(float *v, float max_speed)
+static float particle_enforce_speed_limit(struct particle_swarm_priv *priv,
+					  struct particle *particle)
 {
-	float mag;
+	float speed, max_speed, min_speed;
+	float *v = &particle->velocity[0];
 	int i;
 
-	mag = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+	max_speed = priv->speed_limits.max / particle->size;
+	min_speed = priv->speed_limits.min / particle->size;
 
-	if (mag > max_speed) {
+	speed = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+
+	if (speed > max_speed) {
 		for (i = 0; i < 3; i++) {
-			v[i] = (v[i] / mag) * max_speed;
+			v[i] = (v[i] / speed) * max_speed;
 		}
+		speed = max_speed;
 	}
 
-	return mag > max_speed ? max_speed : mag;
+	if (speed < min_speed) {
+		for (i = 0; i < 3; i++) {
+			v[i] = (v[i] / speed) * min_speed;
+		}
+		speed = min_speed;
+	}
+
+	return speed;
 }
 
 static void update_particle(struct particle_swarm *swarm,
@@ -327,8 +340,7 @@ static void update_particle(struct particle_swarm *swarm,
 	}
 
 	/* Limit the rate of particle movement */
-	particle->speed = particle_enforce_speed_limit(particle->velocity,
-						       priv->speed_limits.max);
+	particle->speed = particle_enforce_speed_limit(priv, particle);
 
 	/* Update position */
 	for (i = 0; i < 3; i++) {
