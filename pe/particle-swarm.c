@@ -163,6 +163,7 @@ static void particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 	for (i = 0; i < swarm->particle_count; i++) {
 		if (i != index) {
 			float *pos, dx, dy, dz, distance;
+			struct particle *other_particle = &priv->particles[i];
 
 			pos = particle_engine_get_particle_position(priv->engine, i);
 
@@ -192,9 +193,11 @@ static void particle_apply_swarming_behaviour(struct particle_swarm *swarm,
 			/* If we're using flocking behaviour, then we total up
 			 * the velocity and positions of any particles that are
 			 * within the range of visibility of the current
-			 * particle. */
+			 * particle, and are larger in size (alpha male
+			 * mentality). */
 			if (swarm->type == SWARM_TYPE_FLOCK) {
-				if (distance < swarm->particle_sight) {
+				if (distance < swarm->particle_sight &&
+				    other_particle->size > particle->size) {
 					struct particle *p = &priv->particles[i];
 
 					for (j = 0; j < 3; j++) {
