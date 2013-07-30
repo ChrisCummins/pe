@@ -270,6 +270,7 @@ var Boids = Boids || {};
           if (i !== index) {
             var otherBoid = context.boids[i];
 
+            /* Difference between the positions of the current and other boid */
             var dp = new THREE.Vector3().subVectors(b.position,
                                                     otherBoid.position);
 
