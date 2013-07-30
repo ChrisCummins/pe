@@ -122,7 +122,7 @@ inline CoglColor *particle_engine_get_particle_color(struct particle_engine *eng
 
 void particle_engine_paint(struct particle_engine *engine)
 {
-	cogl_framebuffer_draw_primitive(engine->fb,
-					engine->pipeline,
-					engine->primitive);
+	cogl_primitive_draw(engine->primitive,
+			    engine->fb,
+			    engine->pipeline);
 }
