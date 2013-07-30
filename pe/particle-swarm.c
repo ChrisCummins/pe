@@ -93,12 +93,15 @@ static void create_particle(struct particle_swarm *swarm,
 			    int index)
 {
 	struct particle_swarm_priv *priv = swarm->priv;
+	struct particle *particle = &priv->particles[index];
 	float *position;
 	CoglColor *color;
 	int i;
 
 	position = particle_engine_get_particle_position(priv->engine, index);
 	color = particle_engine_get_particle_color(priv->engine, index);
+
+	particle->speed = 1;
 
 	/* Particle color. */
 	cogl_color_init_from_4f(color, 0, 0, 0, 1);
@@ -108,6 +111,9 @@ static void create_particle(struct particle_swarm *swarm,
 		position[i] = g_rand_double_range(priv->rand,
 						  priv->boundary_min[i],
 						  priv->boundary_max[i]);
+
+		/* Random starting velocity */
+		particle->velocity[i] = (g_rand_double(priv->rand) - 0.5) * 4;
 	}
 }
 
